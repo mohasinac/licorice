@@ -1969,7 +1969,7 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 6 — Support & Consultation
+### Phase 6 — Support & Consultation ✅ COMPLETE
 
 **Goal**: Support ticket inbox (threaded), free consultation booking, and corporate gifting inquiry form — all with admin management panels.
 
@@ -2006,7 +2006,7 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 7 — Content
+### Phase 7 — Content ✅ COMPLETE
 
 **Goal**: Blog with rich text, diet section, newsletter subscription management, and before/after gallery — all with admin CRUD.
 
@@ -2014,31 +2014,31 @@ export async function POST(req: Request) {
 
 #### 7.1 Blog — Storefront
 
-- [ ] `lib/db.ts` additions: `getBlogs(category?, limit?)`, `getBlog(slug)`, `getBlogsByTag(tag)` — with mock fallback to `lib/mocks/blogs.ts`
-- [ ] `app/[locale]/blog/page.tsx` — blog list: category filter tabs (Skincare & Ayurveda / Diet & Lifestyle); grid of `BlogCard` components; load-more pagination; `generateMetadata` with blog listing meta
-- [ ] `app/[locale]/blog/[slug]/page.tsx` — article with: cover image, category tag, title (Cormorant Garamond), author avatar + name, publish date, read time estimate, `BlogContent` body, tags row, related products widget (from `blog.relatedProducts`), social share buttons, `RelatedPosts` section; `generateStaticParams` + `generateMetadata`; `Article` JSON-LD
-- [ ] `app/[locale]/blog/diet/page.tsx` — same as blog list but pre-filtered to `category: "diet-lifestyle"`
-- [ ] `components/blog/BlogCard.tsx` — cover image, category pill, title, excerpt (first 150 chars), author, date, read time, "Read more →" link
-- [ ] `components/blog/BlogContent.tsx` — renders Tiptap HTML via `dangerouslySetInnerHTML` (safe: Tiptap output is controlled, admin-only); applies prose typography styles; syntax-highlighted `<pre>` blocks; image figures with captions
-- [ ] `components/blog/RelatedPosts.tsx` — "More Posts" sidebar section; 3 `BlogCard` components; shown below article
+- [x] `lib/db.ts` additions: `getBlogs(category?, limit?)`, `getBlog(slug)`, `getBlogsByTag(tag)` — with mock fallback to `lib/mocks/blogs.ts`
+- [x] `app/[locale]/blog/page.tsx` — blog list: category filter tabs (Skincare & Ayurveda / Diet & Lifestyle); grid of `BlogCard` components; load-more pagination; `generateMetadata` with blog listing meta
+- [x] `app/[locale]/blog/[slug]/page.tsx` — article with: cover image, category tag, title (Cormorant Garamond), author avatar + name, publish date, read time estimate, `BlogContent` body, tags row, related products widget (from `blog.relatedProducts`), social share buttons, `RelatedPosts` section; `generateStaticParams` + `generateMetadata`; `Article` JSON-LD
+- [x] `app/[locale]/blog/diet/page.tsx` — same as blog list but pre-filtered to `category: "diet-lifestyle"`
+- [x] `components/blog/BlogCard.tsx` — cover image, category pill, title, excerpt (first 150 chars), author, date, read time, "Read more →" link
+- [x] `components/blog/BlogContent.tsx` — renders Tiptap HTML via `dangerouslySetInnerHTML` (safe: Tiptap output is controlled, admin-only); applies prose typography styles; syntax-highlighted `<pre>` blocks; image figures with captions
+- [x] `components/blog/RelatedPosts.tsx` — "More Posts" sidebar section; 3 `BlogCard` components; shown below article
 
 #### 7.2 Blog — Admin
 
-- [ ] `app/[locale]/admin/blogs/page.tsx` — `DataTable` of all posts; status tabs: Draft / Published / Archived; columns: title, category, author, published date, views (optional); "New Post" CTA
-- [ ] `app/[locale]/admin/blogs/new/page.tsx` — new blog form
-- [ ] `app/[locale]/admin/blogs/[id]/page.tsx` — edit blog form (same component)
-- [ ] Blog form fields: `title` (EN | HI | MR tabs), `slug` (auto-generated from EN title, editable), category dropdown, cover image (`ImageUploader`), `body` (`RichTextEditor`, EN | HI | MR tabs), author name, tags (comma-separated), `relatedProducts` multi-select, `metaTitle` + `metaDescription` + OG image, `publishedAt` date picker (future date = scheduled), status toggle (Draft / Published); Save + Publish buttons
+- [x] `app/[locale]/admin/blogs/page.tsx` — `DataTable` of all posts; status tabs: Draft / Published / Archived; columns: title, category, author, published date, views (optional); "New Post" CTA
+- [x] `app/[locale]/admin/blogs/new/page.tsx` — new blog form
+- [x] `app/[locale]/admin/blogs/[id]/page.tsx` — edit blog form (same component)
+- [x] Blog form fields: `title` (EN | HI | MR tabs), `slug` (auto-generated from EN title, editable), category dropdown, cover image (`ImageUploader`), `body` (`RichTextEditor`, EN | HI | MR tabs), author name, tags (comma-separated), `relatedProducts` multi-select, `metaTitle` + `metaDescription` + OG image, `publishedAt` date picker (future date = scheduled), status toggle (Draft / Published); Save + Publish buttons
 
 #### 7.3 Newsletter
 
-- [ ] `POST /api/newsletter` — Zod: valid email; writes to `/newsletter/{id}` with `email`, `subscribedAt`; reads existing doc first to deduplicate; returns `{ alreadySubscribed: boolean }`
-- [ ] `components/home/NewsletterBanner.tsx` — inline form already built in Phase 1; now fully wired to API; shows "You're subscribed!" if `alreadySubscribed`
-- [ ] `app/[locale]/admin/newsletter/page.tsx` — subscriber `DataTable`: email, subscribed date, source; total count badge; "Export CSV" button (builds `text/csv` response from all subscriber docs)
+- [x] `POST /api/newsletter` — Zod: valid email; writes to `/newsletter/{id}` with `email`, `subscribedAt`; reads existing doc first to deduplicate; returns `{ alreadySubscribed: boolean }`
+- [x] `components/home/NewsletterBanner.tsx` — inline form already built in Phase 1; now fully wired to API; shows "You're subscribed!" if `alreadySubscribed`
+- [x] `app/[locale]/admin/newsletter/page.tsx` — subscriber `DataTable`: email, subscribed date, source; total count badge; "Export CSV" button (builds `text/csv` response from all subscriber docs)
 
 #### 7.4 Before/After Gallery
 
-- [ ] Admin: `/admin/settings` (or a dedicated `/admin/before-after`) — upload before/after image pairs; `product` tag (links to a product); `caption` text; stored in Firestore `/beforeAfterGallery/{id}` with two Firebase Storage URLs
-- [ ] `components/home/BeforeAfterSlider.tsx` — already scaffolded in Phase 1; now feeds from `lib/db.ts` `getBeforeAfterItems()`; renders the real uploaded pairs
+- [x] Admin: `/admin/settings` (or a dedicated `/admin/before-after`) — upload before/after image pairs; `product` tag (links to a product); `caption` text; stored in Firestore `/beforeAfterGallery/{id}` with two Firebase Storage URLs
+- [x] `components/home/BeforeAfterSlider.tsx` — already scaffolded in Phase 1; now feeds from `lib/db.ts` `getBeforeAfterItems()`; renders the real uploaded pairs
 
 ---
 

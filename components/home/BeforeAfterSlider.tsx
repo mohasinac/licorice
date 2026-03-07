@@ -1,10 +1,20 @@
-// Phase 1 placeholder — real before/after drag slider comes in Phase 3.
-export function BeforeAfterSlider() {
+import { getBeforeAfterItems } from "@/lib/db";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { BeforeAfterCard } from "@/components/home/BeforeAfterCard";
+
+export async function BeforeAfterSlider() {
+  const items = await getBeforeAfterItems();
+
+  if (items.length === 0) return null;
+
   return (
     <section className="py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="border-border bg-surface text-muted-foreground flex min-h-64 items-center justify-center rounded-2xl border-2 border-dashed text-center">
-          <p>Before / After slider — Phase 3</p>
+        <SectionHeading title="Real Results" subtitle="See the difference our products make" />
+        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+          {items.map((item) => (
+            <BeforeAfterCard key={item.id} item={item} />
+          ))}
         </div>
       </div>
     </section>

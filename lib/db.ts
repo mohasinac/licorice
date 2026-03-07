@@ -624,3 +624,142 @@ export async function getPendingReviewCount(): Promise<number> {
     return 0;
   }
 }
+
+// ── Blogs (admin) ─────────────────────────────────────────────────────────────
+
+export async function getAllBlogs(status?: Blog["status"]): Promise<Blog[]> {
+  if (!isFirebaseReady()) {
+    return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("blogs")
+      .orderBy("createdAt", "desc");
+    if (status) query = query.where("status", "==", status);
+    const snap = await query.get();
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
+  } catch (err) {
+    console.warn("[db] Firestore getAllBlogs failed — falling back to mock data", err);
+    return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
+  }
+}
+
+export async function getBlogById(id: string): Promise<Blog | null> {
+  if (!isFirebaseReady()) {
+    return SEED_BLOGS.find((b) => b.id === id) ?? null;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("blogs").doc(id).get();
+    if (!doc.exists) return null;
+    return { id: doc.id, ...(doc.data() as Omit<Blog, "id">) };
+  } catch (err) {
+    console.warn("[db] Firestore getBlogById failed — falling back to mock data", err);
+    return SEED_BLOGS.find((b) => b.id === id) ?? null;
+  }
+}
+
+export async function saveBlog(
+  blog: Omit<Blog, "id" | "createdAt" | "updatedAt"> & { id?: string },
+): Promise<string> {
+  if (!isFirebaseReady()) return blog.id ?? "mock-blog-id";
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+
+  const ref = blog.id
+    ? adminDb.collection("blogs").doc(blog.id)
+    : adminDb.collection("blogs").doc();
+
+  const { id: _, ...data } = blog as Record<string, unknown>;
+  await ref.set(
+    {
+      ...data,
+      updatedAt: FieldValue.serverTimestamp(),
+      ...(blog.id ? {} : { createdAt: FieldValue.serverTimestamp() }),
+    },
+    { merge: true },
+  );
+  return ref.id;
+}
+
+export async function deleteBlog(id: string): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("blogs").doc(id).delete();
+}
+
+// ── Newsletter (admin) ────────────────────────────────────────────────────────
+
+export async function getNewsletterSubscribers(): Promise<
+  { email: string; subscribedAt: Date }[]
+> {
+  if (!isFirebaseReady()) return [];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("newsletter")
+      .orderBy("subscribedAt", "desc")
+      .limit(500)
+      .get();
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        email: data.email ?? "",
+        subscribedAt: data.subscribedAt?.toDate?.() ?? new Date(),
+      };
+    });
+  } catch (err) {
+    console.warn("[db] Firestore getNewsletterSubscribers failed", err);
+    return [];
+  }
+}
+
+// ── Before/After Gallery ──────────────────────────────────────────────────────
+
+export interface BeforeAfterItem {
+  id: string;
+  beforeImage: string;
+  afterImage: string;
+  productId?: string;
+  caption: string;
+  sortOrder: number;
+}
+
+export async function getBeforeAfterItems(): Promise<BeforeAfterItem[]> {
+  if (!isFirebaseReady()) {
+    return [
+      {
+        id: "ba_1",
+        beforeImage: "/images/before-after/before-1.jpg",
+        afterImage: "/images/before-after/after-1.jpg",
+        productId: "prod_kumkumadi_oil",
+        caption: "4 weeks of Kumkumadi Oil — visible brightening",
+        sortOrder: 1,
+      },
+      {
+        id: "ba_2",
+        beforeImage: "/images/before-after/before-2.jpg",
+        afterImage: "/images/before-after/after-2.jpg",
+        productId: "prod_vitamin_c_serum",
+        caption: "6 weeks of Vitamin C Serum — reduced dark spots",
+        sortOrder: 2,
+      },
+    ];
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("beforeAfterGallery")
+      .orderBy("sortOrder", "asc")
+      .limit(10)
+      .get();
+    return snap.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<BeforeAfterItem, "id">),
+    }));
+  } catch (err) {
+    console.warn("[db] Firestore getBeforeAfterItems failed", err);
+    return [];
+  }
+}
