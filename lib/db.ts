@@ -16,6 +16,9 @@ import type {
   PaymentSettings,
   ShippingRules,
   InventorySettings,
+  InventoryDoc,
+  StockMovement,
+  StockMovementType,
 } from "@/lib/types";
 import {
   SEED_PRODUCTS,
@@ -28,6 +31,7 @@ import {
   SEED_PAYMENT_SETTINGS,
   SEED_SHIPPING_RULES,
   SEED_INVENTORY_SETTINGS,
+  SEED_INVENTORY,
 } from "@/lib/mocks";
 
 // ── Firebase readiness ────────────────────────────────────────────────────────
@@ -367,4 +371,84 @@ export async function updateInventorySettings(
     .collection("settings")
     .doc("inventorySettings")
     .set({ ...data, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+}
+
+// ── Inventory ─────────────────────────────────────────────────────────────────
+
+export async function getInventory(productId: string): Promise<InventoryDoc | null> {
+  if (!isFirebaseReady()) {
+    return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("inventory").doc(productId).get();
+    if (!doc.exists) return null;
+    return doc.data() as InventoryDoc;
+  } catch (err) {
+    console.warn("[db] Firestore getInventory failed — falling back to mock data", err);
+    return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
+  }
+}
+
+export async function getStockMovements(
+  productId: string,
+  variantId?: string,
+  limit = 50,
+): Promise<StockMovement[]> {
+  if (!isFirebaseReady()) {
+    // No seed movements — return empty array in mock mode
+    return [];
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("inventory")
+      .doc(productId)
+      .collection("movements")
+      .orderBy("createdAt", "desc")
+      .limit(limit);
+    if (variantId) query = query.where("variantId", "==", variantId);
+    const snap = await query.get();
+    return snap.docs.map((d) => d.data() as StockMovement);
+  } catch (err) {
+    console.warn("[db] Firestore getStockMovements failed", err);
+    return [];
+  }
+}
+
+export async function adjustStock(
+  productId: string,
+  variantId: string,
+  delta: number,
+  movement: Omit<StockMovement, "id" | "createdAt">,
+): Promise<void> {
+  if (!isFirebaseReady()) return; // no persistence in mock mode
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  const inventoryRef = adminDb.collection("inventory").doc(productId);
+  const movementRef = inventoryRef.collection("movements").doc();
+
+  await adminDb.runTransaction(async (tx) => {
+    const invSnap = await tx.get(inventoryRef);
+    const inv = invSnap.exists ? (invSnap.data() as InventoryDoc) : null;
+    const currentStock = inv?.variants?.[variantId]?.stock ?? 0;
+    const newStock = Math.max(0, currentStock + delta);
+
+    tx.set(
+      inventoryRef,
+      {
+        productId,
+        [`variants.${variantId}.stock`]: newStock,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+    tx.set(movementRef, {
+      id: movementRef.id,
+      ...movement,
+      variantId,
+      quantity: Math.abs(delta),
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  });
 }

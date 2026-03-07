@@ -1660,77 +1660,77 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 2 — Product Catalogue 🔜 NEXT
+### Phase 2 — Product Catalogue ✅ COMPLETE
 **Goal**: Complete browsable storefront — shop, concern pages, product detail — fully wired to mock data (and seamlessly to Firestore when credentials are added).
 
 **Exit criteria**: Visitor can browse all products, filter by category/concern, view a full product detail page, and see reviews. Admin can create, edit, and manage products and inventory.
 
 #### 2.1 UI Primitive Components
-- [ ] `components/ui/Button.tsx` — `variant`: `primary | secondary | outline | ghost | destructive`; `size`: `sm | md | lg`; `loading` prop shows spinner; `asChild` passthrough via Radix `Slot`
-- [ ] `components/ui/Badge.tsx` — `variant` maps to theme tokens; used for product tags, order status, stock level
-- [ ] `components/ui/Input.tsx` — controlled input with `label`, `error` message slot, optional leading/trailing icon; forwards ref
-- [ ] `components/ui/Textarea.tsx` — same API as Input; auto-resize option
-- [ ] `components/ui/Select.tsx` — Radix Select wrapper; accepts `options: {value, label}[]`; controlled + uncontrolled modes
-- [ ] `components/ui/Modal.tsx` — Radix Dialog wrapper with overlay, animated entrance, close button, title + description slots
-- [ ] `components/ui/Drawer.tsx` — Radix Sheet wrapper; `side`: `left | right | bottom`; used for mobile menus, cart, modals on mobile
-- [ ] `components/ui/Skeleton.tsx` — shimmer placeholder; accepts `className` for sizing; used in all loading states
-- [ ] `components/ui/StarRating.tsx` — read-only (renders filled/half/empty stars from `value: number`) + interactive mode (click to select, hover preview); accessible with `aria-label`
-- [ ] `components/ui/Pagination.tsx` — prev/next buttons + numbered page pills; `currentPage`, `totalPages`, `onPageChange` props
-- [ ] `components/ui/Breadcrumb.tsx` — accepts `items: {label, href?}[]`; last item is non-linked current page; structured `<nav aria-label="breadcrumb">`
-- [ ] `components/ui/StatusBadge.tsx` — maps order status, review status, and ticket status strings to colour variants (green/amber/red/purple)
-- [ ] `components/ui/ImageLightbox.tsx` — full-screen overlay; keyboard arrow navigation; touch swipe on mobile; ESC to close; zoom on click
-- [ ] `components/ui/SectionHeading.tsx` — `heading` (Cormorant Garamond), optional `subheading`, optional decorative rule; `align`: `left | center`
+- [x] `components/ui/Button.tsx` — `variant`: `primary | secondary | outline | ghost | destructive`; `size`: `sm | md | lg`; `loading` prop shows spinner; `asChild` passthrough via Radix `Slot`
+- [x] `components/ui/Badge.tsx` — `variant` maps to theme tokens; used for product tags, order status, stock level
+- [x] `components/ui/Input.tsx` — controlled input with `label`, `error` message slot, optional leading/trailing icon; forwards ref
+- [x] `components/ui/Textarea.tsx` — same API as Input; auto-resize option
+- [x] `components/ui/Select.tsx` — Radix Select wrapper; accepts `options: {value, label}[]`; controlled + uncontrolled modes
+- [x] `components/ui/Modal.tsx` — Radix Dialog wrapper with overlay, animated entrance, close button, title + description slots
+- [x] `components/ui/Drawer.tsx` — Radix Sheet wrapper; `side`: `left | right | bottom`; used for mobile menus, cart, modals on mobile
+- [x] `components/ui/Skeleton.tsx` — shimmer placeholder; accepts `className` for sizing; used in all loading states
+- [x] `components/ui/StarRating.tsx` — read-only (renders filled/half/empty stars from `value: number`) + interactive mode (click to select, hover preview); accessible with `aria-label`
+- [x] `components/ui/Pagination.tsx` — prev/next buttons + numbered page pills; `currentPage`, `totalPages`, `onPageChange` props
+- [x] `components/ui/Breadcrumb.tsx` — accepts `items: {label, href?}[]`; last item is non-linked current page; structured `<nav aria-label="breadcrumb">`
+- [x] `components/ui/StatusBadge.tsx` — maps order status, review status, and ticket status strings to colour variants (green/amber/red/purple)
+- [x] `components/ui/ImageLightbox.tsx` — full-screen overlay; keyboard arrow navigation; touch swipe on mobile; ESC to close; zoom on click
+- [x] `components/ui/SectionHeading.tsx` — `heading` (Cormorant Garamond), optional `subheading`, optional decorative rule; `align`: `left | center`
 
 #### 2.2 Product Components
-- [ ] `components/product/ProductCard.tsx` — product image (`next/image`), name, price + compare-at (strike-through), star rating, "Add to Cart" button; on hover: quick-add overlay with variant selector; wishlist heart icon; links to product detail page
-- [ ] `components/product/ProductGrid.tsx` — CSS grid with responsive columns (2 mobile, 3 tablet, 4 desktop); renders `ProductCard` list; shows `Skeleton` grid when `loading={true}`
-- [ ] `components/product/ProductFilters.tsx` — sidebar/drawer: category checkboxes, concern checkboxes, price range slider, certification checkboxes; syncs state to URL search params (`?category=face&concern=acne`); "Clear All" button
-- [ ] `components/product/ProductSort.tsx` — dropdown: "Newest", "Price: Low → High", "Price: High → Low", "Top Rated", "Best Selling"; syncs to `?sort=` URL param
-- [ ] `components/product/ProductImages.tsx` — main large image with zoom-on-hover (CSS `transform: scale`); thumbnail filmstrip below; clicking thumbnail swaps main image; clicking main image opens `ImageLightbox`
-- [ ] `components/product/ProductInfo.tsx` — product name (h1), brand, star rating + review count (anchor jumps to reviews section), price display, compare-at price, savings percentage badge, variant selector, quantity selector, "Add to Cart" primary button, "Buy Now" secondary button (skips to checkout), certifications icon row
-- [ ] `components/product/VariantSelector.tsx` — pill button group for variant options (e.g. "10ml", "20ml"); selected state highlighted; updating selection updates displayed price
-- [ ] `components/product/QuantitySelector.tsx` — `−` / number input / `+` buttons; min=1, max=`availableStock`; shows "Only X left" warning below threshold (5)
-- [ ] `components/product/ProductBadges.tsx` — horizontal scrolling icon row: Cruelty Free, Ayurvedic, No Parabens, Vegan etc.; icons from `/public/badges/` or inline SVG
-- [ ] `components/product/ProductTabs.tsx` — Radix Tabs: "Benefits" (bulleted list), "Ingredients" (cards with name + benefit), "How To Use" (numbered steps), "FAQs" (Radix Accordion)
-- [ ] `components/product/BuyMoreSaveMore.tsx` — 2-up and 3-up bundle upsell cards; shows per-item savings compared to buying individually; "Add Bundle to Cart" button
-- [ ] `components/product/RelatedProducts.tsx` — "You May Also Like" Embla Carousel of `ProductCard` components; data from `product.relatedProducts` IDs
+- [x] `components/product/ProductCard.tsx` — product image (`next/image`), name, price + compare-at (strike-through), star rating, "Add to Cart" button; on hover: quick-add overlay with variant selector; wishlist heart icon; links to product detail page
+- [x] `components/product/ProductGrid.tsx` — CSS grid with responsive columns (2 mobile, 3 tablet, 4 desktop); renders `ProductCard` list; shows `Skeleton` grid when `loading={true}`
+- [x] `components/product/ProductFilters.tsx` — sidebar/drawer: category checkboxes, concern checkboxes, price range slider, certification checkboxes; syncs state to URL search params (`?category=face&concern=acne`); "Clear All" button
+- [x] `components/product/ProductSort.tsx` — dropdown: "Newest", "Price: Low → High", "Price: High → Low", "Top Rated", "Best Selling"; syncs to `?sort=` URL param
+- [x] `components/product/ProductImages.tsx` — main large image with zoom-on-hover (CSS `transform: scale`); thumbnail filmstrip below; clicking thumbnail swaps main image; clicking main image opens `ImageLightbox`
+- [x] `components/product/ProductInfo.tsx` — product name (h1), brand, star rating + review count (anchor jumps to reviews section), price display, compare-at price, savings percentage badge, variant selector, quantity selector, "Add to Cart" primary button, "Buy Now" secondary button (skips to checkout), certifications icon row
+- [x] `components/product/VariantSelector.tsx` — pill button group for variant options (e.g. "10ml", "20ml"); selected state highlighted; updating selection updates displayed price
+- [x] `components/product/QuantitySelector.tsx` — `−` / number input / `+` buttons; min=1, max=`availableStock`; shows "Only X left" warning below threshold (5)
+- [x] `components/product/ProductBadges.tsx` — horizontal scrolling icon row: Cruelty Free, Ayurvedic, No Parabens, Vegan etc.; icons from `/public/badges/` or inline SVG
+- [x] `components/product/ProductTabs.tsx` — Radix Tabs: "Benefits" (bulleted list), "Ingredients" (cards with name + benefit), "How To Use" (numbered steps), "FAQs" (Radix Accordion)
+- [x] `components/product/BuyMoreSaveMore.tsx` — 2-up and 3-up bundle upsell cards; shows per-item savings compared to buying individually; "Add Bundle to Cart" button
+- [x] `components/product/RelatedProducts.tsx` — "You May Also Like" Embla Carousel of `ProductCard` components; data from `product.relatedProducts` IDs
 
 #### 2.3 Shop & Browse Pages
-- [ ] `app/[locale]/shop/page.tsx` — server component; calls `getProducts(filters)` from `lib/db.ts`; renders `ProductFilters` (sidebar on desktop, drawer on mobile) + `ProductSort` + `ProductGrid`; total product count display; Suspense boundary with skeleton grid
-- [ ] `app/[locale]/shop/[category]/page.tsx` — pre-filters by category; `generateStaticParams` from `CATEGORIES`; `generateMetadata` with category name; same layout as shop
-- [ ] `app/[locale]/concern/[concern]/page.tsx` — concern hero header (name, description, illustration); concern-filtered product grid; `generateStaticParams` from `CONCERNS`; `generateMetadata` with concern name
-- [ ] `app/[locale]/combos/page.tsx` — combo-filtered grid; "Bundle & Save" themed header
-- [ ] `app/[locale]/search/page.tsx` — reads `?q=` param; searches product `name`, `tags`, `shortDescription` in Firestore (or mock); shows result count; "No results" state with suggestions
+- [x] `app/[locale]/shop/page.tsx` — server component; calls `getProducts(filters)` from `lib/db.ts`; renders `ProductFilters` (sidebar on desktop, drawer on mobile) + `ProductSort` + `ProductGrid`; total product count display; Suspense boundary with skeleton grid
+- [x] `app/[locale]/shop/[category]/page.tsx` — pre-filters by category; `generateStaticParams` from `CATEGORIES`; `generateMetadata` with category name; same layout as shop
+- [x] `app/[locale]/concern/[concern]/page.tsx` — concern hero header (name, description, illustration); concern-filtered product grid; `generateStaticParams` from `CONCERNS`; `generateMetadata` with concern name
+- [x] `app/[locale]/combos/page.tsx` — combo-filtered grid; "Bundle & Save" themed header
+- [x] `app/[locale]/search/page.tsx` — reads `?q=` param; searches product `name`, `tags`, `shortDescription` in Firestore (or mock); shows result count; "No results" state with suggestions
 
 #### 2.4 Product Detail Page
-- [ ] `app/[locale]/products/[slug]/page.tsx` — `getProduct(slug)` from `lib/db.ts`; `generateStaticParams` for all slugs; `generateMetadata` with locale-aware `metaTitle` + `metaDescription` + OG image
-- [ ] Assemble page: `Breadcrumb` → `ProductImages` + `ProductInfo` (side-by-side on desktop, stacked on mobile) → `ProductBadges` → `BuyMoreSaveMore` → `ProductTabs` → Reviews section → `RelatedProducts`
-- [ ] Inject `Product` JSON-LD structured data in `<head>` using `next/head` (name, image, description, rating, offers)
+- [x] `app/[locale]/products/[slug]/page.tsx` — `getProduct(slug)` from `lib/db.ts`; `generateStaticParams` for all slugs; `generateMetadata` with locale-aware `metaTitle` + `metaDescription` + OG image
+- [x] Assemble page: `Breadcrumb` → `ProductImages` + `ProductInfo` (side-by-side on desktop, stacked on mobile) → `ProductBadges` → `BuyMoreSaveMore` → `ProductTabs` → Reviews section → `RelatedProducts`
+- [x] Inject `Product` JSON-LD structured data in `<head>` using `next/head` (name, image, description, rating, offers)
 - [ ] "Back in stock" notify form: if `inStock === false`, show email capture → saves to Firestore `/stockAlerts/{productId}/subscribers`
 
 #### 2.5 Static / Policy Pages
-- [ ] `app/[locale]/about/page.tsx` — brand story, founder note, mission statement, certifications; uses Cormorant Garamond headings, product lifestyle imagery
-- [ ] `app/[locale]/contact/page.tsx` — contact form (name, email, subject, message); WhatsApp deep-link button; support hours from `constants/site.ts`; Google Maps embed (optional)
-- [ ] `app/api/contact/route.ts` — Zod validation; creates `/supportTickets/{ticketId}` with `status: "open"`; sends Resend acknowledgement email to customer; returns ticket number
-- [ ] `app/[locale]/(policies)/shipping-policy/page.tsx` — content from `constants/policies.ts`; renders domestic SLA table, free shipping threshold, COD rules
-- [ ] `app/[locale]/(policies)/refund-policy/page.tsx` — 3-day window, damaged/defective eligibility, return process steps
-- [ ] `app/[locale]/(policies)/terms/page.tsx` — terms of service (standard e-commerce template, Licorice Herbals branded)
+- [x] `app/[locale]/about/page.tsx` — brand story, founder note, mission statement, certifications; uses Cormorant Garamond headings, product lifestyle imagery
+- [x] `app/[locale]/contact/page.tsx` — contact form (name, email, subject, message); WhatsApp deep-link button; support hours from `constants/site.ts`; Google Maps embed (optional)
+- [x] `app/api/contact/route.ts` — Zod validation; creates `/supportTickets/{ticketId}` with `status: "open"`; sends Resend acknowledgement email to customer; returns ticket number
+- [x] `app/[locale]/(policies)/shipping-policy/page.tsx` — content from `constants/policies.ts`; renders domestic SLA table, free shipping threshold, COD rules
+- [x] `app/[locale]/(policies)/refund-policy/page.tsx` — 3-day window, damaged/defective eligibility, return process steps
+- [x] `app/[locale]/(policies)/terms/page.tsx` — terms of service (standard e-commerce template, Licorice Herbals branded)
 
 #### 2.6 Admin — Product Management
-- [ ] `app/[locale]/admin/products/page.tsx` — `DataTable` of all products; columns: image, name, category, price, stock badge, active toggle, actions; search by name/SKU; bulk activate/deactivate; "New Product" CTA
-- [ ] `app/[locale]/admin/products/new/page.tsx` — renders `ProductForm` in create mode
-- [ ] `app/[locale]/admin/products/[id]/page.tsx` — loads product by ID; renders `ProductForm` in edit mode with pre-filled values
-- [ ] `components/admin/ProductForm.tsx` — all product fields grouped in sections; localizable fields (`name`, `tagline`, `description`, `benefits`, `howToUse`, `faqs`, `ingredients.benefit`) show EN | HI | MR tab strip; `RichTextEditor` for `description`; `ImageUploader` for product images; `VariantManager` sub-section; `concerns` multi-select (checkboxes); `relatedProducts` + `upsellProducts` product pickers; "Save Draft" + "Publish" buttons
-- [ ] `components/admin/VariantManager.tsx` — add/edit/delete variant rows (label, price, compareAt, SKU, weight, dimensions, `isDefault` radio); minimum 1 variant enforced
-- [ ] `components/admin/RichTextEditor.tsx` — Tiptap editor; toolbar: bold, italic, underline, h2/h3, ordered/unordered list, blockquote, link insert, image insert (triggers `ImageUploader`); outputs HTML string
-- [ ] `components/admin/ImageUploader.tsx` — drag-and-drop zone + file picker; preview grid with drag-to-reorder; upload progress per image; deletes from Firebase Storage on remove; returns ordered URL array
+- [x] `app/[locale]/admin/products/page.tsx` — `DataTable` of all products; columns: image, name, category, price, stock badge, active toggle, actions; search by name/SKU; bulk activate/deactivate; "New Product" CTA
+- [x] `app/[locale]/admin/products/new/page.tsx` — renders `ProductForm` in create mode
+- [x] `app/[locale]/admin/products/[id]/page.tsx` — loads product by ID; renders `ProductForm` in edit mode with pre-filled values
+- [x] `components/admin/ProductForm.tsx` — all product fields grouped in sections; localizable fields (`name`, `tagline`, `description`, `benefits`, `howToUse`, `faqs`, `ingredients.benefit`) show EN | HI | MR tab strip; `RichTextEditor` for `description`; `ImageUploader` for product images; `VariantManager` sub-section; `concerns` multi-select (checkboxes); `relatedProducts` + `upsellProducts` product pickers; "Save Draft" + "Publish" buttons
+- [x] `components/admin/VariantManager.tsx` — add/edit/delete variant rows (label, price, compareAt, SKU, weight, dimensions, `isDefault` radio); minimum 1 variant enforced
+- [x] `components/admin/RichTextEditor.tsx` — Tiptap editor; toolbar: bold, italic, underline, h2/h3, ordered/unordered list, blockquote, link insert, image insert (triggers `ImageUploader`); outputs HTML string
+- [x] `components/admin/ImageUploader.tsx` — drag-and-drop zone + file picker; preview grid with drag-to-reorder; upload progress per image; deletes from Firebase Storage on remove; returns ordered URL array
 
 #### 2.7 Admin — Inventory
-- [ ] `app/[locale]/admin/inventory/page.tsx` — full product × variant table; stock values colour-coded (red = 0, amber = below threshold, green = healthy); "Low Stock" filter tab; "Bulk CSV Import" button
-- [ ] `app/[locale]/admin/inventory/[productId]/page.tsx` — per-product variant rows; per-variant stock ledger (all `StockMovement` docs); "Adjust Stock" button per variant
-- [ ] `components/admin/InventoryRow.tsx` — shows variant label, current stock, reserved, available (= stock − reserved), threshold, reorder point; inline "Adjust" link
-- [ ] `components/admin/StockAdjustModal.tsx` — `type`: stock_in / adjustment / damaged; `quantity` input; `note` required; writes `StockMovement` doc + atomically updates `inventory/{productId}.variants.{variantId}.stock`
-- [ ] `lib/db.ts` additions: `getInventory(productId)`, `getStockMovements(productId, variantId)`, `adjustStock(productId, variantId, delta, movement)` — uses Firestore transaction for atomicity
+- [x] `app/[locale]/admin/inventory/page.tsx` — full product × variant table; stock values colour-coded (red = 0, amber = below threshold, green = healthy); "Low Stock" filter tab; "Bulk CSV Import" button
+- [x] `app/[locale]/admin/inventory/[productId]/page.tsx` — per-product variant rows; per-variant stock ledger (all `StockMovement` docs); "Adjust Stock" button per variant
+- [x] `components/admin/InventoryRow.tsx` — shows variant label, current stock, reserved, available (= stock − reserved), threshold, reorder point; inline "Adjust" link
+- [x] `components/admin/StockAdjustModal.tsx` — `type`: stock_in / adjustment / damaged; `quantity` input; `note` required; writes `StockMovement` doc + atomically updates `inventory/{productId}.variants.{variantId}.stock`
+- [x] `lib/db.ts` additions: `getInventory(productId)`, `getStockMovements(productId, variantId)`, `adjustStock(productId, variantId, delta, movement)` — uses Firestore transaction for atomicity
 
 ---
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import { BRAND_NAME, SUPPORT_EMAIL, SOCIAL_LINKS } from "@/constants/site";
-import { Instagram, Facebook, Youtube } from "lucide-react";
+import { Instagram, Facebook, Youtube, Github } from "lucide-react";
 
 const POLICY_LINKS = [
   { key: "privacy", href: "/privacy-policy" },
@@ -124,8 +124,19 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-white/50">
-          © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
+        <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
+          <span>
+            © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
+          </span>
+          <a
+            href="https://github.com/mohasinac"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-white/40 transition-colors hover:text-white/80"
+          >
+            <Github className="h-3.5 w-3.5" />
+            Built by mohasinac
+          </a>
         </div>
       </div>
     </footer>
