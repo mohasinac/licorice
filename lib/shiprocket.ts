@@ -270,6 +270,56 @@ export async function trackByAwb(awb: string): Promise<TrackingResult | null> {
   }
 }
 
+// ── Return shipment ───────────────────────────────────────────────────────────
+
+export interface ReturnShipmentResult {
+  returnShipmentId: string;
+  awbCode?: string;
+}
+
+/**
+ * Initiate a return pick-up via Shiprocket.
+ * Requires the original shipment_id stored on the order.
+ * In mock mode (no SHIPROCKET_EMAIL env) returns a fake result without API call.
+ */
+export async function createReturnShipment(
+  shiprocketShipmentId: string,
+): Promise<ReturnShipmentResult> {
+  if (!process.env.SHIPROCKET_EMAIL) {
+    // Mock mode — return fake IDs for development
+    return {
+      returnShipmentId: `mock-return-${Date.now()}`,
+      awbCode: undefined,
+    };
+  }
+
+  const token = await getToken();
+
+  const res = await fetch(`${SHIPROCKET_BASE}/orders/return`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      shipment_id: shiprocketShipmentId,
+      // Shiprocket picks up at the delivery address and ships back to pickup origin
+    }),
+    signal: AbortSignal.timeout(8000),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Shiprocket create return failed: ${res.status} ${err}`);
+  }
+
+  const data = await res.json();
+  return {
+    returnShipmentId: String(data.shipment_id ?? data.return_shipment_id ?? ""),
+    awbCode: data.awb_code ? String(data.awb_code) : undefined,
+  };
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(val: unknown): string {

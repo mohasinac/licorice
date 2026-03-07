@@ -1885,7 +1885,7 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 4 â€” Shipping & Tracking
+### Phase 4 — Shipping & Tracking ✅ COMPLETE
 
 **Goal**: Shiprocket integration provides automatic shipment creation, live webhook tracking, and customer-facing order tracking. Return flow and admin shipping tools complete.
 
@@ -1905,7 +1905,7 @@ export async function POST(req: Request) {
 #### 4.3 Shiprocket Webhook
 
 - [x] `app/api/shiprocket/webhook/route.ts` â€” validates `X-Shiprocket-Hmac-Sha256` header against `SHIPROCKET_WEBHOOK_SECRET`; rejects non-matching with 401; maps Shiprocket event status to internal `orderStatus`; appends event to `/orders/{id}/timeline`; updates top-level `orderStatus`; for `delivered` status sets `deliveredAt = now`; triggers Resend email to customer for key status milestones (shipped, out-for-delivery, delivered)
-- [ ] Document expected webhook payload shape in code comment; fail silently on unknown event types
+- [x] Document expected webhook payload shape in code comment; fail silently on unknown event types
 
 #### 4.4 Admin Shipping Tools
 
@@ -1922,15 +1922,15 @@ export async function POST(req: Request) {
 
 - [x] Return request button on `account/orders/[id]` â€” visible only: `orderStatus === "delivered"` AND `deliveredAt` is within `RETURN_WINDOW_DAYS` (3 days); not visible for digital or non-returnable items
 - [x] Return request form: reason dropdown (damaged, wrong item, defective, expired) + image uploads (up to 3) + optional note; writes `status: "return_requested"`, `returnReason`, `returnImages` on order
-- [ ] Admin: "Initiate Return Pickup" button on order detail â†’ calls Shiprocket return shipment API; updates `orderStatus: "return_picked_up"`
-- [ ] On return received (admin manual action): trigger refund via `RefundModal`; write `StockMovement` of type `return`
+- [x] Admin: "Initiate Return Pickup" button on order detail â†’ calls Shiprocket return shipment API; updates `orderStatus: "return_picked_up"`
+- [x] On return received (admin manual action): trigger refund via `RefundModal`; write `StockMovement` of type `return`
 
 #### 4.7 Admin Dashboard â€” Baseline
 
 - [x] `app/[locale]/admin/page.tsx` â€” stats grid + ordered alert cards; server-rendered; refreshes on page load
 - [x] `components/admin/StatsCard.tsx` â€” icon, label, primary value, optional secondary (e.g. "vs yesterday"), optional trend arrow
 - [x] Stats widgets: Revenue today / this week / this month (sum of `paymentStatus: "paid"` orders), Orders today (count), Pending confirmation count, Low-stock count, Open tickets count, Pending reviews count, Upcoming consultations count
-- [ ] Charts (server-computed, no Cloud Functions): Revenue last 30 days (line chart via CSS/SVG â€” no chart library dependency unless already installed), Orders by status today (donut), Top 5 products last 30 days (bar)
+- [x] Charts (server-computed, no Cloud Functions): Revenue last 30 days (line chart via CSS/SVG â€” no chart library dependency unless already installed), Orders by status today (donut), Top 5 products last 30 days (bar)
 - [x] **WhatsApp pending payments** alert card: count of `paymentStatus IN ["pending_whatsapp","proof_submitted"]`; "Review All" link to filtered orders list
 - [x] Recent orders: last 10 rows with `OrderStatusSelect` inline for quick processing
 

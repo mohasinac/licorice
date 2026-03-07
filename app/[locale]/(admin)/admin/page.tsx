@@ -13,18 +13,47 @@ import {
 import { StatsCard } from "@/components/admin/StatsCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
+import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { getOrders, getProducts, getApprovedReviews } from "@/lib/db";
 import { isFirebaseReady } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Admin Dashboard — Licorice Herbals" };
 
+// Colour map for order status slices in the donut chart
+const STATUS_COLORS: Record<string, string> = {
+  pending: "#f59e0b",
+  confirmed: "#3b82f6",
+  processing: "#8b5cf6",
+  ready_to_ship: "#06b6d4",
+  shipped: "#6366f1",
+  out_for_delivery: "#f97316",
+  delivered: "#22c55e",
+  cancelled: "#ef4444",
+  return_requested: "#f43f5e",
+  return_picked_up: "#ec4899",
+  refunded: "#6b7280",
+};
+
 // Server-side dashboard stats
 async function getDashboardStats() {
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start30Days = new Date(now);
+  start30Days.setDate(start30Days.getDate() - 29);
+  start30Days.setHours(0, 0, 0, 0);
 
   // In mock mode return placeholder stats
   if (!isFirebaseReady()) {
+    // Build 30 zero-revenue points for the chart
+    const revenue30Days = Array.from({ length: 30 }, (_, i) => {
+      const d = new Date(start30Days);
+      d.setDate(d.getDate() + i);
+      return {
+        date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+        amount: 0,
+      };
+    });
+
     return {
       revenueToday: 0,
       revenueThisMonth: 0,
@@ -35,11 +64,15 @@ async function getDashboardStats() {
       openTickets: 0,
       pendingReviews: 0,
       recentOrders: [] as Awaited<ReturnType<typeof getOrders>>,
+      revenue30Days,
+      orderStatusToday: [] as { label: string; count: number; color: string }[],
+      topProducts30Days: [] as { name: string; revenue: number; units: number }[],
     };
   }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
+    const { Timestamp: AdminTimestamp } = await import("firebase-admin/firestore");
 
     // Fetch stats in parallel
     const [
@@ -49,13 +82,15 @@ async function getDashboardStats() {
       openTicketsSnap,
       pendingReviewsSnap,
       recentOrdersSnap,
+      todayOrdersSnap,
     ] = await Promise.all([
-      // All paid orders for revenue
+      // Paid orders in last 30 days for revenue + top products
       adminDb
         .collection("orders")
         .where("paymentStatus", "==", "paid")
+        .where("createdAt", ">=", AdminTimestamp.fromDate(start30Days))
         .orderBy("createdAt", "desc")
-        .limit(200)
+        .limit(300)
         .get(),
 
       // Pending confirmation (confirmed + processing)
@@ -76,16 +111,35 @@ async function getDashboardStats() {
       // Pending reviews
       adminDb.collection("reviews").where("status", "==", "pending").get(),
 
-      // Recent 10 orders
+      // Recent 10 orders (all statuses)
       adminDb.collection("orders").orderBy("createdAt", "desc").limit(10).get(),
+
+      // All today's orders for status donut
+      adminDb
+        .collection("orders")
+        .where("createdAt", ">=", AdminTimestamp.fromDate(startOfDay))
+        .limit(200)
+        .get(),
     ]);
 
-    // Compute revenue
+    // Compute revenue today + this month + 30-day daily buckets
     let revenueToday = 0;
     let revenueThisMonth = 0;
     let ordersToday = 0;
 
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Build daily revenue map for last 30 days
+    const dailyRevenue: Map<string, number> = new Map();
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(start30Days);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      dailyRevenue.set(key, 0);
+    }
+
+    // Top products accumulator: productId → { name, revenue, units }
+    const productTotals: Map<string, { name: string; revenue: number; units: number }> = new Map();
 
     ordersSnap.docs.forEach((doc) => {
       const data = doc.data();
@@ -100,17 +154,66 @@ async function getDashboardStats() {
       if (createdAt >= startOfMonth) {
         revenueThisMonth += total;
       }
+
+      // 30-day daily bucket
+      const dayKey = createdAt.toISOString().slice(0, 10);
+      if (dailyRevenue.has(dayKey)) {
+        dailyRevenue.set(dayKey, (dailyRevenue.get(dayKey) ?? 0) + total);
+      }
+
+      // Top products
+      const items: Array<{ productId: string; name: string; price: number; quantity: number }> =
+        data.items ?? [];
+      items.forEach((item) => {
+        const existing = productTotals.get(item.productId);
+        const itemRevenue = (item.price ?? 0) * (item.quantity ?? 1);
+        if (existing) {
+          existing.revenue += itemRevenue;
+          existing.units += item.quantity ?? 1;
+        } else {
+          productTotals.set(item.productId, {
+            name: item.name ?? item.productId,
+            revenue: itemRevenue,
+            units: item.quantity ?? 1,
+          });
+        }
+      });
     });
 
-    // Low stock count from products
-    const productsSnap = await adminDb
-      .collection("products")
-      .where("isActive", "==", true)
-      .get();
+    // Build 30-day revenue array
+    const revenue30Days = Array.from(dailyRevenue.entries()).map(([dateStr, amount]) => {
+      const d = new Date(dateStr);
+      return {
+        date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+        amount,
+      };
+    });
+
+    // Top 5 products by revenue
+    const topProducts30Days = Array.from(productTotals.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    // Low stock from products
+    const productsSnap = await adminDb.collection("products").where("isActive", "==", true).get();
     const lowStockCount = productsSnap.docs.filter((d) => {
       const data = d.data();
       return !data.inStock;
     }).length;
+
+    // Order status donut — today's orders
+    const statusCounts: Map<string, number> = new Map();
+    todayOrdersSnap.docs.forEach((doc) => {
+      const status: string = doc.data().orderStatus ?? "pending";
+      statusCounts.set(status, (statusCounts.get(status) ?? 0) + 1);
+    });
+    const orderStatusToday = Array.from(statusCounts.entries())
+      .map(([status, count]) => ({
+        label: status.replace(/_/g, " "),
+        count,
+        color: STATUS_COLORS[status] ?? "#94a3b8",
+      }))
+      .sort((a, b) => b.count - a.count);
 
     const recentOrders = recentOrdersSnap.docs.map((d) => ({
       id: d.id,
@@ -127,9 +230,22 @@ async function getDashboardStats() {
       openTickets: openTicketsSnap.size,
       pendingReviews: pendingReviewsSnap.size,
       recentOrders,
+      revenue30Days,
+      orderStatusToday,
+      topProducts30Days,
     };
   } catch (err) {
     console.warn("[admin/dashboard] Stats query failed", err);
+
+    const revenue30Days = Array.from({ length: 30 }, (_, i) => {
+      const d = new Date(start30Days);
+      d.setDate(d.getDate() + i);
+      return {
+        date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+        amount: 0,
+      };
+    });
+
     return {
       revenueToday: 0,
       revenueThisMonth: 0,
@@ -140,6 +256,9 @@ async function getDashboardStats() {
       openTickets: 0,
       pendingReviews: 0,
       recentOrders: [] as Awaited<ReturnType<typeof getOrders>>,
+      revenue30Days,
+      orderStatusToday: [] as { label: string; count: number; color: string }[],
+      topProducts30Days: [] as { name: string; revenue: number; units: number }[],
     };
   }
 }
@@ -184,7 +303,8 @@ export default async function AdminDashboardPage() {
             <MessageCircle className="h-5 w-5 text-amber-600" />
             <div>
               <p className="text-sm font-medium text-amber-800">
-                {stats.pendingWhatsApp} WhatsApp Payment{stats.pendingWhatsApp > 1 ? "s" : ""} Pending
+                {stats.pendingWhatsApp} WhatsApp Payment{stats.pendingWhatsApp > 1 ? "s" : ""}{" "}
+                Pending
               </p>
               <p className="text-xs text-amber-600">Review and confirm customer payments</p>
             </div>
@@ -259,6 +379,13 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
+      {/* Charts */}
+      <DashboardCharts
+        revenue30Days={stats.revenue30Days}
+        orderStatusToday={stats.orderStatusToday}
+        topProducts30Days={stats.topProducts30Days}
+      />
+
       {/* Recent orders */}
       <section className="bg-surface rounded-2xl p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
@@ -313,3 +440,4 @@ export default async function AdminDashboardPage() {
     </div>
   );
 }
+

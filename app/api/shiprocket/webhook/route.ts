@@ -2,6 +2,24 @@
 // Receives Shiprocket status-update webhooks.
 // Validates HMAC-SHA256 signature, maps status, updates order + timeline,
 // and sends milestone emails to the customer.
+//
+// ── Expected payload shape (Shiprocket V2 webhook) ──────────────────────────
+// Shiprocket POSTs JSON to this endpoint on each shipment status change.
+// Key fields used by this handler:
+//
+//   awb              {string}  AWB tracking number — used to look up the order
+//   channel_order_id {string}  Our orderNumber (e.g. "LH-2026-00001") set when
+//                              we created the Shiprocket order — preferred lookup
+//   current_status   {string}  Human-readable status string from Shiprocket
+//                              (e.g. "Picked Up", "In Transit", "Delivered")
+//   current_status_id{number}  Numeric Shiprocket status code (informational only)
+//   shipment_id      {string}  Shiprocket internal shipment ID
+//   scans            {Array}   Courier scan events — each has status, date,
+//                              location, activity; appended to order timeline
+//
+// Unknown / unrecognised statuses are silently ignored (HTTP 200 returned) so
+// that Shiprocket does not retry delivery of status-update events we don't need.
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { NextRequest } from "next/server";
 import { createHmac } from "crypto";
