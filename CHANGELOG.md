@@ -10,6 +10,52 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Phase 4] — Shipping & Tracking · Branch: `phase-4-shipping-tracking`
+
+### Summary
+
+Full Shiprocket integration for automatic shipment creation, live webhook-driven tracking, manual shipping fallback, customer-facing public tracking page, return request flow, and the admin dashboard stats grid. TypeScript clean (exit 0), build clean.
+
+### Added
+
+#### Shiprocket Integration
+
+- `lib/shiprocket.ts` — server-only helper: `getToken()`, `checkServiceability()`, `createShipment()`, `cancelShipment()`, `trackByAwb()`, `validateWebhookSignature()`, `mapShiprocketStatus()`; all calls use `AbortSignal.timeout(8000)`; mock fallback when `SHIPROCKET_EMAIL` env var absent
+- `app/api/shiprocket/token/route.ts` — GET; caches Shiprocket JWT in Firestore `/settings/shiprocketToken` with 24 h TTL; returns `{ token }` within Vercel 10 s limit
+- `app/api/shiprocket/create-order/route.ts` — POST (admin); fetches order, builds Shiprocket payload, stores `awbCode / courierName / shiprocketOrderId / shiprocketShipmentId` on order, appends timeline event
+- `app/api/shiprocket/cancel-order/route.ts` — POST (admin); calls Shiprocket cancel, releases stock via `adjustStock`, sets `orderStatus: "cancelled"`
+- `app/api/shiprocket/track/route.ts` — GET `?awb=` or `?orderId=`; proxies Shiprocket tracking API; resolves AWB from orderId if needed
+- `app/api/shiprocket/webhook/route.ts` — POST; HMAC-SHA256 validation of `X-Shiprocket-Hmac-Sha256` header; maps Shiprocket statuses to internal `OrderStatus`; batch-updates order + timeline; sends Resend milestone emails (shipped / out_for_delivery / delivered); returns 200 even on Firestore errors to prevent retries
+
+#### Admin Shipping Tools
+
+- `components/admin/ShipOrderModal.tsx` — two-tab modal: **Shiprocket** tab (auto-creates shipment, stores AWB) and **Manual** tab (courier name + AWB text field + optional tracking URL, sets `manualShipping: true`); loading states, toasts, `router.refresh()`
+- `app/api/admin/orders/[orderId]/ship-manual/route.ts` — POST (admin); stores manual courier details, updates `orderStatus: "shipped"`, appends timeline event
+- Updated `AdminOrderActions.tsx` — "Ship Order" button visible for `confirmed / processing / ready_to_ship` statuses; opens `ShipOrderModal`
+- Updated admin order `[id]/page.tsx` — displays AWB, courier, tracking URL (clickable), manual shipping badge
+
+#### Customer Tracking
+
+- `app/[locale]/track/page.tsx` — public server-rendered tracking page; fetches order + timeline + live Shiprocket tracking; shows status hero, timeline, courier details
+- `app/[locale]/track/TrackForm.tsx` — client search form; Order ID or AWB toggle + optional email verification
+
+#### Returns
+
+- `components/account/ReturnRequestButton.tsx` — client component; visible only within `RETURN_WINDOW_DAYS` of delivery; modal with reason select (damaged / wrong_item / defective / expired), note textarea, up to 3 image uploads (5 MB each); submits to `/api/account/return-request`
+- `app/api/account/return-request/route.ts` — POST multipart (authenticated customer); validates MIME/size; uploads images to Firebase Storage `return-proofs/{orderId}/`; updates order to `return_requested`
+- Updated `account/orders/[id]/page.tsx` — return request section (shown when delivered + within window); return status section (shown when `return_requested` or `return_picked_up`)
+
+#### Admin Dashboard
+
+- `components/admin/StatsCard.tsx` — reusable stat card; props: `label, value, icon, subtext?, trend?, href?, accentColor?`; wraps in `<a>` if `href` provided
+- `app/[locale]/admin/page.tsx` — server-rendered dashboard; revenue today / this month, orders today, low-stock count, open tickets, pending reviews, pending WhatsApp payments stats grid; amber alert banner for pending WhatsApp payments with "Review All" link; recent 10 orders table with inline `OrderStatusSelect`
+
+### Changed
+
+- `lib/db.ts` — extended `updateOrderStatus` Pick type to include `returnReason`, `returnImages`, `courierTrackingUrl`, `manualShipping`, `manualCourierName`, `manualAwbCode`
+
+---
+
 ## [Phase 3] — Commerce & Payments · Branch: `phase-3-commerce`
 
 ### Summary

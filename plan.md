@@ -1893,46 +1893,46 @@ export async function POST(req: Request) {
 
 #### 4.1 Shiprocket Token Management
 
-- [ ] `app/api/shiprocket/token/route.ts` â€” on `GET`: checks Firestore `/settings/shiprocketToken` for cached JWT + `expiresAt`; if valid returns cached; else POSTs to Shiprocket auth endpoint with `SHIPROCKET_EMAIL` + `SHIPROCKET_PASSWORD`; stores token + `expiresAt = now + 24h` in Firestore; returns token â€” all within 10s Vercel timeout
-- [ ] `lib/shiprocket.ts` â€” `getToken(): Promise<string>` calls `/api/shiprocket/token`; expose helpers: `createShipment(order)`, `cancelShipment(shipmentId)`, `trackByAwb(awb)`, `checkServiceability(pincode, weight)`
+- [x] `app/api/shiprocket/token/route.ts` â€” on `GET`: checks Firestore `/settings/shiprocketToken` for cached JWT + `expiresAt`; if valid returns cached; else POSTs to Shiprocket auth endpoint with `SHIPROCKET_EMAIL` + `SHIPROCKET_PASSWORD`; stores token + `expiresAt = now + 24h` in Firestore; returns token â€” all within 10s Vercel timeout
+- [x] `lib/shiprocket.ts` â€” `getToken(): Promise<string>` calls `/api/shiprocket/token`; expose helpers: `createShipment(order)`, `cancelShipment(shipmentId)`, `trackByAwb(awb)`, `checkServiceability(pincode, weight)`
 
 #### 4.2 Shipment Creation
 
-- [ ] `app/api/shiprocket/create-order/route.ts` â€” verifies admin auth; fetches order from Firestore; builds Shiprocket API payload (items as `order_items[]`, pickup address from `siteConfig`, delivery address from order, weight from variant); POST to Shiprocket; stores `shiprocketOrderId`, `shiprocketShipmentId`, `awbCode`, `courierName` on order; appends timeline event `"Shipment created"`
-- [ ] `app/api/shiprocket/cancel-order/route.ts` â€” verifies admin auth; calls Shiprocket cancel API; releases stock reservation (write `StockMovement` of type `released`); updates `orderStatus: "cancelled"`
-- [ ] `app/api/shiprocket/track/route.ts` â€” proxy: GET with `?awb=` param; calls Shiprocket tracking API; returns normalised timeline events array; used by customer track page
+- [x] `app/api/shiprocket/create-order/route.ts` â€” verifies admin auth; fetches order from Firestore; builds Shiprocket API payload (items as `order_items[]`, pickup address from `siteConfig`, delivery address from order, weight from variant); POST to Shiprocket; stores `shiprocketOrderId`, `shiprocketShipmentId`, `awbCode`, `courierName` on order; appends timeline event `"Shipment created"`
+- [x] `app/api/shiprocket/cancel-order/route.ts` â€” verifies admin auth; calls Shiprocket cancel API; releases stock reservation (write `StockMovement` of type `released`); updates `orderStatus: "cancelled"`
+- [x] `app/api/shiprocket/track/route.ts` â€” proxy: GET with `?awb=` param; calls Shiprocket tracking API; returns normalised timeline events array; used by customer track page
 
 #### 4.3 Shiprocket Webhook
 
-- [ ] `app/api/shiprocket/webhook/route.ts` â€” validates `X-Shiprocket-Hmac-Sha256` header against `SHIPROCKET_WEBHOOK_SECRET`; rejects non-matching with 401; maps Shiprocket event status to internal `orderStatus`; appends event to `/orders/{id}/timeline`; updates top-level `orderStatus`; for `delivered` status sets `deliveredAt = now`; triggers Resend email to customer for key status milestones (shipped, out-for-delivery, delivered)
+- [x] `app/api/shiprocket/webhook/route.ts` â€” validates `X-Shiprocket-Hmac-Sha256` header against `SHIPROCKET_WEBHOOK_SECRET`; rejects non-matching with 401; maps Shiprocket event status to internal `orderStatus`; appends event to `/orders/{id}/timeline`; updates top-level `orderStatus`; for `delivered` status sets `deliveredAt = now`; triggers Resend email to customer for key status milestones (shipped, out-for-delivery, delivered)
 - [ ] Document expected webhook payload shape in code comment; fail silently on unknown event types
 
 #### 4.4 Admin Shipping Tools
 
-- [ ] `components/admin/ShipOrderModal.tsx` â€” two tabs: **Shiprocket** (calls `/api/shiprocket/create-order`; shows courier recommendation; AWB auto-populated after success) and **Manual** (courier name text field + AWB text field + tracking URL; sets `manualShipping: true`); shows Pincode serviceability inline check before submitting
-- [ ] Admin order detail: show AWB code, courier name, tracking link, estimated delivery date after shipping; "Re-ship" option if shipment failed
+- [x] `components/admin/ShipOrderModal.tsx` â€” two tabs: **Shiprocket** (calls `/api/shiprocket/create-order`; shows courier recommendation; AWB auto-populated after success) and **Manual** (courier name text field + AWB text field + tracking URL; sets `manualShipping: true`); shows Pincode serviceability inline check before submitting
+- [x] Admin order detail: show AWB code, courier name, tracking link, estimated delivery date after shipping; "Re-ship" option if shipment failed
 
 #### 4.5 Customer Order Tracking
 
-- [ ] `app/[locale]/track/page.tsx` â€” public page; `?orderId=` or `?awb=` + `?email=` params; fetches order (verifies email matches `guestEmail` or account email as auth alternative); renders `OrderTimeline`; shows current status hero card; courier name + external tracking link; "Order not found" error state
-- [ ] Customer `account/orders/[id]` â€” `OrderTimeline` already shows webhook-updated events in real time (Firestore `onSnapshot` listener on the timeline sub-collection)
-- [ ] Courier tracking link (`courierTrackingUrl`) opens in new tab; shows courier name
+- [x] `app/[locale]/track/page.tsx` â€” public page; `?orderId=` or `?awb=` + `?email=` params; fetches order (verifies email matches `guestEmail` or account email as auth alternative); renders `OrderTimeline`; shows current status hero card; courier name + external tracking link; "Order not found" error state
+- [x] Customer `account/orders/[id]` â€” `OrderTimeline` already shows webhook-updated events in real time (Firestore `onSnapshot` listener on the timeline sub-collection)
+- [x] Courier tracking link (`courierTrackingUrl`) opens in new tab; shows courier name
 
 #### 4.6 Returns & Refunds
 
-- [ ] Return request button on `account/orders/[id]` â€” visible only: `orderStatus === "delivered"` AND `deliveredAt` is within `RETURN_WINDOW_DAYS` (3 days); not visible for digital or non-returnable items
-- [ ] Return request form: reason dropdown (damaged, wrong item, defective, expired) + image uploads (up to 3) + optional note; writes `status: "return_requested"`, `returnReason`, `returnImages` on order
+- [x] Return request button on `account/orders/[id]` â€” visible only: `orderStatus === "delivered"` AND `deliveredAt` is within `RETURN_WINDOW_DAYS` (3 days); not visible for digital or non-returnable items
+- [x] Return request form: reason dropdown (damaged, wrong item, defective, expired) + image uploads (up to 3) + optional note; writes `status: "return_requested"`, `returnReason`, `returnImages` on order
 - [ ] Admin: "Initiate Return Pickup" button on order detail â†’ calls Shiprocket return shipment API; updates `orderStatus: "return_picked_up"`
 - [ ] On return received (admin manual action): trigger refund via `RefundModal`; write `StockMovement` of type `return`
 
 #### 4.7 Admin Dashboard â€” Baseline
 
-- [ ] `app/[locale]/admin/page.tsx` â€” stats grid + ordered alert cards; server-rendered; refreshes on page load
-- [ ] `components/admin/StatsCard.tsx` â€” icon, label, primary value, optional secondary (e.g. "vs yesterday"), optional trend arrow
-- [ ] Stats widgets: Revenue today / this week / this month (sum of `paymentStatus: "paid"` orders), Orders today (count), Pending confirmation count, Low-stock count, Open tickets count, Pending reviews count, Upcoming consultations count
+- [x] `app/[locale]/admin/page.tsx` â€” stats grid + ordered alert cards; server-rendered; refreshes on page load
+- [x] `components/admin/StatsCard.tsx` â€” icon, label, primary value, optional secondary (e.g. "vs yesterday"), optional trend arrow
+- [x] Stats widgets: Revenue today / this week / this month (sum of `paymentStatus: "paid"` orders), Orders today (count), Pending confirmation count, Low-stock count, Open tickets count, Pending reviews count, Upcoming consultations count
 - [ ] Charts (server-computed, no Cloud Functions): Revenue last 30 days (line chart via CSS/SVG â€” no chart library dependency unless already installed), Orders by status today (donut), Top 5 products last 30 days (bar)
-- [ ] **WhatsApp pending payments** alert card: count of `paymentStatus IN ["pending_whatsapp","proof_submitted"]`; "Review All" link to filtered orders list
-- [ ] Recent orders: last 10 rows with `OrderStatusSelect` inline for quick processing
+- [x] **WhatsApp pending payments** alert card: count of `paymentStatus IN ["pending_whatsapp","proof_submitted"]`; "Review All" link to filtered orders list
+- [x] Recent orders: last 10 rows with `OrderStatusSelect` inline for quick processing
 
 ---
 

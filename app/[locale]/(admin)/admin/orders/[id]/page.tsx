@@ -183,16 +183,37 @@ export default async function AdminOrderDetailPage({
                 <dt>Shipping</dt>
                 <dd className="capitalize">{order.shippingMode?.replace(/_/g, " ")}</dd>
               </div>
-              {order.awbCode && (
+              {(order.awbCode || order.manualAwbCode) && (
                 <div className="flex justify-between">
                   <dt>AWB</dt>
-                  <dd>{order.awbCode}</dd>
+                  <dd className="font-mono text-xs">{order.awbCode ?? order.manualAwbCode}</dd>
                 </div>
               )}
-              {order.courierName && (
+              {(order.courierName || order.manualCourierName) && (
                 <div className="flex justify-between">
                   <dt>Courier</dt>
-                  <dd>{order.courierName}</dd>
+                  <dd>{order.courierName ?? order.manualCourierName}</dd>
+                </div>
+              )}
+              {order.courierTrackingUrl && (
+                <div className="flex justify-between">
+                  <dt>Track</dt>
+                  <dd>
+                    <a
+                      href={order.courierTrackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      View tracking ↗
+                    </a>
+                  </dd>
+                </div>
+              )}
+              {order.manualShipping && (
+                <div className="flex justify-between">
+                  <dt>Source</dt>
+                  <dd className="text-amber-600">Manual</dd>
                 </div>
               )}
               <div className="flex justify-between">

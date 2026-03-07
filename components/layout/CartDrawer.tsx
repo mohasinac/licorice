@@ -54,7 +54,7 @@ export function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
               <ShoppingBag className="text-border h-16 w-16" />
-              <p className="text-muted">Your cart is empty</p>
+              <p className="text-muted-foreground">Your cart is empty</p>
               <Dialog.Close asChild>
                 <Link href={`/${locale}/shop`}>
                   <Button size="md">Start Shopping</Button>
@@ -66,7 +66,7 @@ export function CartDrawer() {
               {/* Free shipping progress */}
               {remaining > 0 && (
                 <div className="border-border border-b px-6 py-3 text-center text-sm">
-                  <p className="text-muted">
+                  <p className="text-muted-foreground">
                     Add <strong className="text-primary">{formatPrice(remaining)}</strong> more for
                     free shipping!
                   </p>
@@ -96,7 +96,7 @@ export function CartDrawer() {
                       <p className="text-foreground line-clamp-1 text-sm font-medium">
                         {item.name}
                       </p>
-                      <p className="text-muted text-xs">{item.variantLabel}</p>
+                      <p className="text-muted-foreground text-xs">{item.variantLabel}</p>
                       <p className="text-primary text-sm font-semibold">
                         {formatPrice(item.price)}
                       </p>
@@ -138,7 +138,7 @@ export function CartDrawer() {
                   <span className="text-foreground font-medium">Subtotal</span>
                   <span className="text-primary font-semibold">{formatPrice(sub)}</span>
                 </div>
-                <p className="text-muted text-center text-xs">
+                <p className="text-muted-foreground text-center text-xs">
                   Taxes and shipping calculated at checkout
                 </p>
                 <Dialog.Close asChild>

@@ -33,7 +33,7 @@ export async function BlogCard({ blog }: BlogCardProps) {
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="bg-surface text-muted flex h-full items-center justify-center">
+          <div className="bg-surface text-muted-foreground flex h-full items-center justify-center">
             No image
           </div>
         )}
@@ -45,8 +45,8 @@ export async function BlogCard({ blog }: BlogCardProps) {
         <h3 className="font-heading text-foreground group-hover:text-primary line-clamp-2 text-lg font-semibold transition-colors">
           {title}
         </h3>
-        <p className="text-muted line-clamp-2 text-sm">{excerpt}</p>
-        <div className="text-muted mt-auto flex items-center gap-1.5 pt-2 text-xs">
+        <p className="text-muted-foreground line-clamp-2 text-sm">{excerpt}</p>
+        <div className="text-muted-foreground mt-auto flex items-center gap-1.5 pt-2 text-xs">
           <Calendar className="h-3.5 w-3.5" />
           <time dateTime={publishDate.toISOString()}>
             {publishDate.toLocaleDateString("en-IN", {

@@ -525,6 +525,12 @@ export async function updateOrderStatus(
       | "refundAmount"
       | "refundId"
       | "refundNote"
+      | "returnReason"
+      | "returnImages"
+      | "courierTrackingUrl"
+      | "manualShipping"
+      | "manualCourierName"
+      | "manualAwbCode"
     >
   >,
   timelineEvent?: Omit<OrderEvent, "createdAt">,

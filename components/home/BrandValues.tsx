@@ -39,7 +39,7 @@ export function BrandValues() {
                 <Icon className="text-primary h-6 w-6" />
               </div>
               <h3 className="font-heading text-primary text-lg font-semibold">{title}</h3>
-              <p className="text-muted text-sm leading-relaxed">{description}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
             </div>
           ))}
         </div>

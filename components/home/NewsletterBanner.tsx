@@ -38,7 +38,7 @@ export function NewsletterBanner() {
         <h2 className="font-heading text-primary text-3xl font-bold sm:text-4xl">
           Join the Licorice Community
         </h2>
-        <p className="text-muted mt-3">
+        <p className="text-muted-foreground mt-3">
           Subscribe for Ayurvedic tips, exclusive offers, and a{" "}
           <strong className="text-primary">10% welcome discount</strong> on your first order.
         </p>
@@ -57,7 +57,7 @@ export function NewsletterBanner() {
           </Button>
         </form>
 
-        <p className="text-muted mt-3 text-xs">No spam, ever. Unsubscribe anytime.</p>
+        <p className="text-muted-foreground mt-3 text-xs">No spam, ever. Unsubscribe anytime.</p>
       </div>
     </section>
   );

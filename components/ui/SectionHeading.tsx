@@ -17,7 +17,7 @@ export function SectionHeading({
   return (
     <div className={["flex flex-col gap-2", alignClass, className].join(" ")}>
       <h2 className="font-heading text-primary text-3xl font-semibold md:text-4xl">{title}</h2>
-      {subtitle && <p className="text-muted">{subtitle}</p>}
+      {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
     </div>
   );
 }

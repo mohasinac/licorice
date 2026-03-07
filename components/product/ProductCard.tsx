@@ -94,11 +94,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Info */}
       <div className="flex flex-col gap-1 p-4">
-        <p className="text-muted text-xs">{product.category}</p>
+        <p className="text-muted-foreground text-xs">{product.category}</p>
         <h3 className="font-heading text-foreground line-clamp-1 text-base font-semibold">
           {name}
         </h3>
-        <p className="text-muted line-clamp-1 text-xs">{tagline}</p>
+        <p className="text-muted-foreground line-clamp-1 text-xs">{tagline}</p>
 
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export function ProductCard({ product }: ProductCardProps) {
               {formatPrice(defaultVariant?.price ?? 0)}
             </span>
             {defaultVariant?.compareAtPrice && defaultVariant.compareAtPrice > defaultVariant.price && (
-              <span className="text-muted text-xs line-through">
+              <span className="text-muted-foreground text-xs line-through">
                 {formatPrice(defaultVariant.compareAtPrice)}
               </span>
             )}
@@ -114,7 +114,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.rating > 0 && (
             <div className="flex items-center gap-1">
               <StarRating value={product.rating} size="sm" />
-              <span className="text-muted text-xs">({product.reviewCount})</span>
+              <span className="text-muted-foreground text-xs">({product.reviewCount})</span>
             </div>
           )}
         </div>
