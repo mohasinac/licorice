@@ -1,0 +1,7 @@
+{
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "buildCommand": "next build",
+  "installCommand": "npm install",
+  "ignoreCommand": "[ \"$VERCEL_ENV\" = \"production\" ] || exit 1"
+}
