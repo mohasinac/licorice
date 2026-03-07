@@ -1570,390 +1570,456 @@ export async function POST(req: Request) {
 
 ## Development Phases
 
-> Tick each checkbox as you complete it. Phases are sequential — don't start the next phase until all boxes in the current phase are ticked.
+> Tick each checkbox as you complete it. Phases are sequential — complete all tasks in the current phase before moving to the next. Each phase ends with a working, deployable slice of the product.
 
 ---
 
 ### Phase 1 — Foundation
-**Goal**: Runnable app with theming, routing, auth, i18n skeleton, and mock data layer. No Firebase required to see the UI.
+**Goal**: A runnable Next.js app with brand theming, locale routing, Firebase init, auth, and a complete in-memory mock data layer. Every UI built in later phases will "just work" on a fresh clone with zero Firebase config.
 
-#### Project Setup
-- [ ] Initialise Next.js 14 App Router project with TypeScript (`create-next-app`)
-- [ ] Install and configure Tailwind CSS
-- [ ] Install all Phase 1 dependencies: `next-intl`, `firebase`, `firebase-admin`, `zustand`, `react-hook-form`, `zod`, `framer-motion`, `@radix-ui/react-*`, `react-hot-toast`
-- [ ] Create `.env.local` from `.env.example`; add `NEXT_PUBLIC_USE_MOCK_DATA=true` as default for fresh clones
-- [ ] Set up `eslint` + `prettier` config
-- [ ] Configure absolute imports (`@/*`) in `tsconfig.json`
+**Exit criteria**: `npm run dev` boots, home page renders with real brand colours, login/register work, language switcher works, seed page populates Firestore.
 
-#### Theme & Constants
-- [ ] `constants/theme.ts` — all colour tokens, font names, border radius, spacing scale
-- [ ] `constants/site.ts` — brand name ("Licorice Herbals"), tagline, support email/phone/hours, WhatsApp number, social handles, nav items
-- [ ] `constants/policies.ts` — free shipping threshold (₹999), COD fee (₹50), return window (3 days), processing SLA; **INR only, domestic India — no international shipping at launch**
-- [ ] `constants/categories.ts` — product category list + concern definitions with slugs and display labels
-- [ ] `app/globals.css` — CSS custom properties from theme tokens
-- [ ] `tailwind.config.ts` — extend theme with CSS-variable-backed colour palette + Cormorant Garamond + Inter font stack
+#### 1.1 Project Bootstrap
+- [ ] Initialise Next.js 14 App Router project with TypeScript: `npx create-next-app@latest licorice --ts --app --tailwind --eslint --src-dir=false --import-alias="@/*"`
+- [ ] Install all Phase 1 dependencies in one shot:
+  ```
+  next-intl firebase firebase-admin zustand react-hook-form @hookform/resolvers zod
+  framer-motion @radix-ui/react-dialog @radix-ui/react-select @radix-ui/react-dropdown-menu
+  @radix-ui/react-accordion @radix-ui/react-toast react-hot-toast embla-carousel-react
+  ```
+- [ ] Create `.env.example` with all keys stubbed (empty values); commit to repo
+- [ ] Create `.env.local` from `.env.example`; set `NEXT_PUBLIC_USE_MOCK_DATA=true` — working UI without Firebase
+- [ ] Configure `eslint` with `@typescript-eslint` + `eslint-config-next`; add `prettier` with `prettier-plugin-tailwindcss`
+- [ ] Add `@next/bundle-analyzer` as dev dependency; add `ANALYZE=true` script to `package.json`
+- [ ] Confirm absolute imports `@/*` resolve to project root in `tsconfig.json`
 
-#### i18n
-- [ ] Restructure routes under `app/[locale]/` route group
-- [ ] `middleware.ts` — locale detection from URL prefix; redirect `/` → `/en/`; block `/dev/*` in production (return 404)
-- [ ] `lib/i18n.ts` — `LOCALES`, `DEFAULT_LOCALE`, `LocalizedString` type, `getLocalizedValue()` helper
-- [ ] `messages/en.json` — all namespaces: `nav`, `home`, `product`, `cart`, `checkout`, `concerns`, `policies`, `account`, `errors`, `admin`, `auth`, `support`, `consultation`, `blog`, `footer`
-- [ ] `messages/hi.json` — placeholder structure (copy EN keys, leave values as EN until Phase 8)
-- [ ] `messages/mr.json` — placeholder structure (same as above)
-- [ ] `components/layout/LanguageSwitcher.tsx` — EN / हिं / मर dropdown; saves choice to cookie; reads from `useLocale()`
+#### 1.2 Theme & Constants
+- [ ] `constants/theme.ts` — export typed colour tokens (`primary: "#2B1A6B"`, `accent: "#C9B99A"`, etc.), font names (`heading: "Cormorant Garamond"`, `body: "Inter"`), border radius, spacing scale
+- [ ] `constants/site.ts` — `BRAND_NAME`, `TAGLINE`, `SUPPORT_EMAIL`, `SUPPORT_HOURS`, `WHATSAPP_NUMBER`, social handles, top-nav items array
+- [ ] `constants/policies.ts` — `FREE_SHIPPING_THRESHOLD` (999), `COD_FEE` (50), `RETURN_WINDOW_DAYS` (3), `PROCESSING_DAYS` ("1-2"), `STANDARD_SLA`, `EXPRESS_SLA`; **INR only, domestic India**
+- [ ] `constants/categories.ts` — `CATEGORIES` array (id, label, slug) for 6 categories; `CONCERNS` array (id, label, slug, description) for 8 concerns
+- [ ] `app/globals.css` — declare CSS custom properties from `constants/theme.ts` on `:root`; include Tailwind directives
+- [ ] `tailwind.config.ts` — extend `colors` with CSS-variable-backed palette (`primary: "hsl(var(--primary))"` etc.); add `Cormorant Garamond` and `Inter` to `fontFamily`; add `animate-shimmer` keyframe for skeletons
 
-#### Mock / Seed Layer
-- [ ] `lib/mocks/products.ts` — all 9 seed products with full fields (variants, benefits, ingredients, FAQs, concerns, images as placeholder URLs)
-- [ ] `lib/mocks/categories.ts` — 5 categories
-- [ ] `lib/mocks/concerns.ts` — 8 concerns
-- [ ] `lib/mocks/coupons.ts` — 3 seed coupons (`WELCOME10`, `LICORICE20`, `FREESHIP`)
-- [ ] `lib/mocks/reviews.ts` — 6 seed reviews (2 per flagship product, approved)
-- [ ] `lib/mocks/blogs.ts` — 3 seed blog posts with full body
-- [ ] `lib/mocks/settings.ts` — `siteConfig`, `shippingRules`, `paymentSettings` seed docs
-- [ ] `lib/mocks/inventory.ts` — inventory doc per product (50 units default per variant)
-- [ ] `lib/mocks/index.ts` — `SEED_MAP: Record<string, SeedDoc[]>` export combining all collections
-- [ ] `lib/db.ts` — `isFirebaseReady()` check; `getProducts()`, `getProduct()`, `getCategories()`, `getConcerns()`, `getBlogs()`, `getBlog()`, `getCoupons()`, `getSettings()` — each with Firestore path + mock fallback
-- [ ] `app/[locale]/(dev)/dev/seed/page.tsx` — seed UI (per-collection Seed / Delete buttons + Seed All / Delete All)
-- [ ] `app/api/dev/seed/route.ts` — `POST { collections }` → batch `set()` upsert by known ID; returns 404 in production
-- [ ] `app/api/dev/unseed/route.ts` — `POST { collections }` → batch `delete()` by known ID only; returns 404 in production
+#### 1.3 Internationalisation (i18n)
+- [ ] Restructure all app routes under `app/[locale]/` segment
+- [ ] `middleware.ts` — detect locale from URL prefix using `next-intl`; redirect `/` → `/en`; block `/dev/*` paths (return 404) in production; block `/api/dev/*` same way
+- [ ] `lib/i18n.ts` — `LOCALES = ["en","hi","mr"]`, `DEFAULT_LOCALE = "en"`, `LocalizedString` type, `getLocalizedValue(field, locale)` helper with English fallback
+- [ ] `messages/en.json` — complete baseline with all namespaces: `nav`, `home`, `product`, `cart`, `checkout`, `concerns`, `policies`, `account`, `auth`, `errors`, `admin`, `support`, `consultation`, `blog`, `footer`
+- [ ] `messages/hi.json` — placeholder (copy EN structure, keep EN values — to be filled in Phase 8)
+- [ ] `messages/mr.json` — placeholder (same as above)
+- [ ] `app/[locale]/layout.tsx` root layout — load `Cormorant Garamond` + `Inter` via `next/font/google`; wrap with `NextIntlClientProvider`; inject `AnnouncementBar`, `Navbar`, `Footer`, `Toaster`
+- [ ] `components/layout/LanguageSwitcher.tsx` — EN / हिं / मर dropdown using Radix; writes locale to `NEXT_LOCALE` cookie; reads from `useLocale()`
 
-#### Firebase Initialisation
-- [ ] `lib/firebase/client.ts` — `initializeApp` with env vars; singleton guard; export `auth`, `db`, `storage`
-- [ ] `lib/firebase/admin.ts` — `initializeApp` with service account (server-side only); export `adminDb`, `adminAuth`
+#### 1.4 Mock & Seed Data Layer
+- [ ] `lib/mocks/products.ts` — all 10 seed products (9 inspired + 1 confirmed Keshli tablet) with complete fields: `variants`, `benefits`, `ingredients`, `faqs`, `concerns`, `images` (placeholder `/images/product-{id}.jpg` paths), `rating`, `reviewCount`
+- [ ] `lib/mocks/categories.ts` — 6 category docs matching `CATEGORIES` constant
+- [ ] `lib/mocks/concerns.ts` — 8 concern docs matching `CONCERNS` constant
+- [ ] `lib/mocks/coupons.ts` — 3 coupons: `WELCOME10` (10%, min ₹500, 1/user), `LICORICE20` (₹200 flat, min ₹999), `FREESHIP` (free shipping, min ₹500)
+- [ ] `lib/mocks/reviews.ts` — 8 approved seed reviews (2 per flagship product: kumkumadi, ubtan, vitamin-c, keshli tablets)
+- [ ] `lib/mocks/blogs.ts` — 3 blog posts with full Tiptap-compatible HTML body (EN only at Phase 1)
+- [ ] `lib/mocks/settings.ts` — `siteConfig` doc (announcement bar, maintenance mode, feature flags), `shippingRules` doc, `paymentSettings` doc (whatsapp enabled, razorpay disabled, COD enabled)
+- [ ] `lib/mocks/inventory.ts` — inventory doc per product; 50 units default per variant; `lowStockThreshold: 10`, `reorderPoint: 5`
+- [ ] `lib/mocks/index.ts` — `SEED_MAP: Record<string, SeedDoc[]>` combining all collections; exported for seed API routes and `lib/db.ts`
+- [ ] `lib/db.ts` — `isFirebaseReady()` reads env vars + `NEXT_PUBLIC_USE_MOCK_DATA`; implement: `getProducts(filters?)`, `getProduct(slug)`, `getCategories()`, `getConcerns()`, `getBlogs(category?)`, `getBlog(slug)`, `getCoupons()`, `getSettings(key)` — each tries Firestore first, catches errors, falls back to mock
 
-#### Layout Components
-- [ ] `components/layout/AnnouncementBar.tsx` — reads `siteConfig.announcementText` from Firestore/mock; dismissible
-- [ ] `components/layout/Navbar.tsx` — logo, nav links, search icon, wishlist icon, cart icon (badge), account icon; mobile hamburger; includes `LanguageSwitcher`
-- [ ] `components/layout/MobileMenu.tsx` — slide-out drawer with full nav + concern links
-- [ ] `components/layout/Footer.tsx` — brand blurb, nav columns, social icons, certifications strip, newsletter input, policy links, copyright
-- [ ] `components/layout/CartDrawer.tsx` — right-side drawer; shows cart items, subtotal, "View Cart" + "Checkout" CTAs
-- [ ] `app/[locale]/layout.tsx` — root layout: fonts, `NextIntlClientProvider`, `Toaster`, `AnnouncementBar`, `Navbar`, `Footer`
+#### 1.5 Firebase Initialisation
+- [ ] `lib/firebase/client.ts` — `initializeApp` with public env vars; singleton guard (`getApps().length`); export `auth`, `db` (Firestore), `storage`
+- [ ] `lib/firebase/admin.ts` — `initializeApp` for Admin SDK using `FIREBASE_ADMIN_*` env vars; server-side only (never imported in client components); export `adminDb`, `adminAuth`
+- [ ] Confirm Firestore Security Rules baseline (public read for products/blogs, no writes from client without auth)
 
-#### Auth
-- [ ] `app/[locale]/(auth)/login/page.tsx` — email/password + Google OAuth sign-in
-- [ ] `app/[locale]/(auth)/register/page.tsx` — name, email, password; creates Firestore user doc on success
-- [ ] `lib/auth.ts` — `getCurrentUser()` server helper using Firebase Admin `verifyIdToken`; `isAdmin()` checks Firestore role
-- [ ] Auth state persisted in Zustand `useAuthStore`
+#### 1.6 Dev Seed Page & API
+- [ ] `app/[locale]/(dev)/dev/seed/page.tsx` — table UI with per-collection row (doc count, Seed ↑, Delete ✕ buttons) + "Seed All" / "Delete All Seed Data" buttons; `[Dev Only]` badge in header; shows last-action status message
+- [ ] `app/api/dev/seed/route.ts` — `POST { collections: string[] }` → batch `set()` upsert using `SEED_MAP`; marks each doc with `_seeded: true`; returns 404 if `NODE_ENV === "production"`
+- [ ] `app/api/dev/unseed/route.ts` — `POST { collections: string[] }` → batch `delete()` only for known seed IDs (never touches other docs); returns 404 in production
 
-#### Home Page Skeleton
-- [ ] `app/[locale]/page.tsx` — assembles all home sections
-- [ ] `components/home/HeroBanner.tsx` — full-width hero with headline, subhead (from `en.json`), two CTAs; Framer Motion fade-in
-- [ ] `components/home/CategoryGrid.tsx` — 5 category cards linking to `/shop/[category]`
-- [ ] `components/home/ProductCarousel.tsx` — horizontal scroll of `ProductCard` components; accepts product array prop
-- [ ] `components/home/BrandValues.tsx` — 4 trust icons (Ayurvedic, Cruelty Free, No Parabens, Natural Ingredients)
-- [ ] `components/home/TestimonialsCarousel.tsx` — Embla Carousel of review quotes
-- [ ] `components/home/BeforeAfterSlider.tsx` — drag-handle image comparison
-- [ ] `components/home/BlogPreview.tsx` — latest 3 blog post cards
-- [ ] `components/home/NewsletterBanner.tsx` — email input → `POST /api/newsletter`
-- [ ] `app/api/newsletter/route.ts` — saves to Firestore `/newsletter` collection
+#### 1.7 Auth
+- [ ] `lib/auth.ts` — `getCurrentUser(request)` server helper using `adminAuth.verifyIdToken()`; `isAdmin(uid)` checks `users/{uid}.role === "admin"` in Firestore; return typed `User | null`
+- [ ] `stores/useAuthStore.ts` — Zustand store: `user`, `loading`, `setUser`, `clearUser`; `onAuthStateChanged` listener in a client-side provider component
+- [ ] `app/[locale]/(auth)/login/page.tsx` — email/password form + Google OAuth button; React Hook Form + Zod validation; redirects to `/account` on success
+- [ ] `app/[locale]/(auth)/register/page.tsx` — name, email, password, confirm password; creates Firestore `/users/{uid}` doc with `role: "customer"` on first sign-in
+
+#### 1.8 Layout Components
+- [ ] `components/layout/AnnouncementBar.tsx` — reads `siteConfig.announcementText` + `announcementLink`; dismissible via `localStorage` key; hidden if text is empty
+- [ ] `components/layout/Navbar.tsx` — logo (links to `/`), nav links from `constants/site.ts`, search icon, wishlist icon (with Zustand count badge), cart icon (with Zustand count badge), account icon; hamburger for mobile; `LanguageSwitcher` dropdown; sticky with blur backdrop
+- [ ] `components/layout/MobileMenu.tsx` — slide-out Radix Sheet drawer; full nav + concern links organised by section; close on nav
+- [ ] `components/layout/Footer.tsx` — 4-column layout: brand blurb + certifications, shop links, account links, contact + social icons; newsletter input (inline, calls `POST /api/newsletter`); policy links row at bottom; copyright
+- [ ] `components/layout/CartDrawer.tsx` — Radix Sheet from right; lists cart items (image thumbnail, name, variant, qty controls, remove); shows subtotal; "Continue Shopping" + "Checkout →" CTAs; empty state with Browse CTA
+
+#### 1.9 Home Page Skeleton
+- [ ] `app/[locale]/page.tsx` — assembles all home sections in order; server component at root fetching products + reviews from `lib/db.ts`
+- [ ] `components/home/HeroBanner.tsx` — full-width split-layout hero: headline (`home.heroTitle`), subhead, "Shop Now" + "Free Consultation" CTA buttons; background uses brand `primary` colour + botanical SVG overlay; Framer Motion `fadeInUp` on mount
+- [ ] `components/home/CategoryGrid.tsx` — responsive grid of 6 category cards; each card has category image, label, hover scale; links to `/shop/[category]`
+- [ ] `components/home/ProductCarousel.tsx` — section heading + Embla Carousel of `ProductCard` components; prev/next arrow buttons; accepts `title` + `products[]` props; used for "Featured" and "New Arrivals" sections
+- [ ] `components/home/BrandValues.tsx` — 4 trust-signal cards (Ayurvedic Formula, Cruelty Free, No Parabens, Natural Ingredients) with SVG icons and one-line descriptions
+- [ ] `components/home/TestimonialsCarousel.tsx` — Embla Carousel of quote cards; each shows star rating, review excerpt, customer name + city, verified badge; auto-plays every 4s
+- [ ] `components/home/BeforeAfterSlider.tsx` — drag-handle image comparison component; two overlaid images with a vertical divider the user can slide; mobile touch-enabled
+- [ ] `components/home/BlogPreview.tsx` — "From the Blog" section; 3 `BlogCard` components in a row; "View All" link to `/blog`
+- [ ] `components/home/NewsletterBanner.tsx` — full-width accent-coloured stripe: headline, subhead, email input + Subscribe button; calls `POST /api/newsletter` on submit; shows success toast
+- [ ] `app/api/newsletter/route.ts` — validates email; saves to Firestore `/newsletter/{subscriberId}` with `email`, `subscribedAt`, deduplicates by email; returns 200
 
 ---
 
 ### Phase 2 — Product Catalogue
-**Goal**: Full browsable storefront — shop, concern pages, product detail — wired to mock data (and Firestore when ready).
+**Goal**: Complete browsable storefront — shop, concern pages, product detail — fully wired to mock data (and seamlessly to Firestore when credentials are added).
 
-#### UI Primitives (needed by Phase 2)
-- [ ] `components/ui/Button.tsx` — variants: primary, secondary, outline, ghost; size: sm, md, lg
-- [ ] `components/ui/Badge.tsx` — colour variants mapped to theme tokens
-- [ ] `components/ui/Input.tsx` + `Textarea.tsx` — controlled, error state, label slot
-- [ ] `components/ui/Select.tsx` — Radix Select wrapper
-- [ ] `components/ui/Modal.tsx` + `Drawer.tsx` — Radix Dialog / Sheet wrappers
-- [ ] `components/ui/Skeleton.tsx` — animated loading placeholder
-- [ ] `components/ui/StarRating.tsx` — read-only + interactive modes
-- [ ] `components/ui/Pagination.tsx` — prev/next + page number buttons
-- [ ] `components/ui/Breadcrumb.tsx`
-- [ ] `components/ui/StatusBadge.tsx` — order / review / ticket status colour map
-- [ ] `components/ui/ImageLightbox.tsx` — full-screen image viewer with keyboard nav
-- [ ] `components/ui/SectionHeading.tsx` — heading + optional subheading + decorative rule
+**Exit criteria**: Visitor can browse all products, filter by category/concern, view a full product detail page, and see reviews. Admin can create, edit, and manage products and inventory.
 
-#### Product Components
-- [ ] `components/product/ProductCard.tsx` — image, name, price, rating, add-to-cart; hover overlay with quick-add
-- [ ] `components/product/ProductGrid.tsx` — responsive grid of `ProductCard`; skeleton state
-- [ ] `components/product/ProductFilters.tsx` — category, concern, price range, certifications checkboxes; URL param sync
-- [ ] `components/product/ProductSort.tsx` — dropdown: newest, price low→high, price high→low, rating
-- [ ] `components/product/ProductImages.tsx` — main image + thumbnail strip; zoom on hover; `ImageLightbox` on click
-- [ ] `components/product/ProductInfo.tsx` — name, tagline, stars, price, compare-at, savings badge, certifications, variant selector, quantity, Add to Cart + Buy Now
-- [ ] `components/product/VariantSelector.tsx` — pill buttons for size/pack options; updates price
-- [ ] `components/product/QuantitySelector.tsx` — − / number / + with min 1, max stock
-- [ ] `components/product/ProductBadges.tsx` — icon + label row (Cruelty Free, Ayurvedic, etc.)
-- [ ] `components/product/ProductTabs.tsx` — tabbed section: Benefits / Ingredients / How To Use / FAQs
-- [ ] `components/product/BuyMoreSaveMore.tsx` — 2-up or 3-up upsell bundle with savings callout
-- [ ] `components/product/RelatedProducts.tsx` — horizontal carousel of related product cards
+#### 2.1 UI Primitive Components
+- [ ] `components/ui/Button.tsx` — `variant`: `primary | secondary | outline | ghost | destructive`; `size`: `sm | md | lg`; `loading` prop shows spinner; `asChild` passthrough via Radix `Slot`
+- [ ] `components/ui/Badge.tsx` — `variant` maps to theme tokens; used for product tags, order status, stock level
+- [ ] `components/ui/Input.tsx` — controlled input with `label`, `error` message slot, optional leading/trailing icon; forwards ref
+- [ ] `components/ui/Textarea.tsx` — same API as Input; auto-resize option
+- [ ] `components/ui/Select.tsx` — Radix Select wrapper; accepts `options: {value, label}[]`; controlled + uncontrolled modes
+- [ ] `components/ui/Modal.tsx` — Radix Dialog wrapper with overlay, animated entrance, close button, title + description slots
+- [ ] `components/ui/Drawer.tsx` — Radix Sheet wrapper; `side`: `left | right | bottom`; used for mobile menus, cart, modals on mobile
+- [ ] `components/ui/Skeleton.tsx` — shimmer placeholder; accepts `className` for sizing; used in all loading states
+- [ ] `components/ui/StarRating.tsx` — read-only (renders filled/half/empty stars from `value: number`) + interactive mode (click to select, hover preview); accessible with `aria-label`
+- [ ] `components/ui/Pagination.tsx` — prev/next buttons + numbered page pills; `currentPage`, `totalPages`, `onPageChange` props
+- [ ] `components/ui/Breadcrumb.tsx` — accepts `items: {label, href?}[]`; last item is non-linked current page; structured `<nav aria-label="breadcrumb">`
+- [ ] `components/ui/StatusBadge.tsx` — maps order status, review status, and ticket status strings to colour variants (green/amber/red/purple)
+- [ ] `components/ui/ImageLightbox.tsx` — full-screen overlay; keyboard arrow navigation; touch swipe on mobile; ESC to close; zoom on click
+- [ ] `components/ui/SectionHeading.tsx` — `heading` (Cormorant Garamond), optional `subheading`, optional decorative rule; `align`: `left | center`
 
-#### Shop Pages
-- [ ] `app/[locale]/shop/page.tsx` — all products with `ProductFilters` + `ProductSort` + `ProductGrid`; server-rendered with `getProducts()` from `lib/db.ts`
-- [ ] `app/[locale]/shop/[category]/page.tsx` — category-filtered grid; `generateStaticParams` from `CATEGORIES`
-- [ ] `app/[locale]/concern/[concern]/page.tsx` — concern-filtered grid + concern hero header; `generateStaticParams` from `CONCERNS`
-- [ ] `app/[locale]/combos/page.tsx` — combo products grid
-- [ ] `app/[locale]/search/page.tsx` — search results via Firestore full-text search (fallback: filter mock by name/tags)
+#### 2.2 Product Components
+- [ ] `components/product/ProductCard.tsx` — product image (`next/image`), name, price + compare-at (strike-through), star rating, "Add to Cart" button; on hover: quick-add overlay with variant selector; wishlist heart icon; links to product detail page
+- [ ] `components/product/ProductGrid.tsx` — CSS grid with responsive columns (2 mobile, 3 tablet, 4 desktop); renders `ProductCard` list; shows `Skeleton` grid when `loading={true}`
+- [ ] `components/product/ProductFilters.tsx` — sidebar/drawer: category checkboxes, concern checkboxes, price range slider, certification checkboxes; syncs state to URL search params (`?category=face&concern=acne`); "Clear All" button
+- [ ] `components/product/ProductSort.tsx` — dropdown: "Newest", "Price: Low → High", "Price: High → Low", "Top Rated", "Best Selling"; syncs to `?sort=` URL param
+- [ ] `components/product/ProductImages.tsx` — main large image with zoom-on-hover (CSS `transform: scale`); thumbnail filmstrip below; clicking thumbnail swaps main image; clicking main image opens `ImageLightbox`
+- [ ] `components/product/ProductInfo.tsx` — product name (h1), brand, star rating + review count (anchor jumps to reviews section), price display, compare-at price, savings percentage badge, variant selector, quantity selector, "Add to Cart" primary button, "Buy Now" secondary button (skips to checkout), certifications icon row
+- [ ] `components/product/VariantSelector.tsx` — pill button group for variant options (e.g. "10ml", "20ml"); selected state highlighted; updating selection updates displayed price
+- [ ] `components/product/QuantitySelector.tsx` — `−` / number input / `+` buttons; min=1, max=`availableStock`; shows "Only X left" warning below threshold (5)
+- [ ] `components/product/ProductBadges.tsx` — horizontal scrolling icon row: Cruelty Free, Ayurvedic, No Parabens, Vegan etc.; icons from `/public/badges/` or inline SVG
+- [ ] `components/product/ProductTabs.tsx` — Radix Tabs: "Benefits" (bulleted list), "Ingredients" (cards with name + benefit), "How To Use" (numbered steps), "FAQs" (Radix Accordion)
+- [ ] `components/product/BuyMoreSaveMore.tsx` — 2-up and 3-up bundle upsell cards; shows per-item savings compared to buying individually; "Add Bundle to Cart" button
+- [ ] `components/product/RelatedProducts.tsx` — "You May Also Like" Embla Carousel of `ProductCard` components; data from `product.relatedProducts` IDs
 
-#### Product Detail Page
-- [ ] `app/[locale]/products/[slug]/page.tsx` — full product page; `generateStaticParams` from all product slugs; `generateMetadata` with locale-aware meta
-- [ ] Sections assembled: `ProductImages`, `ProductInfo`, `ProductBadges`, `BuyMoreSaveMore`, `ProductTabs`, review section, `RelatedProducts`
-- [ ] Structured data: `Product` JSON-LD schema injected in `<head>`
+#### 2.3 Shop & Browse Pages
+- [ ] `app/[locale]/shop/page.tsx` — server component; calls `getProducts(filters)` from `lib/db.ts`; renders `ProductFilters` (sidebar on desktop, drawer on mobile) + `ProductSort` + `ProductGrid`; total product count display; Suspense boundary with skeleton grid
+- [ ] `app/[locale]/shop/[category]/page.tsx` — pre-filters by category; `generateStaticParams` from `CATEGORIES`; `generateMetadata` with category name; same layout as shop
+- [ ] `app/[locale]/concern/[concern]/page.tsx` — concern hero header (name, description, illustration); concern-filtered product grid; `generateStaticParams` from `CONCERNS`; `generateMetadata` with concern name
+- [ ] `app/[locale]/combos/page.tsx` — combo-filtered grid; "Bundle & Save" themed header
+- [ ] `app/[locale]/search/page.tsx` — reads `?q=` param; searches product `name`, `tags`, `shortDescription` in Firestore (or mock); shows result count; "No results" state with suggestions
 
-#### Admin — Product Management
-- [ ] `app/[locale]/admin/products/page.tsx` — sortable/searchable product list; bulk activate/deactivate; quick stock badge
-- [ ] `app/[locale]/admin/products/new/page.tsx` — full product create form
-- [ ] `app/[locale]/admin/products/[id]/page.tsx` — product edit form (same component as create)
-- [ ] `components/admin/ProductForm.tsx` — all fields; localizable fields show EN | HI | MR tab strip; image uploader; variant manager
-- [ ] `components/admin/VariantManager.tsx` — add/remove/edit variants (label, price, compareAt, SKU, weight, stock)
-- [ ] `components/admin/RichTextEditor.tsx` — Tiptap editor with bold, italic, lists, headings, link, image insert
-- [ ] `components/admin/ImageUploader.tsx` — drag-and-drop to Firebase Storage; reorder by drag; shows upload progress
+#### 2.4 Product Detail Page
+- [ ] `app/[locale]/products/[slug]/page.tsx` — `getProduct(slug)` from `lib/db.ts`; `generateStaticParams` for all slugs; `generateMetadata` with locale-aware `metaTitle` + `metaDescription` + OG image
+- [ ] Assemble page: `Breadcrumb` → `ProductImages` + `ProductInfo` (side-by-side on desktop, stacked on mobile) → `ProductBadges` → `BuyMoreSaveMore` → `ProductTabs` → Reviews section → `RelatedProducts`
+- [ ] Inject `Product` JSON-LD structured data in `<head>` using `next/head` (name, image, description, rating, offers)
+- [ ] "Back in stock" notify form: if `inStock === false`, show email capture → saves to Firestore `/stockAlerts/{productId}/subscribers`
 
-#### Admin — Inventory
-- [ ] `app/[locale]/admin/inventory/page.tsx` — all-products stock overview table; colour-coded (red/amber/green); low-stock filter
-- [ ] `app/[locale]/admin/inventory/[productId]/page.tsx` — per-variant stock ledger + manual adjust form
-- [ ] `components/admin/InventoryRow.tsx` — variant row with current stock, reserved, available, threshold
-- [ ] `components/admin/StockAdjustModal.tsx` — stock_in / adjustment form with reason note; creates StockMovement doc
-- [ ] `lib/db.ts` additions: `getInventory()`, `adjustStock()` (Firestore transaction), `getStockMovements()`
+#### 2.5 Static / Policy Pages
+- [ ] `app/[locale]/about/page.tsx` — brand story, founder note, mission statement, certifications; uses Cormorant Garamond headings, product lifestyle imagery
+- [ ] `app/[locale]/contact/page.tsx` — contact form (name, email, subject, message); WhatsApp deep-link button; support hours from `constants/site.ts`; Google Maps embed (optional)
+- [ ] `app/api/contact/route.ts` — Zod validation; creates `/supportTickets/{ticketId}` with `status: "open"`; sends Resend acknowledgement email to customer; returns ticket number
+- [ ] `app/[locale]/(policies)/shipping-policy/page.tsx` — content from `constants/policies.ts`; renders domestic SLA table, free shipping threshold, COD rules
+- [ ] `app/[locale]/(policies)/refund-policy/page.tsx` — 3-day window, damaged/defective eligibility, return process steps
+- [ ] `app/[locale]/(policies)/terms/page.tsx` — terms of service (standard e-commerce template, Licorice Herbals branded)
 
-#### Static / Policy Pages
-- [ ] `app/[locale]/(policies)/shipping-policy/page.tsx`
-- [ ] `app/[locale]/(policies)/refund-policy/page.tsx`
-- [ ] `app/[locale]/(policies)/terms/page.tsx`
-- [ ] `app/[locale]/about/page.tsx`
-- [ ] `app/[locale]/contact/page.tsx` — contact form + WhatsApp deep-link + support hours
-- [ ] `app/api/contact/route.ts` — saves to `/supportTickets`; sends acknowledgement email via Resend
+#### 2.6 Admin — Product Management
+- [ ] `app/[locale]/admin/products/page.tsx` — `DataTable` of all products; columns: image, name, category, price, stock badge, active toggle, actions; search by name/SKU; bulk activate/deactivate; "New Product" CTA
+- [ ] `app/[locale]/admin/products/new/page.tsx` — renders `ProductForm` in create mode
+- [ ] `app/[locale]/admin/products/[id]/page.tsx` — loads product by ID; renders `ProductForm` in edit mode with pre-filled values
+- [ ] `components/admin/ProductForm.tsx` — all product fields grouped in sections; localizable fields (`name`, `tagline`, `description`, `benefits`, `howToUse`, `faqs`, `ingredients.benefit`) show EN | HI | MR tab strip; `RichTextEditor` for `description`; `ImageUploader` for product images; `VariantManager` sub-section; `concerns` multi-select (checkboxes); `relatedProducts` + `upsellProducts` product pickers; "Save Draft" + "Publish" buttons
+- [ ] `components/admin/VariantManager.tsx` — add/edit/delete variant rows (label, price, compareAt, SKU, weight, dimensions, `isDefault` radio); minimum 1 variant enforced
+- [ ] `components/admin/RichTextEditor.tsx` — Tiptap editor; toolbar: bold, italic, underline, h2/h3, ordered/unordered list, blockquote, link insert, image insert (triggers `ImageUploader`); outputs HTML string
+- [ ] `components/admin/ImageUploader.tsx` — drag-and-drop zone + file picker; preview grid with drag-to-reorder; upload progress per image; deletes from Firebase Storage on remove; returns ordered URL array
+
+#### 2.7 Admin — Inventory
+- [ ] `app/[locale]/admin/inventory/page.tsx` — full product × variant table; stock values colour-coded (red = 0, amber = below threshold, green = healthy); "Low Stock" filter tab; "Bulk CSV Import" button
+- [ ] `app/[locale]/admin/inventory/[productId]/page.tsx` — per-product variant rows; per-variant stock ledger (all `StockMovement` docs); "Adjust Stock" button per variant
+- [ ] `components/admin/InventoryRow.tsx` — shows variant label, current stock, reserved, available (= stock − reserved), threshold, reorder point; inline "Adjust" link
+- [ ] `components/admin/StockAdjustModal.tsx` — `type`: stock_in / adjustment / damaged; `quantity` input; `note` required; writes `StockMovement` doc + atomically updates `inventory/{productId}.variants.{variantId}.stock`
+- [ ] `lib/db.ts` additions: `getInventory(productId)`, `getStockMovements(productId, variantId)`, `adjustStock(productId, variantId, delta, movement)` — uses Firestore transaction for atomicity
 
 ---
 
 ### Phase 3 — Commerce & Payments
-**Goal**: Working end-to-end purchase flow — cart → checkout → payment (all three methods) → order confirmed.
+**Goal**: Complete end-to-end purchase flow — cart → checkout → payment (WhatsApp, COD, Razorpay) → order confirmed → admin can process.
 
-#### Cart
-- [ ] Zustand `useCartStore` — items array, add/remove/update quantity, clear; persisted to `localStorage`
-- [ ] Firestore cart sync: on auth, merge `localStorage` cart into `/users/{uid}/cart`; on sign-out, clear local
-- [ ] `CartDrawer` wired to live store
-- [ ] `components/cart/CartItem.tsx` — image, name, variant, price × qty, remove button
-- [ ] `components/cart/CartSummary.tsx` — subtotal, discount, shipping estimate, total
-- [ ] `components/cart/CouponInput.tsx` — input + "Apply" → `POST /api/coupon/validate`
-- [ ] `app/api/coupon/validate/route.ts` — all 7 server-side validation rules; returns discount amount or error
+**Exit criteria**: A customer can place an order via WhatsApp payment method from start to finish. Admin receives the order, views proof, confirms payment. Customer receives confirmation email.
 
-#### Wishlist
-- [ ] Zustand `useWishlistStore` — toggle add/remove; persisted to Firestore `/users/{uid}/wishlist` when logged in
-- [ ] Wishlist icon badge on Navbar
-- [ ] `app/[locale]/account/wishlist/page.tsx` — grid of wishlisted products
+#### 3.1 Cart State
+- [ ] `stores/useCartStore.ts` — Zustand store: `items: CartItem[]`, `add(product, variant, qty)`, `remove(itemId)`, `updateQty(itemId, qty)`, `clear()`, `total`, `itemCount`; persisted to `localStorage` with `zustand/middleware/persist`
+- [ ] Firestore cart sync: `useCartSync` hook — on `onAuthStateChanged` login, merge `localStorage` cart into `/users/{uid}/cart`; on sign-out, clear local store
+- [ ] Wire `CartDrawer` to live `useCartStore`: live item list, remove buttons, qty controls, subtotal
 
-#### Checkout Flow
-- [ ] `app/[locale]/checkout/page.tsx` — multi-step: Cart Review → Address → Shipping → Payment → Confirmation
-- [ ] `components/checkout/CheckoutStepper.tsx` — step indicator with completed / active / upcoming states
-- [ ] `components/checkout/AddressList.tsx` — saved addresses pick-list; "Add new address" option
-- [ ] `components/checkout/AddressForm.tsx` — name, phone, line1, line2, city, state, pincode, country; Zod validation; saves to `/users/{uid}/addresses`
-- [ ] `components/checkout/PincodeChecker.tsx` — calls `POST /api/pincode-check`; shows COD availability + ETA; blocks if unserviceable
-- [ ] `app/api/pincode-check/route.ts` — Shiprocket serviceability API (mock: always serviceable in dev)
-- [ ] `components/checkout/ShippingOptions.tsx` — standard / express / same-day (if Mumbai pincode); shows SLA + cost
-- [ ] `components/checkout/PaymentOptions.tsx` — reads `/settings/paymentSettings` (SSR, 60s cache); renders only enabled methods
-- [ ] `components/checkout/OrderSummary.tsx` — final price breakdown before confirm
+#### 3.2 Cart UI
+- [ ] `components/cart/CartItem.tsx` — product thumbnail, name, variant label, unit price, qty controller (`QuantitySelector`), line total, remove button
+- [ ] `components/cart/CartSummary.tsx` — itemised subtotal, coupon discount line, shipping estimate ("Free" or "₹80"), COD fee line (if applicable), total in bold; "Savings" highlighted if coupon active
+- [ ] `components/cart/CouponInput.tsx` — text input + "Apply" button → client calls `POST /api/coupon/validate`; shows discount applied or error message; "Remove" link clears coupon
+- [ ] `app/api/coupon/validate/route.ts` — server-side: all 7 validation rules (exists, active, dates, minOrder, globalUsage, perUserUsage, applicable IDs); returns `{ valid: true, discountAmount, type }` or `{ valid: false, error }`
 
-#### WhatsApp Payment
-- [ ] `components/checkout/WhatsAppPaymentInstructions.tsx` — UPI ID, QR code (if set), WhatsApp "Open Chat" button with pre-filled message containing order number
-- [ ] `components/checkout/WhatsAppProofUpload.tsx` — file input → POST to `submit-proof`; updates `paymentStatus: "proof_submitted"`
-- [ ] `app/api/payment/whatsapp/submit-proof/route.ts` — validates auth; uploads image to Firebase Storage `/payment-proofs/{orderId}`; updates Firestore order doc
-- [ ] Order creation Server Action: `paymentMethod: "whatsapp"`, `paymentStatus: "pending_whatsapp"`, `orderStatus: "draft"`; reserves stock (Firestore transaction)
+#### 3.3 Wishlist
+- [ ] `stores/useWishlistStore.ts` — similar to cart; `toggle(productId)`, `isWished(productId)`; persisted to localStorage; synced to `/users/{uid}/wishlist` when logged in
+- [ ] Wishlist heart icon in `ProductCard` and `ProductInfo` connected to store
+- [ ] Navbar wishlist icon shows `itemCount` badge
+- [ ] `app/[locale]/account/wishlist/page.tsx` — `ProductGrid` of wishlisted products; "Move to Cart" button per item; empty state with "Browse Products" CTA
 
-#### Razorpay Payment (optional — only when `razorpayEnabled: true`)
-- [ ] `app/api/payment/razorpay/create-order/route.ts` — checks `razorpayEnabled` in settings; creates Razorpay order; returns `orderId` + `amount`
-- [ ] `app/api/payment/razorpay/verify/route.ts` — HMAC-SHA256 signature verification; sets `paymentStatus: "paid"` on success
-- [ ] Razorpay checkout SDK loaded client-side only when method is active
+#### 3.4 Checkout Flow
+- [ ] `app/[locale]/checkout/page.tsx` — 5-step flow: **Cart Review → Address → Shipping → Payment → Confirmation**; step state persisted in Zustand `useCheckoutStore`; each step validates before advancing
+- [ ] `components/checkout/CheckoutStepper.tsx` — horizontal step indicator; completed steps have checkmark; active step highlighted; past steps are clickable (go back)
+- [ ] `components/checkout/AddressList.tsx` — lists `/users/{uid}/addresses`; "Use this address" radio selection; "Add New Address" card at the bottom; guest checkout shows inline form only
+- [ ] `components/checkout/AddressForm.tsx` — React Hook Form + Zod: name, phone (10-digit Indian), line1, line2, city, state (dropdown from Indian states list), pincode (6-digit), country (locked to India); saves to Firestore on submit
+- [ ] `components/checkout/PincodeChecker.tsx` — triggers `POST /api/pincode-check` on pincode blur; shows "✓ Delivery available — ETA 5-7 days" or error; "COD not available at this pincode" warning; blocks advance if unserviceable
+- [ ] `app/api/pincode-check/route.ts` — calls Shiprocket serviceability API with JWT from `/api/shiprocket/token`; in mock mode (`NEXT_PUBLIC_USE_MOCK_DATA=true`) returns always-serviceable with standard SLA
+- [ ] `components/checkout/ShippingOptions.tsx` — radio options: Standard (free above ₹999 / ₹80), Express (+₹X, 2-3 days), Same Day (Mumbai pincodes only); shows SLA and price; reads availability from pincode check result
+- [ ] `components/checkout/PaymentOptions.tsx` — SSR fetches `/settings/paymentSettings` (60s cache); renders only enabled methods as radio options; if only 1 method, auto-selects it
+- [ ] `components/checkout/OrderSummary.tsx` — final breakdown: items × qty, subtotal, discount (coupon), shipping, COD fee, **Total**; product thumbnails; not editable — "← Edit Cart" link
 
-#### COD Payment
-- [ ] COD selection adds `codFee` (₹50) to order total; `paymentMethod: "cod"`, `paymentStatus: "pending"`
-- [ ] Order creation proceeds immediately; stock reserved
+#### 3.5 WhatsApp Payment
+- [ ] `components/checkout/WhatsAppPaymentInstructions.tsx` — post-order page: UPI ID in copy-able field, QR code image (from `paymentSettings.whatsappQrImageUrl` if set), "Open WhatsApp" deep-link button with pre-filled message (`"Hi, I've paid ₹X for Order #LH-0001. Please find screenshot attached."`); instructions numbered list; order number prominently shown
+- [ ] `components/checkout/WhatsAppProofUpload.tsx` — optional file input (image only, max 5 MB); "Upload Screenshot" button triggers `POST /api/payment/whatsapp/submit-proof`; progress indicator; success state shows "Proof received — we'll confirm shortly"
+- [ ] `app/api/payment/whatsapp/submit-proof/route.ts` — verifies auth token; validates file: MIME type must be `image/*`, max 5 MB; uploads to Firebase Storage `/payment-proofs/{orderId}.{ext}`; updates order `paymentStatus: "proof_submitted"`, `whatsappProofImageUrl`; sends Resend email to admin
 
-#### Order Creation
-- [ ] `lib/actions/createOrder.ts` — Server Action: validates cart, coupon, stock; creates order doc (Firestore transaction: decrement stock + create order atomically); returns `orderId`
-- [ ] Auto-generate `orderNumber` in format `LH-2026-00001` (padded counter stored in `siteConfig`)
-- [ ] Guest checkout: `guestEmail` stored, no `userId`
-- [ ] Post-payment confirmation email via `POST /api/order-confirm`
-- [ ] `app/api/order-confirm/route.ts` — sends Resend email with order summary; creates first timeline event
+#### 3.6 Razorpay Payment (optional — only rendered when `razorpayEnabled: true`)
+- [ ] `app/api/payment/razorpay/create-order/route.ts` — verifies auth; reads `razorpayEnabled` from Firestore settings; if disabled returns 403; creates Razorpay order via API key; returns `{ orderId, amount, currency: "INR", keyId }`
+- [ ] `app/api/payment/razorpay/verify/route.ts` — receives `{ razorpay_order_id, razorpay_payment_id, razorpay_signature }`; computes HMAC-SHA256(`orderId|paymentId`, `RAZORPAY_KEY_SECRET`); rejects if mismatch; sets `paymentStatus: "paid"`, `paymentId` on order; triggers confirmation email
+- [ ] Razorpay SDK (`<script src="...">`) loaded client-side only via `next/script strategy="lazyOnload"` and only when payment method is active
 
-#### Admin — Payment Settings
-- [ ] `app/[locale]/admin/settings/payments/page.tsx` — toggle WhatsApp / Razorpay / COD; edit UPI ID, WhatsApp number, QR image, COD fee, min order
-- [ ] `components/admin/PaymentMethodToggle.tsx` — toggle switch with instant Firestore write to `/settings/paymentSettings`
-- [ ] Admin `WhatsApp Payments` section on dashboard: count of `pending_whatsapp` + `proof_submitted` orders
+#### 3.7 COD Payment
+- [ ] "Cash on Delivery" option rendered when `codEnabled: true` in settings
+- [ ] Selecting COD adds visible `+₹50 COD fee` line to `OrderSummary`
+- [ ] Order creation sets `paymentMethod: "cod"`, `paymentStatus: "pending"`, `orderStatus: "pending"`; stock reserved immediately
+- [ ] COD min-order check: if `codMinOrder` is set and cart is below it, COD option is greyed out with tooltip
 
-#### Admin — Order Management
-- [ ] `app/[locale]/admin/orders/page.tsx` — filterable/searchable order list; tabs: All, Awaiting Payment, Processing, Shipped, Delivered, Cancelled
-- [ ] `app/[locale]/admin/orders/[id]/page.tsx` — full order detail page
-- [ ] `components/admin/DataTable.tsx` — generic sortable/filterable table with pagination
-- [ ] `components/admin/OrderStatusSelect.tsx` — dropdown to advance order status + optional admin note; appends timeline event
-- [ ] `components/admin/WhatsAppPaymentConfirm.tsx` — proof image viewer + "Confirm Payment" button → Server Action sets `paymentStatus: "paid"` + triggers confirmation email
-- [ ] `components/admin/RefundModal.tsx` — enter refund amount + note; for Razorpay calls API; for WhatsApp/COD records manual refund
+#### 3.8 Order Creation
+- [ ] `lib/actions/createOrder.ts` — Server Action: 1) Zod-validate inputs; 2) re-validate coupon server-side; 3) check stock per variant with Firestore `runTransaction`; 4) atomically: decrement stock + write `reserved` + write order doc + increment `orderCounter` in `siteConfig`; 5) returns `{ orderId, orderNumber }`
+- [ ] `orderNumber` generation: `LH-${year}-${String(counter).padStart(5, "0")}` — counter stored in `siteConfig.orderCounter`, incremented atomically in the same transaction as order creation
+- [ ] Guest checkout: requires `guestEmail`; `userId` is null; address stored inline on order
+- [ ] 15-minute reservation timeout: on order creation write `reservationExpiresAt: now + 15min`; `getInventory` query filters out expired reservations (lazy expiry — no background job)
 
-#### Customer Account
-- [ ] `app/[locale]/account/page.tsx` — dashboard: recent 3 orders, quick links, greeting
-- [ ] `app/[locale]/account/orders/page.tsx` — full order history list
-- [ ] `app/[locale]/account/orders/[id]/page.tsx` — order detail + timeline
-- [ ] `components/account/OrderCard.tsx` — compact order row: number, date, status badge, total, "View" link
-- [ ] `components/account/OrderTimeline.tsx` — vertical timeline of `OrderEvent` docs
-- [ ] `app/[locale]/account/addresses/page.tsx` — list + add/edit/delete saved addresses
-- [ ] `components/account/AddressCard.tsx`
-- [ ] `app/[locale]/account/profile/page.tsx` — edit display name, phone; change password
+#### 3.9 Post-Order & Emails
+- [ ] `app/api/order-confirm/route.ts` — called after payment confirmed (WhatsApp admin action or Razorpay verify); builds order summary HTML; sends Resend email to customer (`orders@licoriceherbal.in` as from); writes first `OrderEvent` to `/orders/{id}/timeline`; idempotent (checks `confirmationEmailSentAt` before sending)
+- [ ] Confirmation email template: order number, items table, delivery address, expected delivery date, contact support link
+
+#### 3.10 Admin — Order Management
+- [ ] `app/[locale]/admin/orders/page.tsx` — `DataTable` with filters: status tabs (All / Awaiting Payment / Processing / Shipped / Delivered / Cancelled), payment method filter, date range picker, search (order number / name / email / AWB); sortable by date, total; bulk mark-as-confirmed action; Export CSV
+- [ ] `app/[locale]/admin/orders/[id]/page.tsx` — full order detail: items breakdown, pricing, customer + address, payment details, shipping info, timeline; action buttons depend on `orderStatus`
+- [ ] `components/admin/DataTable.tsx` — generic reusable table component: column config array, sortable headers, client-side filter, Skeleton loading rows, empty state, pagination
+- [ ] `components/admin/OrderStatusSelect.tsx` — dropdown of valid next statuses given current status; shows confirmation dialog for destructive moves (cancel, refund); writes status change + optional admin note to Firestore; appends timeline event
+- [ ] `components/admin/WhatsAppPaymentConfirm.tsx` — shows proof screenshot inline (`<img src={proofUrl}>`); "Confirm Payment" button → Server Action sets `paymentStatus: "paid"`, `orderStatus: "confirmed"`, `whatsappConfirmedBy`, `whatsappConfirmedAt`; triggers `POST /api/order-confirm`; WhatsApp conversation deep-link for reference
+- [ ] `components/admin/RefundModal.tsx` — `amount` input (pre-filled with order total), `note` textarea; for Razorpay: calls Razorpay refund API + records `refundId`; for WhatsApp/COD: records manual refund note only; sets `paymentStatus: "refunded"` and `refundedAt`
+
+#### 3.11 Admin — Payment Settings
+- [ ] `app/[locale]/admin/settings/payments/page.tsx` — toggle switches for WhatsApp, Razorpay, COD; WhatsApp section: UPI ID text field, business phone number, QR image upload; Razorpay section: shows key ID (masked), test mode toggle; COD section: fee amount, min order; all changes write instantly to `/settings/paymentSettings` via Server Action
+- [ ] `components/admin/PaymentMethodToggle.tsx` — labelled toggle switch; optimistic UI update; on error reverts
+
+#### 3.12 Customer Account
+- [ ] `app/[locale]/account/page.tsx` — dashboard: greeting (`"Welcome back, {name}"`), last 3 orders as `OrderCard`, quick links (All Orders, Wishlist, Addresses, Profile)
+- [ ] `app/[locale]/account/orders/page.tsx` — paginated order history; `OrderCard` list; filter by status
+- [ ] `app/[locale]/account/orders/[id]/page.tsx` — full order detail: items, pricing breakdown, delivery address, `OrderTimeline` (live tracking events), return request button (visible if within 3-day window); invoice PDF download link
+- [ ] `components/account/OrderCard.tsx` — order number, date, items count, total, status `StatusBadge`, "View Details" link
+- [ ] `components/account/OrderTimeline.tsx` — vertical timeline of `OrderEvent` docs from `/orders/{id}/timeline`; icons per status; timestamps; location if available; most-recent event at top
+- [ ] `app/[locale]/account/addresses/page.tsx` — address cards grid; "Add New" opens `AddressForm` modal; edit/delete per card
+- [ ] `components/account/AddressCard.tsx` — formatted address display; "Edit", "Delete", "Set as Default" actions
+- [ ] `app/[locale]/account/profile/page.tsx` — edit display name + phone; change password (requires current password); danger zone: delete account link (disabled—contact support)
 
 ---
 
-### Phase 4 — Shipping & Order Management
-**Goal**: Shiprocket integration, live tracking, return flow, admin shipping tools.
+### Phase 4 — Shipping & Tracking
+**Goal**: Shiprocket integration provides automatic shipment creation, live webhook tracking, and customer-facing order tracking. Return flow and admin shipping tools complete.
 
-#### Shiprocket Integration
-- [ ] `app/api/shiprocket/token/route.ts` — POST to Shiprocket auth; caches JWT in Firestore `/settings/shiprocketToken` with 24h TTL; returns cached if still valid
-- [ ] `lib/shiprocket.ts` — `getToken()`, `createOrder()`, `cancelOrder()`, `trackByAwb()` helpers that call the API routes
-- [ ] `app/api/shiprocket/create-order/route.ts` — builds Shiprocket payload from order doc; creates shipment; stores `shiprocketOrderId`, `shiprocketShipmentId` on order
-- [ ] `app/api/shiprocket/cancel-order/route.ts` — cancel shipment + releases stock reservation
-- [ ] `app/api/shiprocket/track/route.ts` — proxy AWB tracking; returns timeline events
-- [ ] `app/api/shiprocket/webhook/route.ts` — validates HMAC signature; maps Shiprocket status to `orderStatus`; appends `/timeline` event; sends customer email notification
+**Exit criteria**: Admin ships an order via Shiprocket, AWB is stored, customer sees live tracking timeline updated by webhook. Manual shipping fallback works.
 
-#### Admin Shipping Tools
-- [ ] `components/admin/ShipOrderModal.tsx` — "Ship with Shiprocket" button (calls create-order route) OR manual entry: courier name + AWB; sets `manualShipping: true`
-- [ ] AWB + courier name displayed on admin order detail after shipping
+#### 4.1 Shiprocket Token Management
+- [ ] `app/api/shiprocket/token/route.ts` — on `GET`: checks Firestore `/settings/shiprocketToken` for cached JWT + `expiresAt`; if valid returns cached; else POSTs to Shiprocket auth endpoint with `SHIPROCKET_EMAIL` + `SHIPROCKET_PASSWORD`; stores token + `expiresAt = now + 24h` in Firestore; returns token — all within 10s Vercel timeout
+- [ ] `lib/shiprocket.ts` — `getToken(): Promise<string>` calls `/api/shiprocket/token`; expose helpers: `createShipment(order)`, `cancelShipment(shipmentId)`, `trackByAwb(awb)`, `checkServiceability(pincode, weight)`
 
-#### Customer Tracking
-- [ ] `app/[locale]/track/page.tsx` — input: Order ID or AWB + email; fetches order via `lib/db.ts`; renders `OrderTimeline`
-- [ ] `account/orders/[id]` timeline updated with Shiprocket webhook events
-- [ ] Courier tracking link opens in new tab
+#### 4.2 Shipment Creation
+- [ ] `app/api/shiprocket/create-order/route.ts` — verifies admin auth; fetches order from Firestore; builds Shiprocket API payload (items as `order_items[]`, pickup address from `siteConfig`, delivery address from order, weight from variant); POST to Shiprocket; stores `shiprocketOrderId`, `shiprocketShipmentId`, `awbCode`, `courierName` on order; appends timeline event `"Shipment created"`
+- [ ] `app/api/shiprocket/cancel-order/route.ts` — verifies admin auth; calls Shiprocket cancel API; releases stock reservation (write `StockMovement` of type `released`); updates `orderStatus: "cancelled"`
+- [ ] `app/api/shiprocket/track/route.ts` — proxy: GET with `?awb=` param; calls Shiprocket tracking API; returns normalised timeline events array; used by customer track page
 
-#### Returns & Refunds
-- [ ] Return request button on `account/orders/[id]` — only visible within 3-day window after delivery; `status: "return_requested"`
-- [ ] Admin initiates return pickup via Shiprocket from order detail page
-- [ ] Refund recorded via `RefundModal`; stock restored via StockMovement `return` event
+#### 4.3 Shiprocket Webhook
+- [ ] `app/api/shiprocket/webhook/route.ts` — validates `X-Shiprocket-Hmac-Sha256` header against `SHIPROCKET_WEBHOOK_SECRET`; rejects non-matching with 401; maps Shiprocket event status to internal `orderStatus`; appends event to `/orders/{id}/timeline`; updates top-level `orderStatus`; for `delivered` status sets `deliveredAt = now`; triggers Resend email to customer for key status milestones (shipped, out-for-delivery, delivered)
+- [ ] Document expected webhook payload shape in code comment; fail silently on unknown event types
 
-#### Admin Dashboard Baseline
-- [ ] `app/[locale]/admin/page.tsx` — stats cards + alerts
-- [ ] `components/admin/StatsCard.tsx` — label, value, trend indicator
-- [ ] Stats: revenue (today / week / month), orders today, pending (confirmation + shipping), low-stock count, open tickets, pending reviews, upcoming consultations
-- [ ] Recent orders table (latest 10) with quick status buttons
-- [ ] WhatsApp pending payments alert card
+#### 4.4 Admin Shipping Tools
+- [ ] `components/admin/ShipOrderModal.tsx` — two tabs: **Shiprocket** (calls `/api/shiprocket/create-order`; shows courier recommendation; AWB auto-populated after success) and **Manual** (courier name text field + AWB text field + tracking URL; sets `manualShipping: true`); shows Pincode serviceability inline check before submitting
+- [ ] Admin order detail: show AWB code, courier name, tracking link, estimated delivery date after shipping; "Re-ship" option if shipment failed
+
+#### 4.5 Customer Order Tracking
+- [ ] `app/[locale]/track/page.tsx` — public page; `?orderId=` or `?awb=` + `?email=` params; fetches order (verifies email matches `guestEmail` or account email as auth alternative); renders `OrderTimeline`; shows current status hero card; courier name + external tracking link; "Order not found" error state
+- [ ] Customer `account/orders/[id]` — `OrderTimeline` already shows webhook-updated events in real time (Firestore `onSnapshot` listener on the timeline sub-collection)
+- [ ] Courier tracking link (`courierTrackingUrl`) opens in new tab; shows courier name
+
+#### 4.6 Returns & Refunds
+- [ ] Return request button on `account/orders/[id]` — visible only: `orderStatus === "delivered"` AND `deliveredAt` is within `RETURN_WINDOW_DAYS` (3 days); not visible for digital or non-returnable items
+- [ ] Return request form: reason dropdown (damaged, wrong item, defective, expired) + image uploads (up to 3) + optional note; writes `status: "return_requested"`, `returnReason`, `returnImages` on order
+- [ ] Admin: "Initiate Return Pickup" button on order detail → calls Shiprocket return shipment API; updates `orderStatus: "return_picked_up"`
+- [ ] On return received (admin manual action): trigger refund via `RefundModal`; write `StockMovement` of type `return`
+
+#### 4.7 Admin Dashboard — Baseline
+- [ ] `app/[locale]/admin/page.tsx` — stats grid + ordered alert cards; server-rendered; refreshes on page load
+- [ ] `components/admin/StatsCard.tsx` — icon, label, primary value, optional secondary (e.g. "vs yesterday"), optional trend arrow
+- [ ] Stats widgets: Revenue today / this week / this month (sum of `paymentStatus: "paid"` orders), Orders today (count), Pending confirmation count, Low-stock count, Open tickets count, Pending reviews count, Upcoming consultations count
+- [ ] Charts (server-computed, no Cloud Functions): Revenue last 30 days (line chart via CSS/SVG — no chart library dependency unless already installed), Orders by status today (donut), Top 5 products last 30 days (bar)
+- [ ] **WhatsApp pending payments** alert card: count of `paymentStatus IN ["pending_whatsapp","proof_submitted"]`; "Review All" link to filtered orders list
+- [ ] Recent orders: last 10 rows with `OrderStatusSelect` inline for quick processing
 
 ---
 
 ### Phase 5 — Reviews & Trust
-**Goal**: Verified purchase reviews, admin moderation, public display with photos and helpful votes.
+**Goal**: Verified purchase review system with photo uploads, admin moderation, helpful votes, and public display integrated into product pages.
 
-#### Review Submission
-- [ ] `components/product/AddReviewForm.tsx` — star picker, optional title, body (min 20 chars), up to 5 image uploads; only shown to users with a `delivered` order containing the product
-- [ ] `lib/actions/submitReview.ts` — Server Action: checks verified purchase eligibility; creates review with `status: "pending"`
-- [ ] Image uploads → Firebase Storage `/reviews/{reviewId}/`
+**Exit criteria**: Customer with a delivered order can submit a review with photos. Admin can approve/reject in a moderation queue. Approved reviews appear on the product page. Product rating is updated automatically.
 
-#### Admin Moderation
-- [ ] `app/[locale]/admin/reviews/page.tsx` — pending queue (default) + all reviews tab; filter by product, rating, date
-- [ ] `app/[locale]/admin/reviews/[id]/page.tsx` — review detail: approve / reject (with reason) / add reply
-- [ ] `components/admin/ReviewModerationCard.tsx` — review body, images, approve/reject buttons, reply textarea
-- [ ] On approval: Server Action updates product `rating` + `reviewCount` (read all approved reviews → compute average → write back in a Firestore transaction); no Cloud Function or Blaze required
+#### 5.1 Review Submission
+- [ ] `components/product/AddReviewForm.tsx` — shown only if current user has a `delivered` order containing this product (checked server-side via `lib/actions/checkReviewEligibility.ts`); fields: star rating (mandatory, 1–5), title (optional), body (min 20 chars, max 1000), up to 5 photo uploads; React Hook Form + Zod; Submit creates review with `status: "pending"`
+- [ ] `lib/actions/checkReviewEligibility.ts` — Server Action: queries `/orders` where `userId = currentUser AND orderStatus = "delivered"` and one of `items.productId` matches; returns `{ eligible: boolean, orderId? }`
+- [ ] `lib/actions/submitReview.ts` — Server Action: re-checks eligibility; validates inputs; uploads images to `/reviews/{reviewId}/` in Firebase Storage (sequential, fail gracefully if one fails); writes Firestore review doc; returns `reviewId`
+- [ ] "Review submitted — pending approval" success toast
 
-#### Storefront Review Display
-- [ ] `components/product/ReviewsList.tsx` — average rating banner, star distribution bar, filter/sort controls, paginated list of `ReviewCard`
-- [ ] `components/product/ReviewCard.tsx` — stars, title, body, verified badge, photos, helpful vote button, "Report" link, admin reply section
-- [ ] `components/product/ReviewFilters.tsx` — filter by star rating, verified purchase, has photos
-- [ ] `components/product/ReviewPhotoGallery.tsx` — grid of customer photos; opens `ImageLightbox`
-- [ ] "Was this helpful?" thumbs up → increments `helpfulCount`
-- [ ] "Report review" → `POST /api/review/flag` → creates `reviewFlag` doc
-- [ ] `app/api/review/flag/route.ts`
+#### 5.2 Admin Review Moderation
+- [ ] `app/[locale]/admin/reviews/page.tsx` — **Pending** tab (default) + **All Reviews** tab; `DataTable` with columns: product, rating, excerpt, author, date, verified badge, actions; filter by product, star rating, date
+- [ ] `app/[locale]/admin/reviews/[id]/page.tsx` — full review body, all images (grid with lightbox), customer name + verified purchase status, product link; Approve / Reject (requires reason text) / Add Reply buttons
+- [ ] `components/admin/ReviewModerationCard.tsx` — composable card used in both list and detail views; approve/reject buttons; reply textarea (shown only after approval)
+- [ ] `lib/actions/moderateReview.ts` — Server Action: on approve → sets `status: "approved"`, `moderatedBy`, `moderatedAt`; then reads all approved reviews for the product → computes average rating → updates `product.rating` + `product.reviewCount` in Firestore transaction; on reject → sets `status: "rejected"`, `rejectionReason`
+- [ ] Admin reply: sets `adminReply` + `adminRepliedAt` on review doc; reply shown publicly on product page below customer review
+
+#### 5.3 Storefront Review Display
+- [ ] `components/product/ReviewsList.tsx` — top section: average star rating (large), rating distribution bar chart (5→1 stars with fill percentage); filter row and sort dropdown; paginated `ReviewCard` list (10 per page); "Load more" button or pagination; total count display
+- [ ] `components/product/ReviewCard.tsx` — star rating, title, body, `Verified Purchase` badge (if `isVerifiedPurchase`), date, customer first name + city, review photos row (click opens lightbox), `adminReply` section (indented, labelled "Response from Licorice Herbals"), helpful vote thumbs-up (`helpfulCount`), "Report" link
+- [ ] `components/product/ReviewFilters.tsx` — pill filters: "All", "5 Stars", "4 Stars" … "1 Star", "Verified Only", "With Photos"; updates URL param `?reviewFilter=`
+- [ ] `components/product/ReviewPhotoGallery.tsx` — all customer photos from approved reviews in a masonry/grid; clicking opens `ImageLightbox` with customer name + rating overlay
+- [ ] Helpful vote: `POST /api/review/helpful` → Firestore `increment(1)` on `helpfulCount`; debounced, one vote per session (stored in `sessionStorage`)
+- [ ] Flag review: "Report" opens compact form (reason dropdown); `POST /api/review/flag` → writes `reviewFlag` doc
+- [ ] `app/api/review/flag/route.ts` — verifies auth; writes `/reviewFlags/{flagId}`; checks user hasn't flagged same review already
 
 ---
 
 ### Phase 6 — Support & Consultation
-**Goal**: Support ticket inbox, free consultation booking, corporate gifting.
+**Goal**: Support ticket inbox (threaded), free consultation booking, and corporate gifting inquiry form — all with admin management panels.
 
-#### Support Tickets
-- [ ] `app/[locale]/account/orders/[id]/page.tsx` — "Get Help" button → ticket create form pre-filled with order
-- [ ] `app/[locale]/contact/page.tsx` form submits → `POST /api/contact` → creates ticket
-- [ ] `app/api/contact/route.ts` — creates ticket in Firestore; sends acknowledgement email (Resend)
-- [ ] `components/support/TicketCard.tsx` — ticket number, subject, status badge, last updated
-- [ ] `components/support/TicketThread.tsx` — message thread with customer/admin bubbles; file attachment display
-- [ ] `app/[locale]/admin/support/page.tsx` — ticket inbox: unread badge, priority sort, SLA highlight (> 24h open)
-- [ ] `app/[locale]/admin/support/[ticketId]/page.tsx` — thread + reply textarea + internal notes field + close/reopen button
-- [ ] `components/admin/TicketInbox.tsx`
-- [ ] Email notification to customer on every admin reply (Resend)
+**Exit criteria**: Customer can open a ticket from an order. Admin sees tickets in an inbox, replies, and closes them. Customer can book a consultation. Corporate inquiry form works.
 
-#### Free Consultation
-- [ ] `app/[locale]/consultation/page.tsx` — booking form: name, email, phone, concern checkboxes, preferred date/time, message; consultant bio section
-- [ ] `lib/actions/bookConsultation.ts` — saves to `/consultations`; sends confirmation email to customer; alerts admin
-- [ ] `app/[locale]/admin/consultations/page.tsx` — upcoming / completed / cancelled list with date filter
-- [ ] `components/admin/ConsultationCard.tsx` — booking card with confirm / complete / cancel buttons + internal note
-- [ ] Admin confirmation triggers customer email with consultation details
+#### 6.1 Support Tickets — Customer Side
+- [ ] "Get Help" button on `account/orders/[id]` — opens ticket create modal pre-filled with order number; category auto-set to "order"
+- [ ] `app/[locale]/contact/page.tsx` form → `POST /api/contact` → creates ticket; shows ticket number in success state
+- [ ] Customer can view their tickets at `app/[locale]/account/` (add "Support" quick link); view thread at a dedicated page
+- [ ] `components/support/TicketCard.tsx` — ticket number, subject, category badge, status `StatusBadge`, last message timestamp, unread indicator
+- [ ] `components/support/TicketThread.tsx` — chronological message bubbles (customer: right-aligned, admin: left-aligned); shows `attachments` as image thumbnails; timestamps; closed ticket shows "This ticket is resolved" banner with re-open link
 
-#### Corporate Gifting
-- [ ] `app/[locale]/corporate-gifting/page.tsx` — inquiry form (all fields from data model)
-- [ ] `lib/actions/submitCorporateInquiry.ts` — saves to `/corporateInquiries`; email alert to admin
-- [ ] `app/[locale]/admin/corporate/page.tsx` — inquiry list with status (new / in-progress / won / lost)
+#### 6.2 Support Tickets — Admin Side
+- [ ] `app/[locale]/admin/support/page.tsx` — `TicketInbox` component; tabs: Open / In Progress / Waiting Customer / Resolved; unread count badge per tab; sort by: Last updated, Priority, Oldest first; SLA highlight: tickets open > 24h shown with amber border
+- [ ] `app/[locale]/admin/support/[ticketId]/page.tsx` — `TicketThread` + reply form (Textarea + file attachment + Send); internal notes section (admin-only, grey background, padlock icon); status change dropdown; close/reopen button; assigns ticket to admin user
+- [ ] `components/admin/TicketInbox.tsx` — wraps the ticket list with composable filter/sort controls; row click navigates to detail
+- [ ] On every admin reply: write `TicketMessage` to `/supportTickets/{id}/messages/`; send Resend email to customer; update ticket `updatedAt` and `status: "waiting_customer"`
+
+#### 6.3 Free Consultation
+- [ ] `app/[locale]/consultation/page.tsx` — two-column layout: consultant bio (photo, credentials, specialties) on left; booking form on right; form fields: name, email, phone, concern checkboxes (multi-select from `CONCERNS`), preferred date (date picker, future dates only), preferred time slot (dropdown), message (optional)
+- [ ] `lib/actions/bookConsultation.ts` — Zod validation; writes `/consultations/{bookingId}` with `status: "pending"`; sends Resend confirmation email to customer ("Booking received, we'll confirm shortly"); sends admin alert email with booking details
+- [ ] `app/[locale]/admin/consultations/page.tsx` — two tabs: Upcoming (sorted by date) and Completed; `ConsultationCard` list; date range filter
+- [ ] `components/admin/ConsultationCard.tsx` — name, concerns, preferred slot, status badge; inline action buttons: Confirm (sends customer confirmation email), Complete, Cancel; internal notes field
+- [ ] On confirmation: sends Resend email to customer with confirmed date/time, meeting link placeholder (`[Online link or phone number]`), prep instructions
+
+#### 6.4 Corporate Gifting
+- [ ] `app/[locale]/corporate-gifting/page.tsx` — hero section with corporate gifting visual; value propositions; inquiry form with all required fields (company, contact, email, phone, units, budget, delivery date, custom branding, message); "Request Quote" CTA
+- [ ] `lib/actions/submitCorporateInquiry.ts` — validation; writes `/corporateInquiries/{id}`; admin alert email via Resend; customer acknowledgement email
+- [ ] `app/[locale]/admin/corporate/page.tsx` — `DataTable` of inquiries; columns: company, units, budget, date; status filter (New / In Progress / Won / Lost); click opens inquiry detail modal
 
 ---
 
 ### Phase 7 — Content
-**Goal**: Blog, diet section, newsletter, before/after management.
+**Goal**: Blog with rich text, diet section, newsletter subscription management, and before/after gallery — all with admin CRUD.
 
-#### Blog
-- [ ] `lib/db.ts` additions: `getBlogs()`, `getBlog()`, `getBlogsByCategory()`
-- [ ] `app/[locale]/blog/page.tsx` — blog list with category filter tabs (Skincare & Ayurveda | Diet & Lifestyle); uses mock blogs via `lib/db.ts`
-- [ ] `app/[locale]/blog/[slug]/page.tsx` — post with rich text, cover image, author, tags, related products widget, share buttons; `generateStaticParams` from slugs
-- [ ] `app/[locale]/blog/diet/page.tsx` — diet & lifestyle posts grid
-- [ ] `components/blog/BlogCard.tsx` — cover image, category, title, excerpt, read time, date
-- [ ] `components/blog/BlogContent.tsx` — renders Tiptap HTML safely; syntax-highlighted code blocks
-- [ ] `components/blog/RelatedPosts.tsx` — 3 related posts sidebar widget
-- [ ] `app/[locale]/admin/blogs/page.tsx` — blog list with Draft / Published / Archived filter
-- [ ] `app/[locale]/admin/blogs/new/page.tsx` + `[id]/page.tsx` — CRUD with `RichTextEditor`, cover image upload, SEO fields, scheduled publish date, localizable title/body (EN | HI | MR tabs)
+**Exit criteria**: Admin can publish a blog post via Tiptap editor. Visitors can browse and read posts. Newsletter captures subscribers. Before/after slider shows real content.
 
-#### Newsletter
-- [ ] `NewsletterBanner` form → `POST /api/newsletter` → saves to `/newsletter`; deduplicates by email
-- [ ] `app/[locale]/admin/newsletter/page.tsx` — subscriber list with join date; Export CSV button
+#### 7.1 Blog — Storefront
+- [ ] `lib/db.ts` additions: `getBlogs(category?, limit?)`, `getBlog(slug)`, `getBlogsByTag(tag)` — with mock fallback to `lib/mocks/blogs.ts`
+- [ ] `app/[locale]/blog/page.tsx` — blog list: category filter tabs (Skincare & Ayurveda / Diet & Lifestyle); grid of `BlogCard` components; load-more pagination; `generateMetadata` with blog listing meta
+- [ ] `app/[locale]/blog/[slug]/page.tsx` — article with: cover image, category tag, title (Cormorant Garamond), author avatar + name, publish date, read time estimate, `BlogContent` body, tags row, related products widget (from `blog.relatedProducts`), social share buttons, `RelatedPosts` section; `generateStaticParams` + `generateMetadata`; `Article` JSON-LD
+- [ ] `app/[locale]/blog/diet/page.tsx` — same as blog list but pre-filtered to `category: "diet-lifestyle"`
+- [ ] `components/blog/BlogCard.tsx` — cover image, category pill, title, excerpt (first 150 chars), author, date, read time, "Read more →" link
+- [ ] `components/blog/BlogContent.tsx` — renders Tiptap HTML via `dangerouslySetInnerHTML` (safe: Tiptap output is controlled, admin-only); applies prose typography styles; syntax-highlighted `<pre>` blocks; image figures with captions
+- [ ] `components/blog/RelatedPosts.tsx` — "More Posts" sidebar section; 3 `BlogCard` components; shown below article
 
-#### Before/After Gallery
-- [ ] Admin: upload before/after image pairs with product tag + caption
-- [ ] `BeforeAfterSlider` on home page and product detail fed from Firestore/mock
+#### 7.2 Blog — Admin
+- [ ] `app/[locale]/admin/blogs/page.tsx` — `DataTable` of all posts; status tabs: Draft / Published / Archived; columns: title, category, author, published date, views (optional); "New Post" CTA
+- [ ] `app/[locale]/admin/blogs/new/page.tsx` — new blog form
+- [ ] `app/[locale]/admin/blogs/[id]/page.tsx` — edit blog form (same component)
+- [ ] Blog form fields: `title` (EN | HI | MR tabs), `slug` (auto-generated from EN title, editable), category dropdown, cover image (`ImageUploader`), `body` (`RichTextEditor`, EN | HI | MR tabs), author name, tags (comma-separated), `relatedProducts` multi-select, `metaTitle` + `metaDescription` + OG image, `publishedAt` date picker (future date = scheduled), status toggle (Draft / Published); Save + Publish buttons
+
+#### 7.3 Newsletter
+- [ ] `POST /api/newsletter` — Zod: valid email; writes to `/newsletter/{id}` with `email`, `subscribedAt`; reads existing doc first to deduplicate; returns `{ alreadySubscribed: boolean }`
+- [ ] `components/home/NewsletterBanner.tsx` — inline form already built in Phase 1; now fully wired to API; shows "You're subscribed!" if `alreadySubscribed`
+- [ ] `app/[locale]/admin/newsletter/page.tsx` — subscriber `DataTable`: email, subscribed date, source; total count badge; "Export CSV" button (builds `text/csv` response from all subscriber docs)
+
+#### 7.4 Before/After Gallery
+- [ ] Admin: `/admin/settings` (or a dedicated `/admin/before-after`) — upload before/after image pairs; `product` tag (links to a product); `caption` text; stored in Firestore `/beforeAfterGallery/{id}` with two Firebase Storage URLs
+- [ ] `components/home/BeforeAfterSlider.tsx` — already scaffolded in Phase 1; now feeds from `lib/db.ts` `getBeforeAfterItems()`; renders the real uploaded pairs
 
 ---
 
 ### Phase 8 — Polish & Launch
-**Goal**: SEO, performance, i18n completion, security hardening, Vercel deploy.
+**Goal**: Production-ready: SEO complete, performance optimised, i18n fully translated, security hardened, PWA configured, deployed to Vercel with custom domain.
 
-#### i18n Completion
-- [ ] `messages/hi.json` — fill all values with correct Hindi translations
-- [ ] `messages/mr.json` — fill all values with correct Marathi translations
-- [ ] Seed product fields: add `hi` + `mr` values to all `LocalizedString` fields in `lib/mocks/products.ts`
-- [ ] Admin product form: EN | HI | MR tab strip tested and saving correctly for all rich + plain text fields
-- [ ] `LanguageSwitcher` tested on all pages; locale persists across navigation
+**Exit criteria**: Lighthouse scores ≥ 90 on mobile for home and product pages. All three locales working. Firestore security rules deployed. Site live at custom domain.
 
-#### SEO
-- [ ] `generateMetadata()` on every page — locale-aware title, description, OG image
-- [ ] Root layout injects `<link rel="alternate" hreflang="en|hi|mr">` for all three locales
-- [ ] `app/sitemap.ts` — generates entries for all `/en/`, `/hi/`, `/mr/` variants of indexable pages (products, blogs, concern pages, static pages)
-- [ ] `app/robots.ts` — disallow `/admin/`, `/api/`, `/dev/`
-- [ ] Product pages: `Product` JSON-LD structured data
-- [ ] Blog posts: `Article` JSON-LD structured data
-- [ ] OG images auto-generated per page (Next.js `ImageResponse` or static)
+#### 8.1 i18n — Translation Completion
+- [ ] `messages/hi.json` — replace all EN placeholder values with correct Hindi translations (all namespaces)
+- [ ] `messages/mr.json` — replace all EN placeholder values with correct Marathi translations (all namespaces)
+- [ ] `lib/mocks/products.ts` — add `hi` + `mr` values to every `LocalizedString` field in all seed products
+- [ ] Smoke-test all 3 locales: navigation, product pages, checkout flow, account pages
+- [ ] `LanguageSwitcher` — confirm locale persists in `NEXT_LOCALE` cookie across navigation + page reload
 
-#### Performance
-- [ ] All images use `next/image` with correct `width`, `height`, `priority` on above-fold images
-- [ ] Dynamic imports for heavy components: `RichTextEditor`, `ImageLightbox`, Razorpay SDK
-- [ ] Verify bundle size with `@next/bundle-analyzer`; remove unused Radix primitives
-- [ ] Firestore reads in Server Components: leverage Next.js fetch cache (`revalidate`)
-- [ ] Largest Contentful Paint audit with Lighthouse; target ≥ 90 on mobile
+#### 8.2 SEO
+- [ ] `generateMetadata()` on every page — locale-specific `title`, `description`, `openGraph.image`, `twitter.card`; falls back to `constants/site.ts` defaults
+- [ ] Root `app/[locale]/layout.tsx` — inject `<link rel="alternate" hreflang="en|hi|mr|x-default">` for all pages
+- [ ] `app/sitemap.ts` — dynamic sitemap: all product slugs (`/en/products/…`, `/hi/products/…`, `/mr/products/…`), all blog slugs, all concern pages, static pages; exclude admin + auth + account
+- [ ] `app/robots.ts` — `Disallow: /admin`, `Disallow: /api`, `Disallow: /dev`, `Disallow: /account`; `Sitemap:` header
+- [ ] Product pages: `Product` JSON-LD (name, image, description, offers with price + currency, aggregateRating)
+- [ ] Blog pages: `Article` JSON-LD (headline, author, datePublished, image)
+- [ ] OG images: use Next.js `ImageResponse` in `/opengraph-image.tsx` files for home + product + blog pages
 
-#### Analytics & Monitoring
-- [ ] Firebase Analytics (Spark, free) or GA4 via `gtag` — page views, add-to-cart events, purchase events
-- [ ] Admin dashboard charts: Revenue (last 30 days line chart), Orders by status (donut), Top 5 products (bar) — all computed from Firestore reads in Server Components (Spark quota safe, no Cloud Functions, no Blaze)
-- [ ] Error monitoring: `console.error` → Vercel Log Drains or Sentry free tier
+#### 8.3 Performance
+- [ ] All `<img>` tags replaced with `next/image`; set `priority` on LCP images (hero, product main image)
+- [ ] Dynamic imports (`next/dynamic`) for: `RichTextEditor`, `ImageLightbox`, `BeforeAfterSlider`, Razorpay SDK
+- [ ] Run `ANALYZE=true npm run build`; verify no chunk exceeds 200 kB gzipped; remove unused Radix primitives
+- [ ] Server Components cache: `{ next: { revalidate: 60 } }` on Firestore reads for products, blogs, categories
+- [ ] Lighthouse audit on mobile (Chrome DevTools); target ≥ 90 for Performance, Accessibility, SEO
+- [ ] Fix any Accessibility issues found: alt text, focus rings, colour contrast (minimum 4.5:1), ARIA labels
 
-#### Security Hardening
-- [ ] Firestore Security Rules — `/products`, `/blogs`, `/concerns`, `/categories`: read = public; write = admin only; `/orders`: read = owner or admin; write = authenticated; `/users/{uid}/*`: owner only
-- [ ] All admin API routes: `verifyIdToken()` + `isAdmin()` check; return 403 on failure
-- [ ] All mutation API routes: Zod input validation; reject unknown fields
-- [ ] Shiprocket webhook: HMAC-SHA256 signature validation before processing
-- [ ] Razorpay verify route: HMAC-SHA256 signature validation; never trust client-provided amount
-- [ ] `WhatsAppProofUpload` route: validate file type (image only) + max size (5 MB) + auth
-- [ ] Review flag route: rate-limit per user (max 5 flags/hour) via Firestore counter
-- [ ] `/dev/seed` and `/dev/unseed` routes: `NODE_ENV === 'production'` guard (hard 404, no fallthrough)
+#### 8.4 Analytics & Monitoring
+- [ ] Add GA4 via `@next/third-parties/google` (tree-shake friendly); track: `page_view`, `add_to_cart`, `begin_checkout`, `purchase`
+- [ ] Admin dashboard charts now use real Firestore data (already server-rendered — confirm Spark quota not exceeded by projecting query volume)
+- [ ] Error monitoring: add `console.error` → Vercel Log Drains (Vercel Hobby supports this); OR integrate Sentry free tier (`@sentry/nextjs`)
 
-#### PWA
-- [ ] `public/manifest.json` — name, icons (192 + 512), theme colour `#2B1A6B`, `display: standalone`
-- [ ] Service Worker (Next.js `next-pwa` or manual): offline fallback page
-- [ ] Apple touch icon, favicon set
+#### 8.5 Security Hardening
+- [ ] Deploy Firestore Security Rules:
+  - `/products`, `/blogs`, `/concerns`, `/categories`: `read = true`, `write = isAdmin()`
+  - `/orders/{orderId}`: `read = isOwner() || isAdmin()`, `write = isAuthenticated()`
+  - `/users/{uid}/*`: `read = isOwner()`, `write = isOwner()`
+  - `/reviews`: `read = true` (approved only — filtered in queries), `write = isAuthenticated()`
+  - `/coupons`: `read = false` (server-side only), `write = isAdmin()`
+  - `/settings/*`: `read = false`, `write = isAdmin()`
+- [ ] All admin API routes: call `verifyIdToken()` + `isAdmin()` at start; return 403 with generic error if either fails
+- [ ] All mutation API routes: Zod schema validation at entry point; `stripUnknown: true` (or equivalent) to reject extra fields
+- [ ] Shiprocket webhook: reject requests without valid `X-Shiprocket-Hmac-Sha256` header (HMAC-SHA256 of body with `SHIPROCKET_WEBHOOK_SECRET`)
+- [ ] Razorpay verify: always re-compute HMAC server-side; never trust a client-provided payment amount — always fetch order amount from Firestore
+- [ ] WhatsApp proof upload: validate MIME type (allow only `image/jpeg`, `image/png`, `image/webp`); enforce 5 MB max size; require authenticated session
+- [ ] Review flag API: check user hasn't already flagged the same review (query existing flags); max 10 flags per user per hour (Firestore counter)
+- [ ] `/dev/seed` + `/dev/unseed`: double-guarded — `middleware.ts` blocks in production AND inside route handler checks `NODE_ENV`
+- [ ] Content Security Policy headers: add `next.config.js` `headers()` with strict CSP; allow Razorpay, Firebase, Google Fonts, GA4
 
-#### Deployment
-- [ ] Create Vercel project; connect GitHub repo `mohasinac/licorice`; set `main` as production branch
-- [ ] Add all env vars in Vercel dashboard (Firebase, Shiprocket, Razorpay, Resend, WhatsApp, App URL)
-- [ ] Configure custom domain; SSL auto-provisioned by Vercel
-- [ ] Verify all API routes complete within 10 seconds (Vercel Hobby limit); add timeout guards where needed
-- [ ] Smoke test full purchase flow (WhatsApp payment) in production
-- [ ] Smoke test admin: seed page blocked (404), order confirm, inventory adjust
+#### 8.6 PWA
+- [ ] `public/manifest.json` — `name: "Licorice Herbals"`, `short_name: "Licorice"`, icons at 192×192 and 512×512 (brand indigo background, white logo), `theme_color: "#2B1A6B"`, `background_color: "#FAFAF7"`, `display: "standalone"`, `start_url: "/en"`
+- [ ] `app/[locale]/layout.tsx` — add `<link rel="manifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">`
+- [ ] Service Worker via `next-pwa`: cache static assets + Next.js build output; offline fallback page (`/offline`) with brand styling
+- [ ] Generate favicon set: 16×16, 32×32, 48×48 `favicon.ico`; 180×180 Apple touch icon; place in `/public`
+
+#### 8.7 Deployment
+- [ ] Create Vercel project; connect GitHub repo; set `main` as production branch; set `develop` as preview branch
+- [ ] Add **all** environment variables in Vercel dashboard (Firebase public + admin, Shiprocket, Razorpay, Resend, WhatsApp payment, `NEXT_PUBLIC_APP_URL`, `ADMIN_EMAILS`)
+- [ ] Set `NEXT_PUBLIC_USE_MOCK_DATA=false` in Vercel production environment (not in `.env.local`)
+- [ ] Configure custom domain in Vercel; verify DNS records; SSL auto-provisioned
+- [ ] Verify all API routes complete within **10 seconds** (Vercel Hobby function timeout); add `AbortController` with 8s timeout on Shiprocket API calls as safety margin
+- [ ] Run production smoke tests:
+  - [ ] Browse shop, open product detail, add to cart
+  - [ ] Full WhatsApp payment checkout flow (place order, upload proof, admin confirms)
+  - [ ] COD checkout flow
+  - [ ] Admin: seed page returns 404 ✓, order status update ✓, inventory adjust ✓
+  - [ ] Shiprocket webhook (send test payload) — timeline updates ✓
+  - [ ] `/en`, `/hi`, `/mr` all load without error
+- [ ] Set up Vercel deployment notifications (Slack / email) for failed deployments

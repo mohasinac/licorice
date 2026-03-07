@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand Colours ─────────────────────────────────────────────────────── */
+  --color-primary: #2b1a6b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #6b4fa0;
+  --color-secondary-foreground: #ffffff;
+  --color-accent: #c9b99a;
+  --color-accent-foreground: #1a0f3c;
+  --color-background: #fafaf7;
+  --color-foreground: #1a0f3c;
+  --color-muted: #f3f0f8;
+  --color-muted-foreground: #6e5f9c;
+  --color-border: #ddd5f0;
+  --color-input: #ddd5f0;
+  --color-ring: #2b1a6b;
+  --color-destructive: #c0392b;
+  --color-destructive-foreground: #ffffff;
+  --color-success: #2e7d32;
+  --color-success-foreground: #ffffff;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a0f3c;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a0f3c;
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --font-heading: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* ── Border Radius ──────────────────────────────────────────────────────── */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ── Animations ─────────────────────────────────────────────────────────── */
+  --animate-shimmer: shimmer 1.5s infinite linear;
+  --animate-fade-in-up: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Base styles ──────────────────────────────────────────────────────────── */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* ── Focus ring ───────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+
