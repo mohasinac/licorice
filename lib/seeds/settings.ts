@@ -23,9 +23,11 @@ export const SEED_SITE_CONFIG: SiteConfig & { id: string } = {
   socialFacebook: "https://facebook.com/licoriceherbal",
   socialYoutube: "https://youtube.com/@licoriceherbal",
   consultantName: "Dr. Mariya Nallamandu",
-  consultantBio: "Certified Ayurvedic practitioner (BAMS) with 10+ years of experience in herbal skincare and hair care.",
+  consultantBio:
+    "Certified Ayurvedic practitioner (BAMS) with 10+ years of experience in herbal skincare and hair care.",
   metaTitle: "Licorice Herbals — Pure Ayurvedic Skincare",
-  metaDescription: "Shop Licorice Herbals' range of authentic Ayurvedic skincare, hair care, and wellness products. Free shipping above ₹999.",
+  metaDescription:
+    "Shop Licorice Herbals' range of authentic Ayurvedic skincare, hair care, and wellness products. Free shipping above ₹999.",
   createdAt: now,
   updatedAt: now,
 };
@@ -136,14 +138,9 @@ export const SEED_CONSULTATION_CONFIG: ConsultationConfig & { id: string } = {
   consultantBio:
     "<p>Dr. Mariya Nallamandu (BAMS) has over 10 years of experience in Ayurvedic skincare and hair care. She specialises in personalised wellness plans using traditional herbal formulations.</p>",
   consultationDurationMinutes: 30,
-  availableTimeSlots: [
-    "9:00 AM",
-    "10:00 AM",
-    "11:00 AM",
-    "2:00 PM",
-    "3:00 PM",
-    "4:00 PM",
-  ],
+  availableTimeSlots: ["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"],
   blockedDates: [],
   isEnabled: true,
+  clinicName: "Licorice Herbals Wellness Centre",
+  clinicAddress: "2nd Floor, Plot 12, Banjara Hills Road No. 3, Hyderabad, Telangana 500034",
 };
