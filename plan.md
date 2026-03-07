@@ -37,6 +37,16 @@ A full-stack herbal/ayurvedic e-commerce website built with **Next.js 14 (App Ro
 - Motifs: Circular botanical emblem with leaves + butterfly, loose leaf element
 - Style: Elegant, premium, nature-forward luxury
 
+### Product Packaging (confirmed from Keshli photo)
+
+The Keshli Hair Care Tablet bottle confirms the production visual identity:
+- **Label background**: deep indigo `#2B1A6B` — exact match to `primary` token
+- **Typography**: bold gold serif for product name, italic gold script for sub-label — matches `accent` token `#C9B99A`
+- **Logo placement**: top-centre, white L-with-leaves-butterfly emblem on label
+- **Gold border strips**: top and bottom of label — use `accent` colour as decorative rule
+- **Botanical illustrations**: white line-art herbs, flowers, and a profile illustration of a woman with flowing hair
+- **Label layout**: brand → product name → category sub-label → illustration → formulation type + count
+
 ### Colour Palette (extracted from logo)
 
 | Token               | Hex       | Usage                                   |
@@ -327,7 +337,7 @@ interface Product {
   faqs: FAQ[]; // { question, answer }
   images: string[]; // Firebase Storage URLs
   videoUrl?: string; // YouTube/Vimeo embed URL
-  category: ProductCategory; // face | body | hair | powder | combo
+  category: ProductCategory; // face | body | hair | powder | combo | supplements
   concerns: string[]; // acne | pigmentation | dryness | anti-ageing | brightening | tanning
   comboItems?: string[]; // product IDs included in this combo
   variants: Variant[];
@@ -1358,7 +1368,7 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 | Collection | Example Seed IDs |
 | ---------- | ---------------- |
 | `products` | `prod_kumkumadi_oil`, `prod_brightening_ubtan`, `prod_hair_repair_oil`, … |
-| `categories` | `cat_face`, `cat_body`, `cat_hair`, `cat_powder`, `cat_combo` |
+| `categories` | `cat_face`, `cat_body`, `cat_hair`, `cat_powder`, `cat_combo`, `cat_supplements` |
 | `concerns` | `concern_acne`, `concern_pigmentation`, `concern_brightening`, … |
 | `coupons` | `WELCOME10`, `LICORICE20`, `FREESHIP` |
 | `blogs` | `blog_kumkumadi_benefits`, `blog_ubtan_guide`, `blog_ayurvedic_hair` |
@@ -1366,7 +1376,7 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 | `inventory` | same ID as product (`prod_kumkumadi_oil`, …) |
 | `settings` | `siteConfig`, `shippingRules`, `paymentSettings` (fixed well-known IDs) |
 
-### Seed Products (9 — inspired by weherbal.in product range, all Licorice-branded)
+### Seed Products (10 — 9 inspired by product range + 1 confirmed from product photo)
 
 | ID | Name | Category | Concerns | Variants |
 | -- | ---- | -------- | -------- | -------- |
@@ -1379,10 +1389,24 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 | `prod_spf50_sunscreen` | Licorice Daily Sunscreen SPF50 | face | tanning | 50 g |
 | `prod_body_butter` | Licorice Hydrating Body Butter | body | dryness | 100 g / 200 g |
 | `prod_glow_bundle` | Licorice Glow Bundle | combo | brightening, anti-ageing | fixed combo (Kumkumadi Oil 10 ml + Vitamin C Serum 15 ml) |
+| **`prod_keshli_tablets`** | **Licorice Keshli Hair Care Tablet** | **supplements** | **hair-care** | **60 tablets / 120 tablets** |
+
+> `prod_keshli_tablets` is a **confirmed real product** (photo provided). It is an oral Keehovedic (Ayurvedic) hair supplement — not a topical product. Seed data should reflect: formulation = tablet, weight used only for shipping (approx 150 g / 280 g), no variant images needed beyond the bottle photo.
 
 ### Seed Concerns (8)
 
 `concern_anti_ageing` · `concern_pigmentation` · `concern_acne` · `concern_brightening` · `concern_tanning` · `concern_dryness` · `concern_hair_care` · `concern_blemishes`
+
+### Seed Categories (6)
+
+| ID | Label | Includes |
+| -- | ----- | -------- |
+| `cat_face` | Face Care | Oils, serums, face washes, sunscreens |
+| `cat_body` | Body Care | Body butters, lotions |
+| `cat_hair` | Hair Care | Topical hair oils |
+| `cat_powder` | Powder | Ubtans, face packs |
+| `cat_combo` | Combo Packs | Bundled products |
+| `cat_supplements` | Supplements | Oral tablets and capsules (e.g. Keshli) |
 
 ### Seed Coupons (3)
 
@@ -1400,7 +1424,7 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 | `blog_ubtan_guide` | How to Use Ubtan for Glowing Skin at Home | skincare |
 | `blog_ayurvedic_hair` | The Ayurvedic Guide to Healthy, Strong Hair | hair-care |
 
-### Seed Reviews (6 — 2 per flagship product, all approved)
+### Seed Reviews (8 — 2 per flagship product, all approved)
 
 | ID | Product | Rating | Verified Purchase |
 | -- | ------- | ------ | ----------------- |
@@ -1410,6 +1434,8 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 | `rev_ubtan_2` | prod_brightening_ubtan | 4 | false |
 | `rev_vitc_1` | prod_vitamin_c_serum | 5 | true |
 | `rev_vitc_2` | prod_vitamin_c_serum | 4 | true |
+| `rev_keshli_1` | prod_keshli_tablets | 5 | true |
+| `rev_keshli_2` | prod_keshli_tablets | 4 | true |
 
 ---
 
@@ -1479,14 +1505,14 @@ Browser-based tool (development only) to populate or wipe Firestore with known s
 │                                                              │
 │  Collection         Docs    Actions                          │
 │  ─────────────────────────────────────────                   │
-│  Products             9     [Seed ↑]  [Delete ✕]            │
-│  Categories           5     [Seed ↑]  [Delete ✕]            │
+│  Products             10     [Seed ↑]  [Delete ✕]            │
+│  Categories           6     [Seed ↑]  [Delete ✕]            │
 │  Concerns             8     [Seed ↑]  [Delete ✕]            │
 │  Coupons              3     [Seed ↑]  [Delete ✕]            │
 │  Blog Posts           3     [Seed ↑]  [Delete ✕]            │
-│  Reviews              6     [Seed ↑]  [Delete ✕]            │
+│  Reviews              8     [Seed ↑]  [Delete ✕]            │
 │  Settings             3     [Seed ↑]  [Delete ✕]            │
-│  Inventory            9     [Seed ↑]  [Delete ✕]            │
+│  Inventory            10     [Seed ↑]  [Delete ✕]            │
 │                                                              │
 │  [Seed All Collections]    [Delete All Seed Data]            │
 │                                                              │
