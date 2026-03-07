@@ -1,0 +1,229 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Licorice Herbals — Firestore Security Rules
+//
+//  Philosophy:
+//    • All WRITE operations that originate from the browser are done via
+//      Firebase Client SDK (authenticated users only).
+//    • All mutations that require privilege (order creation, payment confirm,
+//      inventory adjustment, etc.) go through Next.js Server Actions / API
+//      routes that use the Firebase Admin SDK — which bypasses these rules.
+//    • These rules therefore only need to protect CLIENT-SIDE reads/writes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email != null &&
+        (
+          request.auth.token.email.matches('.*@licoriceherbal\\.in') ||
+          exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        );
+    }
+
+    // ─── Products ─────────────────────────────────────────────────────────────
+    // Public read; writes only via Admin SDK (server-side).
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Admin SDK only
+    }
+
+    // ─── Categories ───────────────────────────────────────────────────────────
+
+    match /categories/{catId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── Concerns ─────────────────────────────────────────────────────────────
+
+    match /concerns/{concernId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── Blogs ───────────────────────────────────────────────────────────────
+
+    match /blogs/{blogId} {
+      allow read: if resource.data.status == 'published';
+      allow write: if false;
+    }
+
+    // ─── Coupons ─────────────────────────────────────────────────────────────
+    // Validation is server-side; clients should never read raw coupon docs.
+
+    match /coupons/{code} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ─── Coupon Usage ─────────────────────────────────────────────────────────
+
+    match /couponUsage/{docId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ─── Orders ───────────────────────────────────────────────────────────────
+    // Authenticated users may read their own orders.
+    // All writes go through server actions.
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow write: if false;
+
+      match /timeline/{eventId} {
+        allow read: if isSignedIn() &&
+          get(/databases/$(database)/documents/orders/$(orderId)).data.userId
+            == request.auth.uid;
+        allow write: if false;
+      }
+    }
+
+    // ─── Users ────────────────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+
+      match /addresses/{addressId} {
+        allow read:  if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // ─── Reviews ──────────────────────────────────────────────────────────────
+    // Authenticated users can submit reviews; moderation is server-side.
+
+    match /reviews/{reviewId} {
+      allow read: if resource.data.status == 'approved';
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.body is string
+        && request.resource.data.body.size() >= 10
+        && request.resource.data.status == 'pending';
+      allow update: if false; // moderation via Admin SDK
+      allow delete: if false;
+    }
+
+    // ─── Review Flags ─────────────────────────────────────────────────────────
+
+    match /reviewFlags/{flagId} {
+      allow read: if false;
+      allow create: if isSignedIn()
+        && request.resource.data.reportedBy == request.auth.uid;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ─── Support Tickets ──────────────────────────────────────────────────────
+    // Authenticated users can see their own tickets; admins see all.
+
+    match /supportTickets/{ticketId} {
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if false;
+
+      match /messages/{msgId} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/supportTickets/$(ticketId)).data.userId
+            == request.auth.uid
+          || isAdmin()
+        );
+        allow create: if isSignedIn() && (
+          get(/databases/$(database)/documents/supportTickets/$(ticketId)).data.userId
+            == request.auth.uid
+          || isAdmin()
+        );
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // ─── Consultations ────────────────────────────────────────────────────────
+
+    match /consultations/{consultationId} {
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow create: if true; // guests can submit
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // ─── Corporate Inquiries ──────────────────────────────────────────────────
+
+    match /corporateInquiries/{inquiryId} {
+      allow read: if isAdmin();
+      allow create: if true; // public form
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // ─── Newsletter ───────────────────────────────────────────────────────────
+
+    match /newsletter/{docId} {
+      allow read: if isAdmin();
+      allow create: if true; // public opt-in
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ─── Inventory ────────────────────────────────────────────────────────────
+    // Never exposed to clients directly.
+
+    match /inventory/{productId} {
+      allow read: if false;
+      allow write: if false;
+
+      match /movements/{movementId} {
+        allow read: if false;
+        allow write: if false;
+      }
+    }
+
+    // ─── Settings ─────────────────────────────────────────────────────────────
+    // Admins only via console / Admin SDK.
+
+    match /settings/{docId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ─── Admins ───────────────────────────────────────────────────────────────
+
+    match /admins/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
+    // ─── Catch-all: deny everything else ─────────────────────────────────────
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

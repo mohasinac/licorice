@@ -8,25 +8,25 @@ A full-stack herbal/ayurvedic e-commerce website built with **Next.js 14 (App Ro
 
 ## Tech Stack
 
-| Layer         | Choice                       | Notes                                                            |
-| ------------- | ---------------------------- | ---------------------------------------------------------------- |
-| Framework     | Next.js 14 (App Router)      | SSR + SSG + Server Actions                                       |
-| Styling       | Tailwind CSS + CSS Variables | Theme tokens via `constants/theme.ts`                            |
-| State         | Zustand                      | Cart, wishlist, auth, UI state                                   |
+| Layer         | Choice                       | Notes                                                          |
+| ------------- | ---------------------------- | -------------------------------------------------------------- |
+| Framework     | Next.js 14 (App Router)      | SSR + SSG + Server Actions                                     |
+| Styling       | Tailwind CSS + CSS Variables | Theme tokens via `constants/theme.ts`                          |
+| State         | Zustand                      | Cart, wishlist, auth, UI state                                 |
 | Backend/DB    | Firebase Firestore (Spark)   | Free tier only — no Cloud Functions required                   |
-| Auth          | Firebase Auth (Spark)        | Google + Email/Password + custom role claims via Firestore       |
-| Storage       | Firebase Storage (Spark)     | Product images, review photos, blog images (5 GB free)           |
-| Shipping      | Shiprocket API + Manual      | API integration + manual override fallback                       |
-| Payments      | WhatsApp + Razorpay + COD    | WhatsApp is primary; Razorpay optional, all togglable            |
+| Auth          | Firebase Auth (Spark)        | Google + Email/Password + custom role claims via Firestore     |
+| Storage       | Firebase Storage (Spark)     | Product images, review photos, blog images (5 GB free)         |
+| Shipping      | Shiprocket API + Manual      | API integration + manual override fallback                     |
+| Payments      | WhatsApp + Razorpay + COD    | WhatsApp is primary; Razorpay optional, all togglable          |
 | Email         | Resend (free 3k/month)       | Order confirmations, support replies — called from API routes  |
-| Forms         | React Hook Form + Zod        | Client + server validation                                       |
-| Animations    | Framer Motion                | Hero, page transitions, micro-interactions                       |
-| UI Primitives | Radix UI                     | Dialogs, selects, dropdowns, accordions                          |
-| Carousel      | Embla Carousel               | Product sliders, testimonial carousels                           |
-| Notifications | React Hot Toast              | Cart, order, error toasts                                        |
-| Rich Text     | Tiptap                       | Blog editor + product descriptions in admin                      |
+| Forms         | React Hook Form + Zod        | Client + server validation                                     |
+| Animations    | Framer Motion                | Hero, page transitions, micro-interactions                     |
+| UI Primitives | Radix UI                     | Dialogs, selects, dropdowns, accordions                        |
+| Carousel      | Embla Carousel               | Product sliders, testimonial carousels                         |
+| Notifications | React Hot Toast              | Cart, order, error toasts                                      |
+| Rich Text     | Tiptap                       | Blog editor + product descriptions in admin                    |
 | i18n          | next-intl                    | English, Hindi, Marathi — App Router middleware locale routing |
-| Deployment    | Vercel Hobby (free)          | Auto-deploy from main branch; API routes replace Cloud Fns       |
+| Deployment    | Vercel Hobby (free)          | Auto-deploy from main branch; API routes replace Cloud Fns     |
 
 ---
 
@@ -51,27 +51,27 @@ The Keshli Hair Care Tablet bottle confirms the production visual identity:
 
 ### Colour Palette (extracted from logo)
 
-| Token               | Hex       | Usage                                     |
-| ------------------- | --------- | ----------------------------------------- |
+| Token               | Hex       | Usage                                   |
+| ------------------- | --------- | --------------------------------------- |
 | `primary`           | `#2B1A6B` | Deep royal indigo — main brand colour   |
-| `primaryForeground` | `#FFFFFF` | Text/icons on primary                     |
+| `primaryForeground` | `#FFFFFF` | Text/icons on primary                   |
 | `secondary`         | `#6B4FA0` | Medium purple — hover states, accents   |
 | `accent`            | `#C9B99A` | Warm champagne/gold — highlight, badges |
 | `background`        | `#FAFAF7` | Off-white cream — page background       |
 | `foreground`        | `#1A0F3C` | Very dark purple — body text            |
 | `muted`             | `#F3F0F8` | Light lavender — card backgrounds       |
-| `mutedForeground`   | `#6E5F9C` | Subdued text                              |
-| `border`            | `#DDD5F0` | Dividers, input borders                   |
-| `destructive`       | `#C0392B` | Error / danger                            |
-| `success`           | `#2E7D32` | Stock confirmed, order delivered          |
+| `mutedForeground`   | `#6E5F9C` | Subdued text                            |
+| `border`            | `#DDD5F0` | Dividers, input borders                 |
+| `destructive`       | `#C0392B` | Error / danger                          |
+| `success`           | `#2E7D32` | Stock confirmed, order delivered        |
 
 ### Typography
 
-| Token     | Font                        | Notes                               |
-| --------- | --------------------------- | ----------------------------------- |
+| Token     | Font                        | Notes                             |
+| --------- | --------------------------- | --------------------------------- |
 | `heading` | Cormorant Garamond          | Elegant serif — matches logo feel |
 | `body`    | Inter                       | Clean sans-serif — readability    |
-| `accent`  | Cormorant Garamond (italic) | Pull-quotes, taglines               |
+| `accent`  | Cormorant Garamond (italic) | Pull-quotes, taglines             |
 
 > All tokens live in `constants/theme.ts` and are applied as CSS custom properties in `globals.css`. Changing a value there updates the entire site.
 
@@ -84,8 +84,8 @@ The Keshli Hair Care Tablet bottle confirms the production visual identity:
 | Code | Language | Script     | Launch Status      |
 | ---- | -------- | ---------- | ------------------ |
 | `en` | English  | Latin      | Phase 1 (required) |
-| `hi` | Hindi    | Devanagari | Phase 8            |
-| `mr` | Marathi  | Devanagari | Phase 8            |
+| `hi` | Hindi    | Devanagari | Phase 9            |
+| `mr` | Marathi  | Devanagari | Phase 9            |
 
 Default locale: `en`. Language switcher rendered in `Navbar` and `MobileMenu`. URL structure: `/en/shop`, `/hi/shop`, `/mr/shop`. `/shop` redirects to `/en/shop` via middleware.
 
@@ -219,7 +219,7 @@ The admin product form shows an **EN | HI | MR** tab strip for each localizable 
 | Order confirmation email    | `POST /api/order-confirm` (called after payment confirmed)                                   |
 | Review rating aggregation   | Server Action in approve-review flow (reads approved reviews, computes average, writes back) |
 | Low-stock alert email       | Computed on admin dashboard load; admin triggers email manually                              |
-| Coupon expiry cleanup       | Firestore query at coupon validation time (`expiresAt < now`) — no background job needed   |
+| Coupon expiry cleanup       | Firestore query at coupon validation time (`expiresAt < now`) — no background job needed     |
 | Shiprocket JWT refresh      | Cached in Firestore with 24h TTL; refreshed lazily on first request after expiry             |
 
 ### Firestore Collections (complete):
@@ -800,10 +800,10 @@ stock restored
 
 | Mode                   | SLA               | Cost                             |
 | ---------------------- | ----------------- | -------------------------------- |
-| Standard               | 5-7 business days | Free above ₹999, else ₹80    |
+| Standard               | 5-7 business days | Free above ₹999, else ₹80        |
 | Express                | 2-3 business days | Additional charge by weight+zone |
 | Same Day (Mumbai only) | Same day          | Additional charge                |
-| COD                    | Standard SLA      | +₹50 COD fee                   |
+| COD                    | Standard SLA      | +₹50 COD fee                     |
 
 **Processing time**: 1-2 business days. Orders placed on weekends/holidays → next business day.
 
@@ -937,7 +937,7 @@ interface PaymentSettings {
 | Type            | Behaviour                                |
 | --------------- | ---------------------------------------- |
 | `percentage`    | e.g. 10%, capped by `maxDiscount`        |
-| `flat`          | e.g. ₹500 off                          |
+| `flat`          | e.g. ₹500 off                            |
 | `free_shipping` | waives shipping charge                   |
 | `buy_x_get_y`   | e.g. Buy 2 get 1 free (specific product) |
 
@@ -1397,7 +1397,7 @@ ADMIN_EMAILS=                       # comma-separated admin email addresses
 
 ## Seed Data
 
-All seed data is branded as **Licorice Herbals** (no weherbal references anywhere). English is the baseline; Hindi/Marathi translations for seed content are added in Phase 8.
+All seed data is branded as **Licorice Herbals** (no weherbal references anywhere). English is the baseline; Hindi/Marathi translations for seed content are added in Phase 9.
 
 ### Deterministic IDs
 
@@ -1405,13 +1405,13 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 
 | Collection   | Example Seed IDs                                                                 |
 | ------------ | -------------------------------------------------------------------------------- |
-| `products`   | `prod_kumkumadi_oil`, `prod_brightening_ubtan`, `prod_hair_repair_oil`, …      |
+| `products`   | `prod_kumkumadi_oil`, `prod_brightening_ubtan`, `prod_hair_repair_oil`, …        |
 | `categories` | `cat_face`, `cat_body`, `cat_hair`, `cat_powder`, `cat_combo`, `cat_supplements` |
-| `concerns`   | `concern_acne`, `concern_pigmentation`, `concern_brightening`, …               |
+| `concerns`   | `concern_acne`, `concern_pigmentation`, `concern_brightening`, …                 |
 | `coupons`    | `WELCOME10`, `LICORICE20`, `FREESHIP`                                            |
 | `blogs`      | `blog_kumkumadi_benefits`, `blog_ubtan_guide`, `blog_ayurvedic_hair`             |
-| `reviews`    | `rev_kumkumadi_1`, `rev_kumkumadi_2`, `rev_vitc_1`, …                          |
-| `inventory`  | same ID as product (`prod_kumkumadi_oil`, …)                                   |
+| `reviews`    | `rev_kumkumadi_1`, `rev_kumkumadi_2`, `rev_vitc_1`, …                            |
+| `inventory`  | same ID as product (`prod_kumkumadi_oil`, …)                                     |
 | `settings`   | `siteConfig`, `shippingRules`, `paymentSettings` (fixed well-known IDs)          |
 
 ### Seed Products (10 — 9 inspired by product range + 1 confirmed from product photo)
@@ -1448,11 +1448,11 @@ Every seed document uses a stable, human-readable ID so upserts are idempotent a
 
 ### Seed Coupons (3)
 
-| Code         | Type          | Value  | Min Order | Notes                       |
-| ------------ | ------------- | ------ | --------- | --------------------------- |
-| `WELCOME10`  | percentage    | 10%    | ₹500    | First-order; 1 use per user |
-| `LICORICE20` | flat          | ₹200 | ₹999    | Recurring promo             |
-| `FREESHIP`   | free_shipping | —    | ₹500    | Waives shipping charge      |
+| Code         | Type          | Value | Min Order | Notes                       |
+| ------------ | ------------- | ----- | --------- | --------------------------- |
+| `WELCOME10`  | percentage    | 10%   | ₹500      | First-order; 1 use per user |
+| `LICORICE20` | flat          | ₹200  | ₹999      | Recurring promo             |
+| `FREESHIP`   | free_shipping | —     | ₹500      | Waives shipping charge      |
 
 ### Seed Blog Posts (3)
 
@@ -1647,7 +1647,7 @@ export async function POST(req: Request) {
 - [ ] `middleware.ts` — detect locale from URL prefix using `next-intl`; redirect `/` → `/en`; block `/dev/*` paths (return 404) in production; block `/api/dev/*` same way
 - [ ] `lib/i18n.ts` — `LOCALES = ["en","hi","mr"]`, `DEFAULT_LOCALE = "en"`, `LocalizedString` type, `getLocalizedValue(field, locale)` helper with English fallback
 - [ ] `messages/en.json` — complete baseline with all namespaces: `nav`, `home`, `product`, `cart`, `checkout`, `concerns`, `policies`, `account`, `auth`, `errors`, `admin`, `support`, `consultation`, `blog`, `footer`
-- [ ] `messages/hi.json` — placeholder (copy EN structure, keep EN values — to be filled in Phase 8)
+- [ ] `messages/hi.json` — placeholder (copy EN structure, keep EN values — to be filled in Phase 9)
 - [ ] `messages/mr.json` — placeholder (same as above)
 - [ ] `app/[locale]/layout.tsx` root layout — load `Cormorant Garamond` + `Inter` via `next/font/google`; wrap with `NextIntlClientProvider`; inject `AnnouncementBar`, `Navbar`, `Footer`, `Toaster`
 - [ ] `components/layout/LanguageSwitcher.tsx` — EN / हिं / मर dropdown using Radix; writes locale to `NEXT_LOCALE` cookie; reads from `useLocale()`
@@ -2042,11 +2042,219 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 8 — Polish & Launch
+### Phase 8 — Dynamic Content & Firestore CMS
+
+**Goal**: Replace every hardcoded constant, static page body, and UI-string that a non-developer would ever need to change with editable Firestore documents. After this phase the admin panel is the single source of truth for site configuration, navigation, homepage sections, policy pages, shipping rules, testimonials, promotional banners, and consultation setup.
+
+**Exit criteria**: An admin can change the announcement bar text, swap the hero image, reorder nav links, update the free-shipping threshold, edit the refund policy body, and publish a new testimonial — all without touching code or redeploying.
+
+#### 8.1 Site Configuration & Brand Settings
+
+- [ ] Expand `/settings/siteConfig` Firestore doc to cover every field that currently lives in `constants/site.ts`: `siteName`, `tagline`, `logoUrl`, `faviconUrl`, `supportEmail`, `supportPhone`, `supportHours`, `whatsappBusinessNumber`, `upiId`, `socialLinks: {instagram, facebook, youtube, linkedin}`, `gaTrackingId`, `maintenanceMode: boolean`, `announcementBar: {text, link, isActive, bgColor}`, `metaDefaults: {title, description, ogImage}`
+- [ ] `lib/db.ts` — `getSiteConfig(): Promise<SiteConfig>` reads `/settings/siteConfig`; falls back to values from `constants/site.ts` if doc absent; 60 s `revalidate`
+- [ ] `app/[locale]/admin/settings/general/page.tsx` — single-page form with grouped sections: Brand Info, Contact & Support, Social Links, Announcement Bar, SEO Defaults, Danger Zone (maintenance mode toggle); all fields save to Firestore via Server Action; show "Last saved at …" timestamp
+- [ ] Update `AnnouncementBar.tsx` to read `siteConfig.announcementBar` from `getSiteConfig()` (server-side) instead of a hardcoded constant; `isActive: false` hides bar without re-deploy
+- [ ] Update `Navbar.tsx`, `Footer.tsx`, `MobileMenu.tsx` to use `getSiteConfig()` for brand name, support hours, social links, WhatsApp number
+
+#### 8.2 Dynamic Navigation
+
+- [ ] Firestore `/settings/navigation` doc: `mainNav: [{label, href, children?: [{label, href}]}]`, `footerNav: {shop: [{label, href}], account: [{label, href}], policies: [{label, href}]}`
+- [ ] `lib/db.ts` — `getNavigation(): Promise<NavigationConfig>` reads `/settings/navigation`; falls back to hardcoded arrays from `constants/site.ts`; 60 s `revalidate`
+- [ ] `app/[locale]/admin/settings/navigation/page.tsx` — ordered-list editor for main nav and each footer column; add/remove/reorder links; children sub-list for mega-menu entries; save via Server Action
+- [ ] `Navbar.tsx` + `MobileMenu.tsx` + `Footer.tsx` consume `getNavigation()` instead of `constants/site.ts` nav arrays
+
+#### 8.3 Categories & Concerns Admin CRUD
+
+- [ ] `app/[locale]/admin/categories/page.tsx` — `DataTable` of all `/categories` docs; columns: icon/colour swatch, label, slug, product count, active toggle, sort order; "New Category" CTA
+- [ ] `app/[locale]/admin/categories/[id]/page.tsx` — form: label (EN | HI | MR tabs), slug (auto from EN label), description, cover image (`ImageUploader`), icon name or SVG upload, `isActive`, sort order; save via Server Action upserts to Firestore
+- [ ] `app/[locale]/admin/concerns/page.tsx` — same pattern for `/concerns` docs
+- [ ] `app/[locale]/admin/concerns/[id]/page.tsx` — form: label (EN | HI | MR), slug, description (EN | HI | MR), cover image, associated product count (read-only); save to Firestore
+- [ ] `lib/db.ts` — `saveCategory()` + `saveConcern()` Server Actions; `deleteCategory()` + `deleteConcern()` (checks no products reference the ID before deleting)
+- [ ] `generateStaticParams` in `shop/[category]` and `concern/[concern]` pages now calls `getCategories()` / `getConcerns()` from `lib/db.ts` (was previously reading `constants/categories.ts` directly)
+- [ ] `constants/categories.ts` reduced to TypeScript types + seeded fallback arrays only — runtime reads always go through `lib/db.ts`
+
+#### 8.4 Homepage Sections as Editable Content
+
+- [ ] Firestore `/settings/homepageSections` doc:
+  - `heroBanner: { headline, subheadline, primaryCtaText, primaryCtaHref, secondaryCtaText, secondaryCtaHref, backgroundImageUrl, mobileImageUrl }`
+  - `featuredProductIds: string[]` — up to 8 product IDs shown in "Featured Products" carousel
+  - `newArrivalIds: string[]` — up to 8 product IDs for "New Arrivals" carousel
+  - `brandValues: [{ icon: string, title: string, description: string }]` — the 4 trust badges; admin re-orderable
+  - `sectionVisibility: { showBeforeAfter, showTestimonials, showBlog, showNewsletter, showBrandValues }` — per-section on/off toggles
+- [ ] `lib/db.ts` — `getHomepageSections(): Promise<HomepageSections>` reads the doc; falls back to hardcoded defaults (current component content)
+- [ ] `app/[locale]/admin/settings/homepage/page.tsx` — accordion sections, one per homepage block: Hero Banner (image upload + text fields), Featured Products picker (searchable product multi-select with drag-to-reorder), New Arrivals picker (same), Brand Values (add/remove/reorder cards), Section Visibility toggles; all saved via single Server Action
+- [ ] `HeroBanner.tsx` reads `homepageSections.heroBanner` via `getHomepageSections()` instead of hardcoded / i18n strings
+- [ ] `ProductCarousel.tsx` (Featured + New Arrivals instances) resolve product IDs from `featuredProductIds` / `newArrivalIds` via `lib/db.ts` `getProductsByIds()`; falls back to most-recently-added products if list empty
+- [ ] `BrandValues.tsx` renders `homepageSections.brandValues` array; falls back to 4 hardcoded items if doc absent
+
+#### 8.5 Testimonials Collection
+
+- [ ] Firestore `/testimonials/{id}` collection: `customerName`, `city`, `rating: number`, `text: string`, `productId?: string`, `isActive: boolean`, `sortOrder: number`, `createdAt: Timestamp`
+- [ ] `lib/mocks/testimonials.ts` — 5 seed testimonials; deterministic IDs `test_1` … `test_5`
+- [ ] `lib/mocks/index.ts` — add `testimonials` to `SEED_MAP`
+- [ ] `lib/db.ts` — `getTestimonials(): Promise<Testimonial[]>` queries `isActive == true` ordered by `sortOrder`; falls back to mock
+- [ ] `TestimonialsCarousel.tsx` reads from `getTestimonials()` instead of any previous inline data
+- [ ] `app/[locale]/admin/testimonials/page.tsx` — `DataTable`: customer name, city, rating, excerpt, active toggle, sort order, delete; "New Testimonial" opens `Modal` with form (name, city, star rating, text, optional linked product); saves to Firestore; drag-to-reorder updates `sortOrder`
+
+#### 8.6 Shipping Rules Admin UI
+
+- [ ] `/settings/shippingRules` Firestore doc already defined in Phase 1 seed; now build the full admin UI that was deferred
+- [ ] `app/[locale]/admin/settings/shipping/page.tsx` — editable form grouped by: Free Shipping (threshold ₹, enabled toggle), Standard Shipping (price ₹, SLA text), Express Shipping (price ₹, SLA text, enabled toggle), Same-Day (price ₹, SLA text, enabled toggle, pincode-prefix whitelist), COD (fee ₹, min order ₹, enabled toggle), Processing (processing days text), Returns (return window days, replacement SLA hours); save via Server Action
+- [ ] `lib/db.ts` — `getShippingRules(): Promise<ShippingRules>` reads `/settings/shippingRules`; falls back to `constants/policies.ts` values
+- [ ] All components and Server Actions that import from `constants/policies.ts` directly (`createOrder.ts`, `ShippingOptions.tsx`, `CartSummary.tsx`, `CheckoutStepper.tsx` COD fee logic, policy pages) switched to call `getShippingRules()` from `lib/db.ts`; `constants/policies.ts` becomes type interface + fallback literals only
+- [ ] Checkout `ShippingOptions.tsx` — shipping prices and SLA strings resolved from `getShippingRules()` at SSR time (60 s revalidate) so a price change takes effect without redeploy
+
+#### 8.7 Editable Static Pages
+
+- [ ] Firestore `/settings/pages/{pageId}` sub-documents (pageId: `about`, `shipping-policy`, `refund-policy`, `terms`, `corporate-gifting`): `title`, `body` (Tiptap HTML), `metaTitle`, `metaDescription`, `ogImageUrl`, `updatedAt: Timestamp`
+- [ ] `lib/mocks/pages.ts` — seed content stubs for all 5 pages (current hardcoded text converted to Tiptap-compatible HTML)
+- [ ] `lib/mocks/index.ts` — add `pages` to `SEED_MAP`
+- [ ] `lib/db.ts` — `getPage(pageId: string): Promise<PageDoc>` reads `/settings/pages/{pageId}`; falls back to mock; no revalidation tag needed — pages change rarely
+- [ ] `app/[locale]/admin/settings/pages/page.tsx` — list of 5 editable pages with "Last edited" date and "Edit" button
+- [ ] `app/[locale]/admin/settings/pages/[pageId]/page.tsx` — page title field, `RichTextEditor` for `body`, SEO fields (metaTitle, metaDescription, OG image upload); save via Server Action; "Preview" link opens the live page in new tab
+- [ ] `about/page.tsx` — replace hardcoded JSX with `getPage("about")`; render `body` via `<div dangerouslySetInnerHTML>` with Tailwind prose styles; use `metaTitle` + `metaDescription` in `generateMetadata`
+- [ ] `shipping-policy/page.tsx` — same pattern with `getPage("shipping-policy")`; uses `body` only if present, otherwise falls back to existing constant-based rendering
+- [ ] `refund-policy/page.tsx` — `getPage("refund-policy")`
+- [ ] `terms/page.tsx` — `getPage("terms")`
+- [ ] `corporate-gifting/page.tsx` — `getPage("corporate-gifting")` for hero + value-props section; inquiry form below remains unchanged
+
+#### 8.8 Consultation Setup in Firestore
+
+- [ ] Firestore `/settings/consultationConfig` doc: `consultantName`, `consultantTitle`, `consultantBio` (HTML), `consultantPhotoUrl`, `consultationDurationMinutes: number`, `availableTimeSlots: string[]` (e.g. `["9:00 AM","11:00 AM","2:00 PM","4:00 PM"]`), `blockedDates: string[]` (ISO `YYYY-MM-DD`), `isEnabled: boolean`
+- [ ] `lib/db.ts` — `getConsultationConfig(): Promise<ConsultationConfig>`; falls back to hardcoded mock if doc absent
+- [ ] `lib/mocks/settings.ts` — add `consultationConfig` doc to mock settings
+- [ ] `consultation/page.tsx` — consultant bio, photo, title, and available time-slot dropdown now read from `getConsultationConfig()` instead of hardcoded component content; if `isEnabled: false` show "Consultations temporarily unavailable" message
+- [ ] `app/[locale]/admin/settings/consultation/page.tsx` — consultant profile section (name, title, `ImageUploader` for photo, `RichTextEditor` for bio), availability section (add/remove time slots, datepicker for blocked dates), Enable/Disable toggle; save via Server Action
+
+#### 8.9 Promotional Banners
+
+- [ ] Firestore `/promoBanners/{id}` collection: `text: string`, `badgeLabel?: string`, `couponCode?: string`, `type: "info"|"discount"|"urgency"`, `scope: "global"|"product"`, `productIds?: string[]`, `bgColor?: string`, `textColor?: string`, `isActive: boolean`, `expiresAt?: Timestamp`, `sortOrder: number`, `createdAt: Timestamp`
+- [ ] `lib/db.ts` — `getActivePromoBanners(productId?: string): Promise<PromoBanner[]>` queries `isActive == true AND (scope == "global" OR (scope == "product" AND productId IN productIds)) AND (expiresAt == null OR expiresAt > now)`; falls back to empty array
+- [ ] `lib/mocks/index.ts` — add `promoBanners` collection (empty by default — no seed banners needed)
+- [ ] Product detail page `products/[slug]/page.tsx` — calls `getActivePromoBanners(product.id)`; renders returned banners as a row of coloured pill/banner strips between `ProductInfo` and `ProductBadges`
+- [ ] `app/[locale]/admin/promo-banners/page.tsx` — `DataTable`: text, type, scope, coupon code, expiry, active toggle, delete; "New Banner" opens modal form; expired banners shown greyed-out in separate tab; sorted by `sortOrder`
+
+#### 8.10 Mock & Seed Additions
+
+**New mock files (in-memory fallback data)**
+
+- [ ] `lib/mocks/testimonials.ts` — 5 seed testimonials with IDs `test_1` … `test_5`; fields: `customerName`, `city`, `rating`, `text`, `isActive: true`, `sortOrder`; at least 2 reference a real product ID (e.g. `prod_kumkumadi_oil`, `prod_keshli_tablets`)
+- [ ] `lib/mocks/pages.ts` — seed docs for `about`, `shipping-policy`, `refund-policy`, `terms`, `corporate-gifting`; `id` matches `pageId` key; `body` is Tiptap-compatible HTML extracted from current hardcoded page JSX; `metaTitle` and `metaDescription` match existing `generateMetadata` values
+- [ ] `lib/mocks/navigation.ts` — single doc `{ id: "navigation" }` containing `mainNav` and `footerNav` arrays that exactly mirror the current `constants/site.ts` nav arrays so switching to dynamic config is transparent
+- [ ] `lib/mocks/settings.ts` — extend existing `siteConfig` doc with every new field from §8.1 (logoUrl, faviconUrl, socialLinks, gaTrackingId, metaDefaults etc.); add separate `homepageSections` doc (hero copy matching current `HeroBanner` defaults, `featuredProductIds: ["prod_kumkumadi_oil","prod_vitamin_c_serum","prod_hair_repair_oil","prod_neem_face_wash"]`, `newArrivalIds: ["prod_under_eye_elixir","prod_spf50_sunscreen","prod_body_butter","prod_glow_bundle"]`, all 4 brand-values cards, all section visibility flags `true`); add `consultationConfig` doc (sample consultant name/bio/time-slots, `isEnabled: true`); update `shippingRules` doc to include all fields from `constants/policies.ts` as defaults
+
+**Registry and seed UI**
+
+- [ ] `lib/mocks/index.ts` — import and register all new mocks in `SEED_MAP`:
+  ```
+  testimonials  → SEED_TESTIMONIALS   (5 docs)
+  pages         → SEED_PAGES          (5 docs, keyed by pageId)
+  navigation    → SEED_NAVIGATION     (1 doc)
+  promoBanners  → SEED_PROMO_BANNERS  (0 docs — empty array, collection is created but unpopulated)
+  ```
+  Also update `settings` key to include the new `homepageSections` and `consultationConfig` documents (store as separate Firestore docs under `settings/homepageSections` and `settings/consultationConfig` — same pattern as `settings/siteConfig`); split `SEED_SETTINGS` into named entries so each settings doc is seeded/deleted individually
+- [ ] `app/api/dev/seed/route.ts` — handle the nested-document pattern for `settings/*` sub-docs (homepageSections, consultationConfig, shippingRules, navigation, paymentSettings) using `adminDb.doc("settings/{docId}").set()` in the same batch; no structural change needed for top-level collections
+- [ ] `app/[locale]/(dev)/dev/seed/page.tsx` — add rows for new collections and settings docs:
+
+  | Row label             | Collection / path              | Approx doc count |
+  | --------------------- | ------------------------------ | ---------------- |
+  | Testimonials          | `testimonials`                 | 5                |
+  | Static Pages          | `settings/pages/*`             | 5                |
+  | Navigation            | `settings/navigation`          | 1                |
+  | Homepage Sections     | `settings/homepageSections`    | 1                |
+  | Consultation Config   | `settings/consultationConfig`  | 1                |
+  | Promo Banners         | `promoBanners`                 | 0                |
+
+  Each row shows its own **Seed ↑** and **Delete ✕** buttons consistent with the existing table layout; the "Seed All" / "Delete All" buttons in the footer include these new rows
+
+#### 8.11 Admin Sidebar Navigation Update
+
+- [ ] Add new admin nav sections for the settings pages added this phase: **Settings** group in admin sidebar → General, Navigation, Homepage, Shipping, Pages, Consultation; **Content** group → Testimonials, Promo Banners
+- [ ] `app/[locale]/admin/layout.tsx` sidebar links updated to include all new routes
+
+---
+
+### Phase 9 — Polish & Launch
 
 **Goal**: Production-ready: SEO complete, performance optimised, i18n fully translated, security hardened, PWA configured, deployed to Vercel with custom domain.
 
 **Exit criteria**: Lighthouse scores ≥ 90 on mobile for home and product pages. All three locales working. Firestore security rules deployed. Site live at custom domain.
+
+#### 9.1 i18n — Translation Completion
+
+- [ ] `messages/hi.json` — replace all EN placeholder values with correct Hindi translations (all namespaces)
+- [ ] `messages/mr.json` — replace all EN placeholder values with correct Marathi translations (all namespaces)
+- [ ] `lib/mocks/products.ts` — add `hi` + `mr` values to every `LocalizedString` field in all seed products
+- [ ] Smoke-test all 3 locales: navigation, product pages, checkout flow, account pages
+- [ ] `LanguageSwitcher` — confirm locale persists in `NEXT_LOCALE` cookie across navigation + page reload
+
+#### 9.2 SEO
+
+- [ ] `generateMetadata()` on every page — locale-specific `title`, `description`, `openGraph.image`, `twitter.card`; falls back to `getSiteConfig().metaDefaults`
+- [ ] Root `app/[locale]/layout.tsx` — inject `<link rel="alternate" hreflang="en|hi|mr|x-default">` for all pages
+- [ ] `app/sitemap.ts` — dynamic sitemap: all product slugs (`/en/products/…`, `/hi/products/…`, `/mr/products/…`), all blog slugs, all concern pages, static pages; exclude admin + auth + account
+- [ ] `app/robots.ts` — `Disallow: /admin`, `Disallow: /api`, `Disallow: /dev`, `Disallow: /account`; `Sitemap:` header
+- [ ] Product pages: `Product` JSON-LD (name, image, description, offers with price + currency, aggregateRating)
+- [ ] Blog pages: `Article` JSON-LD (headline, author, datePublished, image)
+- [ ] OG images: use Next.js `ImageResponse` in `/opengraph-image.tsx` files for home + product + blog pages
+
+#### 9.3 Performance
+
+- [ ] All `<img>` tags replaced with `next/image`; set `priority` on LCP images (hero, product main image)
+- [ ] Dynamic imports (`next/dynamic`) for: `RichTextEditor`, `ImageLightbox`, `BeforeAfterSlider`, Razorpay SDK
+- [ ] Run `ANALYZE=true npm run build`; verify no chunk exceeds 200 kB gzipped; remove unused Radix primitives
+- [ ] Server Components cache: `{ next: { revalidate: 60 } }` on Firestore reads for products, blogs, categories
+- [ ] Lighthouse audit on mobile (Chrome DevTools); target ≥ 90 for Performance, Accessibility, SEO
+- [ ] Fix any Accessibility issues found: alt text, focus rings, colour contrast (minimum 4.5:1), ARIA labels
+
+#### 9.4 Analytics & Monitoring
+
+- [ ] Add GA4 via `@next/third-parties/google` (tree-shake friendly); use `gaTrackingId` from `getSiteConfig()` so the tracking ID is admin-configurable without redeploy; track: `page_view`, `add_to_cart`, `begin_checkout`, `purchase`
+- [ ] Admin dashboard charts now use real Firestore data (already server-rendered — confirm Spark quota not exceeded by projecting query volume)
+- [ ] Error monitoring: add `console.error` → Vercel Log Drains (Vercel Hobby supports this); OR integrate Sentry free tier (`@sentry/nextjs`)
+
+#### 9.5 Security Hardening
+
+- [ ] Deploy Firestore Security Rules:
+  - `/products`, `/blogs`, `/concerns`, `/categories`: `read = true`, `write = isAdmin()`
+  - `/orders/{orderId}`: `read = isOwner() || isAdmin()`, `write = isAuthenticated()`
+  - `/users/{uid}/*`: `read = isOwner()`, `write = isOwner()`
+  - `/reviews`: `read = true` (approved only — filtered in queries), `write = isAuthenticated()`
+  - `/coupons`: `read = false` (server-side only), `write = isAdmin()`
+  - `/settings/*`: `read = false`, `write = isAdmin()`
+  - `/testimonials`: `read = true`, `write = isAdmin()`
+  - `/promoBanners`: `read = true`, `write = isAdmin()`
+- [ ] All admin API routes: call `verifyIdToken()` + `isAdmin()` at start; return 403 with generic error if either fails
+- [ ] All mutation API routes: Zod schema validation at entry point; `stripUnknown: true` (or equivalent) to reject extra fields
+- [ ] Shiprocket webhook: reject requests without valid `X-Shiprocket-Hmac-Sha256` header (HMAC-SHA256 of body with `SHIPROCKET_WEBHOOK_SECRET`)
+- [ ] Razorpay verify: always re-compute HMAC server-side; never trust a client-provided payment amount — always fetch order amount from Firestore
+- [ ] WhatsApp proof upload: validate MIME type (allow only `image/jpeg`, `image/png`, `image/webp`); enforce 5 MB max size; require authenticated session
+- [ ] Review flag API: check user hasn't already flagged the same review (query existing flags); max 10 flags per user per hour (Firestore counter)
+- [ ] `/dev/seed` + `/dev/unseed`: double-guarded — `middleware.ts` blocks in production AND inside route handler checks `NODE_ENV`
+- [ ] Content Security Policy headers: add `next.config.js` `headers()` with strict CSP; allow Razorpay, Firebase, Google Fonts, GA4
+
+#### 9.6 PWA
+
+- [ ] `public/manifest.json` — `name: "Licorice Herbals"`, `short_name: "Licorice"`, icons at 192×192 and 512×512 (brand indigo background, white logo), `theme_color: "#2B1A6B"`, `background_color: "#FAFAF7"`, `display: "standalone"`, `start_url: "/en"`
+- [ ] `app/[locale]/layout.tsx` — add `<link rel="manifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">`
+- [ ] Service Worker via `next-pwa`: cache static assets + Next.js build output; offline fallback page (`/offline`) with brand styling
+- [ ] Generate favicon set: 16×16, 32×32, 48×48 `favicon.ico`; 180×180 Apple touch icon; place in `/public`
+
+#### 9.7 Deployment
+
+- [ ] Create Vercel project; connect GitHub repo; set `main` as production branch; set `develop` as preview branch
+- [ ] Add **all** environment variables in Vercel dashboard (Firebase public + admin, Shiprocket, Razorpay, Resend, WhatsApp payment, `NEXT_PUBLIC_APP_URL`, `ADMIN_EMAILS`)
+- [ ] Set `NEXT_PUBLIC_USE_MOCK_DATA=false` in Vercel production environment (not in `.env.local`)
+- [ ] Configure custom domain in Vercel; verify DNS records; SSL auto-provisioned
+- [ ] Verify all API routes complete within **10 seconds** (Vercel Hobby function timeout); add `AbortController` with 8s timeout on Shiprocket API calls as safety margin
+- [ ] Run production smoke tests:
+  - [ ] Browse shop, open product detail, add to cart
+  - [ ] Full WhatsApp payment checkout flow (place order, upload proof, admin confirms)
+  - [ ] COD checkout flow
+  - [ ] Admin: seed page returns 404 ✓, order status update ✓, inventory adjust ✓
+  - [ ] Shiprocket webhook (send test payload) — timeline updates ✓
+  - [ ] `/en`, `/hi`, `/mr` all load without error
+- [ ] Set up Vercel deployment notifications (Slack / email) for failed deployments
 
 #### 8.1 i18n — Translation Completion
 

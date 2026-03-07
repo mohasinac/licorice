@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { MessageCircle, Mail, Clock, Send } from "lucide-react";
+import { MessageCircle, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -21,6 +21,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function ContactPageClient() {
+  const [ticketNumber, setTicketNumber] = React.useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -36,6 +38,8 @@ export function ContactPageClient() {
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error("Failed to send");
+      const json = (await res.json()) as { success: boolean; ticketNumber?: string };
+      setTicketNumber(json.ticketNumber ?? null);
       toast.success("Message sent! We'll reply within 1 business day.");
       reset();
     } catch {
@@ -111,38 +115,60 @@ export function ContactPageClient() {
             </div>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <Input
-              label="Your Name"
-              placeholder="Priya Sharma"
-              error={errors.name?.message}
-              {...register("name")}
-            />
-            <Input
-              label="Email Address"
-              placeholder="you@example.com"
-              type="email"
-              error={errors.email?.message}
-              {...register("email")}
-            />
-            <Input
-              label="Subject"
-              placeholder="Order inquiry, product question…"
-              error={errors.subject?.message}
-              {...register("subject")}
-            />
-            <Textarea
-              label="Message"
-              placeholder="Tell us how we can help…"
-              rows={5}
-              error={errors.message?.message}
-              {...register("message")}
-            />
-            <Button type="submit" size="lg" loading={isSubmitting} className="mt-2 w-full">
-              <Send className="h-4 w-4" /> Send Message
-            </Button>
-          </form>
+          {/* Form / Success state */}
+          {ticketNumber ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl bg-green-50 p-8 text-center">
+              <CheckCircle2 className="mb-4 h-12 w-12 text-green-600" />
+              <h2 className="text-foreground text-xl font-semibold">Message Sent!</h2>
+              <p className="text-muted-foreground mt-2 text-sm">
+                Your support ticket has been created.
+              </p>
+              <p className="mt-3 rounded-lg bg-white px-4 py-2 font-mono text-sm font-semibold text-green-700 shadow-sm">
+                {ticketNumber}
+              </p>
+              <p className="text-muted-foreground mt-3 text-xs">
+                Save this number for future reference. We&apos;ll reply within 1 business day.
+              </p>
+              <button
+                onClick={() => setTicketNumber(null)}
+                className="text-primary mt-6 text-sm hover:underline"
+              >
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+              <Input
+                label="Your Name"
+                placeholder="Priya Sharma"
+                error={errors.name?.message}
+                {...register("name")}
+              />
+              <Input
+                label="Email Address"
+                placeholder="you@example.com"
+                type="email"
+                error={errors.email?.message}
+                {...register("email")}
+              />
+              <Input
+                label="Subject"
+                placeholder="Order inquiry, product question…"
+                error={errors.subject?.message}
+                {...register("subject")}
+              />
+              <Textarea
+                label="Message"
+                placeholder="Tell us how we can help…"
+                rows={5}
+                error={errors.message?.message}
+                {...register("message")}
+              />
+              <Button type="submit" size="lg" loading={isSubmitting} className="mt-2 w-full">
+                <Send className="h-4 w-4" /> Send Message
+              </Button>
+            </form>
+          )}
         </div>
       </div>
     </div>

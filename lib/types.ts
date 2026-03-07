@@ -355,6 +355,7 @@ export interface TicketMessage {
   senderId: string;
   body: string;
   attachments?: string[];
+  isInternalNote?: boolean;
   createdAt: Timestamp | Date;
 }
 
@@ -472,6 +473,29 @@ export interface CartItem {
   compareAtPrice?: number; // original price for strike-through display
   quantity: number;
   maxQuantity?: number; // stock cap for UI
+}
+
+// ─── Corporate Inquiry ───────────────────────────────────────────────────────
+
+export type CorporateInquiryStatus = "new" | "in_progress" | "won" | "lost";
+
+export interface CorporateInquiry {
+  id: string;
+  companyName: string;
+  contactPerson: string;
+  designation?: string;
+  email: string;
+  phone: string;
+  units: number;
+  budgetPerUnit?: number;
+  totalBudget?: number;
+  deliveryDateRequired?: string;
+  customBranding: boolean;
+  message?: string;
+  status: CorporateInquiryStatus;
+  adminNote?: string;
+  createdAt: Timestamp | Date;
+  updatedAt?: Timestamp | Date;
 }
 
 // ─── Seed doc marker ─────────────────────────────────────────────────────────

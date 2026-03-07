@@ -7,6 +7,7 @@ import { getOrder, getOrderTimeline } from "@/lib/db";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
 import { ReturnRequestButton } from "@/components/account/ReturnRequestButton";
+import { GetHelpButton } from "@/components/account/GetHelpButton";
 import type { Timestamp } from "firebase-admin/firestore";
 
 export const metadata: Metadata = { title: "Order Details" };
@@ -148,8 +149,8 @@ export default async function AccountOrderDetailPage({
           <section className="bg-surface rounded-2xl p-5 shadow-sm">
             <h2 className="text-foreground mb-2 font-semibold">Returns</h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              Returns accepted within 3 days of delivery for damaged, defective, wrong, or
-              expired items only.
+              Returns accepted within 3 days of delivery for damaged, defective, wrong, or expired
+              items only.
             </p>
             <ReturnRequestButton
               orderId={order.id}
@@ -157,16 +158,17 @@ export default async function AccountOrderDetailPage({
               deliveredAt={
                 order.deliveredAt instanceof Date
                   ? order.deliveredAt.toISOString()
-                  : (order.deliveredAt as unknown as { toDate?: () => Date })?.toDate?.()?.toISOString() ?? null
+                  : ((order.deliveredAt as unknown as { toDate?: () => Date })
+                      ?.toDate?.()
+                      ?.toISOString() ?? null)
               }
             />
           </section>
         )}
 
         {/* Return status */}
-        {(order.orderStatus === "return_requested" ||
-          order.orderStatus === "return_picked_up") && (
-          <section className="bg-amber-50 rounded-2xl p-5 shadow-sm">
+        {(order.orderStatus === "return_requested" || order.orderStatus === "return_picked_up") && (
+          <section className="rounded-2xl bg-amber-50 p-5 shadow-sm">
             <h2 className="mb-2 font-semibold text-amber-800">Return in Progress</h2>
             <p className="text-sm text-amber-700">
               Your return request has been received and is being processed. We&apos;ll keep you
@@ -179,6 +181,15 @@ export default async function AccountOrderDetailPage({
             )}
           </section>
         )}
+
+        {/* Get Help */}
+        <section className="bg-surface rounded-2xl p-5 shadow-sm">
+          <h2 className="text-foreground mb-2 font-semibold">Need Help?</h2>
+          <p className="text-muted-foreground mb-3 text-sm">
+            Having an issue with this order? Our support team is here to help.
+          </p>
+          <GetHelpButton orderId={order.id} orderNumber={order.orderNumber} />
+        </section>
       </div>
     </div>
   );

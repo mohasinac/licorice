@@ -1,0 +1,264 @@
+{
+  "indexes": [
+    // ─── products ──────────────────────────────────────────────────────────
+    // getProducts: isActive + category + sortOrder
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive",  "order": "ASCENDING" },
+        { "fieldPath": "category",  "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    // getProducts: isActive + isFeatured + sortOrder
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive",   "order": "ASCENDING" },
+        { "fieldPath": "isFeatured", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder",  "order": "ASCENDING" }
+      ]
+    },
+    // getProducts: isActive + isCombo + sortOrder
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive",  "order": "ASCENDING" },
+        { "fieldPath": "isCombo",   "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    // getProduct: slug + isActive
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "slug",     "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" }
+      ]
+    },
+
+    // ─── blogs ─────────────────────────────────────────────────────────────
+    // getBlogs: status + publishedAt DESC
+    {
+      "collectionGroup": "blogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",      "order": "ASCENDING" },
+        { "fieldPath": "publishedAt", "order": "DESCENDING" }
+      ]
+    },
+    // getBlogs with category: status + category + publishedAt DESC
+    {
+      "collectionGroup": "blogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",      "order": "ASCENDING" },
+        { "fieldPath": "category",    "order": "ASCENDING" },
+        { "fieldPath": "publishedAt", "order": "DESCENDING" }
+      ]
+    },
+    // getBlog by slug: slug + status
+    {
+      "collectionGroup": "blogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "slug",   "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+
+    // ─── reviews ───────────────────────────────────────────────────────────
+    // getApprovedReviews: status + createdAt DESC
+    {
+      "collectionGroup": "reviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // getProductReviews: productId + status + createdAt DESC
+    {
+      "collectionGroup": "reviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "productId", "order": "ASCENDING" },
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // getAllReviews (admin): status + createdAt DESC
+    {
+      "collectionGroup": "reviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // getAllReviews all: createdAt DESC (no filter)
+    {
+      "collectionGroup": "reviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // ─── orders ────────────────────────────────────────────────────────────
+    // getOrders: createdAt DESC (no filter — admin all orders)
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // getOrders: userId + createdAt DESC
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // getOrders: orderStatus + createdAt DESC
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "orderStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",   "order": "DESCENDING" }
+      ]
+    },
+    // getOrders: paymentStatus + createdAt DESC
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "paymentStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",     "order": "DESCENDING" }
+      ]
+    },
+    // getOrders: userId + orderStatus + createdAt DESC
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",      "order": "ASCENDING" },
+        { "fieldPath": "orderStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",   "order": "DESCENDING" }
+      ]
+    },
+
+    // ─── orders/timeline ───────────────────────────────────────────────────
+    {
+      "collectionGroup": "timeline",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+
+    // ─── inventory/movements ───────────────────────────────────────────────
+    // getStockMovements: createdAt DESC
+    {
+      "collectionGroup": "movements",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // getStockMovements with variantId: variantId + createdAt DESC
+    {
+      "collectionGroup": "movements",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "variantId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // ─── supportTickets ────────────────────────────────────────────────────
+    // list by userId + createdAt DESC
+    {
+      "collectionGroup": "supportTickets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // list by status + createdAt DESC (admin)
+    {
+      "collectionGroup": "supportTickets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    // all tickets: createdAt DESC
+    {
+      "collectionGroup": "supportTickets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // ─── supportTickets/messages ───────────────────────────────────────────
+    {
+      "collectionGroup": "messages",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+
+    // ─── consultations ─────────────────────────────────────────────────────
+    {
+      "collectionGroup": "consultations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "consultations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // ─── corporateInquiries ────────────────────────────────────────────────
+    {
+      "collectionGroup": "corporateInquiries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // ─── couponUsage ───────────────────────────────────────────────────────
+    // validate: userId + couponCode
+    {
+      "collectionGroup": "couponUsage",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",     "order": "ASCENDING" },
+        { "fieldPath": "couponCode", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -34,6 +34,14 @@ const REVIEW_STATUS_VARIANTS: Record<string, StatusVariant> = {
   rejected: "red",
 };
 
+const TICKET_STATUS_VARIANTS: Record<string, StatusVariant> = {
+  open: "blue",
+  in_progress: "purple",
+  waiting_customer: "amber",
+  resolved: "green",
+  closed: "gray",
+};
+
 const variantClasses: Record<StatusVariant, string> = {
   green: "bg-green-100 text-green-800",
   amber: "bg-amber-100 text-amber-800",
@@ -53,6 +61,7 @@ function getVariant(status: string, type: StatusBadgeProps["type"]): StatusVaria
   if (type === "order") return ORDER_STATUS_VARIANTS[status as OrderStatus] ?? "gray";
   if (type === "payment") return PAYMENT_STATUS_VARIANTS[status as PaymentStatus] ?? "gray";
   if (type === "review") return REVIEW_STATUS_VARIANTS[status] ?? "gray";
+  if (type === "ticket") return TICKET_STATUS_VARIANTS[status] ?? "gray";
   return "gray";
 }
 

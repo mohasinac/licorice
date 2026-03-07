@@ -21,12 +21,13 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         Manage your orders, addresses and profile.
       </p>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
           { label: "Orders", href: `/${locale}/account/orders` },
           { label: "Wishlist", href: `/${locale}/account/wishlist` },
           { label: "Addresses", href: `/${locale}/account/addresses` },
           { label: "Profile", href: `/${locale}/account/profile` },
+          { label: "Support", href: `/${locale}/account/support` },
         ].map((link) => (
           <Link
             key={link.href}

@@ -1,0 +1,69 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { MessageCircle } from "lucide-react";
+import type { SupportTicket } from "@/lib/types";
+
+interface Props {
+  ticket: SupportTicket;
+  locale?: string;
+  unread?: boolean;
+}
+
+function formatRelativeDate(val: unknown): string {
+  let date: Date | null = null;
+  if (val instanceof Date) {
+    date = val;
+  } else if (val && typeof (val as Record<string, unknown>).toDate === "function") {
+    date = (val as { toDate: () => Date }).toDate();
+  }
+  if (!date) return "—";
+  const diff = Date.now() - date.getTime();
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 1) return "Just now";
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  order: "Order Issue",
+  shipping: "Shipping",
+  product: "Product Query",
+  return: "Return / Refund",
+  payment: "Payment",
+  consultation: "Consultation",
+  other: "Other",
+};
+
+export function TicketCard({ ticket, locale = "en", unread = false }: Props) {
+  return (
+    <Link
+      href={`/${locale}/account/support/${ticket.id}`}
+      className="bg-surface hover:border-primary/30 flex items-start gap-4 rounded-2xl border border-transparent p-5 shadow-sm transition-all hover:shadow-md"
+    >
+      <div className="bg-primary/10 mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl">
+        <MessageCircle className="text-primary h-4 w-4" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="mb-1 flex flex-wrap items-center gap-2">
+          <span className="font-mono text-xs font-semibold text-green-700">
+            {ticket.ticketNumber}
+          </span>
+          <StatusBadge status={ticket.status} type="ticket" />
+          <span className="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs">
+            {CATEGORY_LABELS[ticket.category] ?? ticket.category}
+          </span>
+          {unread && <span className="h-2 w-2 rounded-full bg-blue-500" aria-label="Unread" />}
+        </div>
+        <p className="text-foreground line-clamp-1 text-sm font-medium">{ticket.subject}</p>
+        <p className="text-muted-foreground mt-0.5 text-xs">
+          {formatRelativeDate(ticket.updatedAt ?? ticket.createdAt)}
+        </p>
+      </div>
+    </Link>
+  );
+}
