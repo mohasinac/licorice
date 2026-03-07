@@ -19,7 +19,11 @@ import type {
   InventoryDoc,
   StockMovement,
   StockMovementType,
+  Order,
+  OrderEvent,
+  Address,
 } from "@/lib/types";
+import { isFirebaseReady } from "@/lib/utils";
 import {
   SEED_PRODUCTS,
   SEED_CATEGORIES,
@@ -36,12 +40,7 @@ import {
 
 // ── Firebase readiness ────────────────────────────────────────────────────────
 
-export function isFirebaseReady(): boolean {
-  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") return false;
-  return !!(
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && process.env.NEXT_PUBLIC_FIREBASE_API_KEY
-  );
-}
+export { isFirebaseReady } from "@/lib/utils";
 
 // ── Product filters ───────────────────────────────────────────────────────────
 
@@ -451,4 +450,118 @@ export async function adjustStock(
       createdAt: FieldValue.serverTimestamp(),
     });
   });
+}
+
+// ── Orders ────────────────────────────────────────────────────────────────────
+
+export async function getOrder(orderId: string): Promise<Order | null> {
+  if (!isFirebaseReady()) return null;
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("orders").doc(orderId).get();
+    if (!doc.exists) return null;
+    return doc.data() as Order;
+  } catch (err) {
+    console.warn("[db] Firestore getOrder failed", err);
+    return null;
+  }
+}
+
+export async function getOrders(filters?: {
+  userId?: string;
+  orderStatus?: string;
+  paymentStatus?: string;
+  limit?: number;
+}): Promise<Order[]> {
+  if (!isFirebaseReady()) return [];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb.collection("orders").orderBy("createdAt", "desc");
+    if (filters?.userId) query = query.where("userId", "==", filters.userId);
+    if (filters?.orderStatus) query = query.where("orderStatus", "==", filters.orderStatus);
+    if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus);
+    if (filters?.limit) query = query.limit(filters.limit);
+    const snap = await query.get();
+    return snap.docs.map((d) => d.data() as Order);
+  } catch (err) {
+    console.warn("[db] Firestore getOrders failed", err);
+    return [];
+  }
+}
+
+export async function getOrderTimeline(orderId: string): Promise<OrderEvent[]> {
+  if (!isFirebaseReady()) return [];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("orders")
+      .doc(orderId)
+      .collection("timeline")
+      .orderBy("createdAt", "asc")
+      .get();
+    return snap.docs.map((d) => d.data() as OrderEvent);
+  } catch (err) {
+    console.warn("[db] Firestore getOrderTimeline failed", err);
+    return [];
+  }
+}
+
+export async function updateOrderStatus(
+  orderId: string,
+  updates: Partial<
+    Pick<
+      Order,
+      | "orderStatus"
+      | "paymentStatus"
+      | "adminNote"
+      | "whatsappConfirmedBy"
+      | "whatsappConfirmedAt"
+      | "awbCode"
+      | "courierName"
+      | "shiprocketOrderId"
+      | "shiprocketShipmentId"
+      | "estimatedDeliveryDate"
+      | "deliveredAt"
+      | "refundAmount"
+      | "refundId"
+      | "refundNote"
+    >
+  >,
+  timelineEvent?: Omit<OrderEvent, "createdAt">,
+): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+
+  const orderRef = adminDb.collection("orders").doc(orderId);
+  const batch = adminDb.batch();
+
+  batch.update(orderRef, { ...updates, updatedAt: FieldValue.serverTimestamp() });
+
+  if (timelineEvent) {
+    const eventRef = orderRef.collection("timeline").doc();
+    batch.set(eventRef, { ...timelineEvent, createdAt: FieldValue.serverTimestamp() });
+  }
+
+  await batch.commit();
+}
+
+export async function getUserAddresses(userId: string): Promise<Address[]> {
+  if (!isFirebaseReady()) return [];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("users").doc(userId).collection("addresses").get();
+    return snap.docs.map((d) => d.data() as Address);
+  } catch (err) {
+    console.warn("[db] Firestore getUserAddresses failed", err);
+    return [];
+  }
+}
+
+export async function saveUserAddress(userId: string, address: Address): Promise<string> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  const ref = adminDb.collection("users").doc(userId).collection("addresses").doc();
+  await ref.set({ ...address, createdAt: FieldValue.serverTimestamp() });
+  return ref.id;
 }

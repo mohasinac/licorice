@@ -46,3 +46,33 @@ export async function isAdmin(uid: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Server-component variant — reads the Authorization header from `next/headers`.
+ * In a typical browser request this returns null unless cookies/middleware set it.
+ */
+export async function getServerUser(): Promise<AppUser | null> {
+  try {
+    const { headers } = await import("next/headers");
+    const headersList = await headers();
+    const authHeader = headersList.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) return null;
+    const token = authHeader.slice(7);
+    if (!token) return null;
+
+    const { adminAuth } = await import("@/lib/firebase/admin");
+    const decoded = await adminAuth.verifyIdToken(token);
+
+    return {
+      uid: decoded.uid,
+      email: decoded.email ?? null,
+      displayName: decoded.name ?? null,
+      photoURL: decoded.picture ?? undefined,
+      role: (decoded["role"] as AppUser["role"]) ?? "customer",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  } catch {
+    return null;
+  }
+}

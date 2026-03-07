@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { isFirebaseReady } from "@/lib/db";
+import { isFirebaseReady } from "@/lib/utils";
 import type { AppUser } from "@/lib/types";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

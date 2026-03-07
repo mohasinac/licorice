@@ -84,17 +84,17 @@ export function ProductForm({ product, onSave, mode = "create" }: ProductFormPro
       howToUse: (product?.howToUse ?? [""]).map((v: string) => ({ value: v })),
       tags: product?.tags?.join(", ") ?? "",
       variants: product?.variants?.map((v) => ({
-          id: v.id,
-          label: v.label,
-          price: v.price,
-          compareAtPrice: v.compareAtPrice,
-          sku: v.sku,
-          stock: v.stock,
-          reservedStock: v.reservedStock ?? 0,
-          weight: v.weight ?? 100,
-          isDefault: v.isDefault ?? false,
-          dimensions: v.dimensions,
-        })) ?? [
+        id: v.id,
+        label: v.label,
+        price: v.price,
+        compareAtPrice: v.compareAtPrice,
+        sku: v.sku,
+        stock: v.stock,
+        reservedStock: v.reservedStock ?? 0,
+        weight: v.weight ?? 100,
+        isDefault: v.isDefault ?? false,
+        dimensions: v.dimensions,
+      })) ?? [
         {
           id: `var_${Date.now()}`,
           label: "",

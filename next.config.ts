@@ -8,6 +8,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["firebase-admin"],
   images: {
     remotePatterns: [
       {

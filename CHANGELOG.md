@@ -10,6 +10,83 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Phase 3] — Commerce & Payments · Branch: `phase-3-commerce`
+
+### Summary
+
+Full end-to-end purchase flow: cart → checkout (5-step) → WhatsApp / COD / Razorpay payment → order confirmation → admin order management → customer account pages. 40+ new components, pages, and API routes. Build: 159 static pages, TypeScript clean (exit 0).
+
+### Added
+
+#### Cart
+
+- `stores/useCartStore.ts` — Zustand cart with add / remove / updateQty / clear; persisted to localStorage
+- `stores/useWishlistStore.ts` — toggle + isWished; persisted to localStorage
+- `stores/useCheckoutStore.ts` — 5-step checkout state; `ShippingMode` type shared with server via `constants/policies.ts`
+- `components/cart/CartItem.tsx` — thumbnail, name, variant, qty stepper, line total, remove
+- `components/cart/CartSummary.tsx` — subtotal, coupon discount, shipping, COD fee, total
+- `components/cart/CouponInput.tsx` — apply / remove coupon via `POST /api/coupon/validate`
+- `app/api/coupon/validate/route.ts` — 7-rule server-side coupon validation
+
+#### Checkout Flow
+
+- `app/[locale]/checkout/page.tsx` + `CheckoutClient.tsx` — 5-step flow
+- `components/checkout/CheckoutStepper.tsx` — horizontal step indicator with completed / active states
+- `components/checkout/AddressList.tsx` — saved address radio list + "Add New" card
+- `components/checkout/AddressForm.tsx` — React Hook Form + Zod; Indian states dropdown; saves via API
+- `components/checkout/ShippingOptions.tsx` — Standard / Express / Same Day options with prices
+- `components/checkout/PaymentOptions.tsx` — renders only enabled payment methods from settings
+- `components/checkout/OrderSummary.tsx` — final read-only breakdown: items, subtotal, discount, shipping, COD fee, total
+
+#### WhatsApp Payment
+
+- `components/checkout/WhatsAppPaymentInstructions.tsx` — UPI ID copy field, QR image, WhatsApp deep-link
+- `components/checkout/WhatsAppProofUpload.tsx` — image upload (max 5 MB) → `POST /api/payment/whatsapp/submit-proof`
+- `app/api/payment/whatsapp/submit-proof/route.ts` — validates MIME/size, uploads to Firebase Storage, updates order `paymentStatus: "proof_submitted"`
+
+#### Order Creation
+
+- `lib/actions/createOrder.ts` — Server Action: Zod validation → coupon re-validation → Firestore transaction (stock reserve + order write + counter increment); returns `{ orderId, orderNumber }`
+- `app/api/order-confirm/route.ts` — idempotent post-payment confirmation; sends Resend email; writes timeline event
+
+#### API Routes
+
+- `app/api/pincode-check/route.ts` — Shiprocket serviceability proxy; mock fallback
+- `app/api/products/route.ts` — `GET /api/products?ids=...` for client-side wishlist page
+- `app/api/account/addresses/route.ts` — GET (list) + POST (save) user addresses
+- `app/api/account/addresses/[addressId]/route.ts` — DELETE a saved address
+- `app/api/admin/orders/[orderId]/status/route.ts` — PATCH admin order status + timeline event
+- `app/api/admin/orders/[orderId]/refund/route.ts` — POST refund via Razorpay API or manual record
+
+#### Admin Order Management
+
+- `app/[locale]/admin/orders/page.tsx` + `AdminOrdersTable.tsx` — DataTable with status / payment filter
+- `app/[locale]/admin/orders/[id]/page.tsx` + `AdminOrderActions.tsx` — full order detail, WhatsApp proof, status select, timeline, refund modal
+- `components/admin/OrderStatusSelect.tsx` — valid next-status dropdown with confirmation dialog
+- `components/admin/WhatsAppPaymentConfirm.tsx` — inline proof image + Confirm Payment button
+- `components/admin/RefundModal.tsx` — amount + note; Razorpay API refund or manual record
+
+#### Customer Account
+
+- `app/[locale]/account/page.tsx` — dashboard: greeting, last 3 orders, quick links
+- `app/[locale]/account/orders/page.tsx` — paginated order history
+- `app/[locale]/account/orders/[id]/page.tsx` — order detail with items, pricing, address, timeline
+- `app/[locale]/account/wishlist/page.tsx` — wishlisted product grid with remove toggle
+- `app/[locale]/account/addresses/page.tsx` — saved address cards; add / edit / delete
+- `app/[locale]/account/profile/page.tsx` — edit display name, phone; change password
+- `components/account/OrderCard.tsx` — compact order row with status badge and "View" link
+- `components/account/OrderTimeline.tsx` — vertical timeline of `OrderEvent` docs
+- `components/account/AddressCard.tsx` — formatted address with edit / delete / set-default actions
+
+### Fixed
+
+- `serverExternalPackages: ["firebase-admin"]` in `next.config.ts` — prevents Turbopack from bundling firebase-admin into client chunks
+- `isFirebaseReady()` moved from `lib/db.ts` → `lib/utils.ts` so `AuthProvider.tsx` can import it without pulling the server SDK into the client bundle
+- `getShippingCharge()` + `ShippingMode` type consolidated in `constants/policies.ts` to be safely imported by both server actions and client components
+- `getServerUser()` helper added to `lib/auth.ts` for server component auth (uses `next/headers` instead of `NextRequest`)
+
+---
+
 ## [Phase 2] — Product Catalogue · Branch: `phase-2-product-catalogue`
 
 ### Summary
@@ -19,6 +96,7 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 ### Added
 
 #### UI Primitives
+
 - `components/ui/Textarea.tsx` — auto-grow textarea with label + error state
 - `components/ui/Select.tsx` — native `<select>` wrapper with Tailwind styling
 - `components/ui/Modal.tsx` — Radix Dialog wrapper with slide-in animation
@@ -29,6 +107,7 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 - `components/ui/ImageLightbox.tsx` — full-screen image zoom via Radix Dialog
 
 #### Product Components
+
 - `components/product/ProductGrid.tsx` — responsive grid of `ProductCard` with Skeleton fallback
 - `components/product/ProductFilters.tsx` — category + concern + price range filters; mobile drawer mode
 - `components/product/ProductSort.tsx` — sort select (newest / price asc/desc / rating)
@@ -42,6 +121,7 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 - `components/product/RelatedProducts.tsx` — horizontal scroll carousel of related `ProductCard`
 
 #### Shop & Browse Pages
+
 - `app/[locale]/shop/page.tsx` — server component with ProductFilters + ProductSort + ProductGrid
 - `app/[locale]/shop/[category]/page.tsx` — category-filtered shop with `generateStaticParams`
 - `app/[locale]/concern/[concern]/page.tsx` — concern-filtered shop with hero header
@@ -49,9 +129,11 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 - `app/[locale]/search/page.tsx` — `?q=` full-text search across product name/tags/description
 
 #### Product Detail Page
+
 - `app/[locale]/products/[slug]/page.tsx` — full product detail; `generateStaticParams`; Product JSON-LD structured data; all product component sections assembled
 
 #### Static & Policy Pages
+
 - `app/[locale]/about/page.tsx` — brand story, founder note, mission, certifications
 - `app/[locale]/contact/page.tsx` + `ContactPageClient.tsx` — contact form (RHF + Zod), WhatsApp link, support hours; split server/client to support both `export const metadata` and `"use client"`
 - `app/[locale]/(policies)/shipping-policy/page.tsx` — domestic SLA table, free shipping threshold, COD rules
@@ -59,6 +141,7 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 - `app/[locale]/(policies)/terms/page.tsx` — terms of service
 
 #### Admin — Product Management
+
 - `app/[locale]/(admin)/admin/products/page.tsx` — product list with DataTable (image, name, category, price, stock badge, status)
 - `app/[locale]/(admin)/admin/products/new/page.tsx` — create product page
 - `app/[locale]/(admin)/admin/products/[id]/page.tsx` — edit product page
@@ -68,6 +151,7 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 - `components/admin/ImageUploader.tsx` — drag-drop uploader with FileReader preview grid
 
 #### Admin — Inventory
+
 - `app/[locale]/(admin)/admin/inventory/page.tsx` — full product × variant inventory table with colour-coded stock levels
 - `app/[locale]/(admin)/admin/inventory/[productId]/page.tsx` — per-product inventory with stock movement ledger
 - `components/admin/InventoryRow.tsx` — colour-coded row (red=OOS, amber=low, green=healthy)
@@ -75,10 +159,12 @@ Full product catalogue, shop browsing, admin product management, and admin inven
 - `lib/db.ts` additions: `getInventory()`, `getStockMovements()`, `adjustStock()` with Firestore transaction + mock fallback
 
 #### Utilities & Infrastructure
+
 - `lib/utils.ts` — `cn()` class-name merge utility
 - `components/layout/Footer.tsx` — added visible "Built by mohasinac" GitHub link with `Github` icon (lucide-react)
 
 ### Fixed
+
 - `SectionHeading` prop names corrected across 5 files: `heading` → `title`, `subheading` → `subtitle`
 - `app/[locale]/contact/page.tsx` conflict between `"use client"` and `export const metadata` resolved by server/client split
 - `Product.name` type guard errors — `name` is always `string`, never `LocalizedString`; removed all `.en` access patterns

@@ -18,3 +18,18 @@ export const DEFAULT_STOCK_PER_VARIANT = 50;
 
 // Reservation timeout for pending orders (minutes)
 export const ORDER_RESERVATION_TIMEOUT_MINUTES = 15;
+
+// ── Shipping charge helper (shared between server and client code) ───────────
+
+export type ShippingMode = "standard" | "express" | "same_day";
+
+export function getShippingCharge(mode: ShippingMode, subtotal: number): number {
+  switch (mode) {
+    case "standard":
+      return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
+    case "express":
+      return 149;
+    case "same_day":
+      return 199;
+  }
+}
