@@ -744,11 +744,7 @@ stock restored
 
 **Processing time**: 1-2 business days. Orders placed on weekends/holidays → next business day.
 
-### International
-
-- Enabled via Shiprocket International
-- SLA: 8-12 business days
-- Threshold: Free above $120 USD / ₹10,000 (some countries excluded)
+> **Currency**: All transactions are in **INR (₹)** only. International shipping is out of scope for the current launch — domestic India only.
 
 ### Shiprocket Integration Flow
 
@@ -1262,10 +1258,7 @@ Domestic Orders:
   standardSLA: "5-7 business days"
   expressSLA: "2-3 business days"
 
-International Orders:
-  freeShippingThreshold: $120 USD / ₹10,000
-  excludedCountries: ["CA", "ZA", "NP", "BD", "LK"]
-  internationalSLA: "8-12 business days"
+// International shipping: not in scope for current launch — INR / domestic India only
 
 Refund Policy:
   returnWindow: 3           (days from delivery)
@@ -1554,7 +1547,7 @@ export async function POST(req: Request) {
 #### Theme & Constants
 - [ ] `constants/theme.ts` — all colour tokens, font names, border radius, spacing scale
 - [ ] `constants/site.ts` — brand name ("Licorice Herbals"), tagline, support email/phone/hours, WhatsApp number, social handles, nav items
-- [ ] `constants/policies.ts` — free shipping threshold (₹999), COD fee (₹50), return window (3 days), processing SLA, international exclusions
+- [ ] `constants/policies.ts` — free shipping threshold (₹999), COD fee (₹50), return window (3 days), processing SLA; **INR only, domestic India — no international shipping at launch**
 - [ ] `constants/categories.ts` — product category list + concern definitions with slugs and display labels
 - [ ] `app/globals.css` — CSS custom properties from theme tokens
 - [ ] `tailwind.config.ts` — extend theme with CSS-variable-backed colour palette + Cormorant Garamond + Inter font stack
