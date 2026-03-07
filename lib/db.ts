@@ -571,3 +571,56 @@ export async function saveUserAddress(userId: string, address: Address): Promise
   await ref.set({ ...address, createdAt: FieldValue.serverTimestamp() });
   return ref.id;
 }
+
+// ── Reviews (admin) ───────────────────────────────────────────────────────────
+
+export async function getAllReviews(status?: Review["status"]): Promise<Review[]> {
+  if (!isFirebaseReady()) {
+    return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("reviews")
+      .orderBy("createdAt", "desc");
+    if (status) query = query.where("status", "==", status);
+    const snap = await query.get();
+    return snap.docs.map((d) => d.data() as Review);
+  } catch (err) {
+    console.warn("[db] Firestore getAllReviews failed — falling back to mock data", err);
+    return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
+  }
+}
+
+export async function getReviewById(reviewId: string): Promise<Review | null> {
+  if (!isFirebaseReady()) {
+    return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("reviews").doc(reviewId).get();
+    if (!doc.exists) return null;
+    return doc.data() as Review;
+  } catch (err) {
+    console.warn("[db] Firestore getReviewById failed — falling back to mock data", err);
+    return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
+  }
+}
+
+export async function getPendingReviewCount(): Promise<number> {
+  if (!isFirebaseReady()) {
+    return SEED_REVIEWS.filter((r) => r.status === "pending").length;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("reviews")
+      .where("status", "==", "pending")
+      .count()
+      .get();
+    return snap.data().count;
+  } catch (err) {
+    console.warn("[db] Firestore getPendingReviewCount failed", err);
+    return 0;
+  }
+}

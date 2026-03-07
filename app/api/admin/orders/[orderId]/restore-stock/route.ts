@@ -27,10 +27,9 @@ export async function POST(
   if (!order) return new Response("Order not found", { status: 404 });
 
   if (order.orderStatus !== "return_picked_up") {
-    return new Response(
-      `Order must be in "return_picked_up" status, got "${order.orderStatus}"`,
-      { status: 422 },
-    );
+    return new Response(`Order must be in "return_picked_up" status, got "${order.orderStatus}"`, {
+      status: 422,
+    });
   }
 
   // Restore stock for each item

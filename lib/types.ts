@@ -260,6 +260,17 @@ export interface Coupon {
 
 // ─── Review ──────────────────────────────────────────────────────────────────
 
+export type ReviewFlagReason = "spam" | "offensive" | "fake" | "irrelevant" | "other";
+
+export interface ReviewFlag {
+  id: string;
+  reviewId: string;
+  reportedBy: string;
+  reason: ReviewFlagReason;
+  note?: string;
+  createdAt: Timestamp | Date;
+}
+
 export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export interface Review {

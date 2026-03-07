@@ -1936,7 +1936,7 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 5 — Reviews & Trust
+### Phase 5 — Reviews & Trust ✅ COMPLETE
 
 **Goal**: Verified purchase review system with photo uploads, admin moderation, helpful votes, and public display integrated into product pages.
 
@@ -1944,28 +1944,28 @@ export async function POST(req: Request) {
 
 #### 5.1 Review Submission
 
-- [ ] `components/product/AddReviewForm.tsx` — shown only if current user has a `delivered` order containing this product (checked server-side via `lib/actions/checkReviewEligibility.ts`); fields: star rating (mandatory, 1–5), title (optional), body (min 20 chars, max 1000), up to 5 photo uploads; React Hook Form + Zod; Submit creates review with `status: "pending"`
-- [ ] `lib/actions/checkReviewEligibility.ts` — Server Action: queries `/orders` where `userId = currentUser AND orderStatus = "delivered"` and one of `items.productId` matches; returns `{ eligible: boolean, orderId? }`
-- [ ] `lib/actions/submitReview.ts` — Server Action: re-checks eligibility; validates inputs; uploads images to `/reviews/{reviewId}/` in Firebase Storage (sequential, fail gracefully if one fails); writes Firestore review doc; returns `reviewId`
-- [ ] "Review submitted — pending approval" success toast
+- [x] `components/product/AddReviewForm.tsx` — shown only if current user has a `delivered` order containing this product (checked server-side via `lib/actions/checkReviewEligibility.ts`); fields: star rating (mandatory, 1–5), title (optional), body (min 20 chars, max 1000), up to 5 photo uploads; React Hook Form + Zod; Submit creates review with `status: "pending"`
+- [x] `lib/actions/checkReviewEligibility.ts` — Server Action: queries `/orders` where `userId = currentUser AND orderStatus = "delivered"` and one of `items.productId` matches; returns `{ eligible: boolean, orderId? }`
+- [x] `lib/actions/submitReview.ts` — Server Action: re-checks eligibility; validates inputs; uploads images to `/reviews/{reviewId}/` in Firebase Storage (sequential, fail gracefully if one fails); writes Firestore review doc; returns `reviewId`
+- [x] "Review submitted — pending approval" success toast
 
 #### 5.2 Admin Review Moderation
 
-- [ ] `app/[locale]/admin/reviews/page.tsx` — **Pending** tab (default) + **All Reviews** tab; `DataTable` with columns: product, rating, excerpt, author, date, verified badge, actions; filter by product, star rating, date
-- [ ] `app/[locale]/admin/reviews/[id]/page.tsx` — full review body, all images (grid with lightbox), customer name + verified purchase status, product link; Approve / Reject (requires reason text) / Add Reply buttons
-- [ ] `components/admin/ReviewModerationCard.tsx` — composable card used in both list and detail views; approve/reject buttons; reply textarea (shown only after approval)
-- [ ] `lib/actions/moderateReview.ts` — Server Action: on approve → sets `status: "approved"`, `moderatedBy`, `moderatedAt`; then reads all approved reviews for the product → computes average rating → updates `product.rating` + `product.reviewCount` in Firestore transaction; on reject → sets `status: "rejected"`, `rejectionReason`
-- [ ] Admin reply: sets `adminReply` + `adminRepliedAt` on review doc; reply shown publicly on product page below customer review
+- [x] `app/[locale]/admin/reviews/page.tsx` — **Pending** tab (default) + **All Reviews** tab; `DataTable` with columns: product, rating, excerpt, author, date, verified badge, actions; filter by product, star rating, date
+- [x] `app/[locale]/admin/reviews/[id]/page.tsx` — full review body, all images (grid with lightbox), customer name + verified purchase status, product link; Approve / Reject (requires reason text) / Add Reply buttons
+- [x] `components/admin/ReviewModerationCard.tsx` — composable card used in both list and detail views; approve/reject buttons; reply textarea (shown only after approval)
+- [x] `lib/actions/moderateReview.ts` — Server Action: on approve → sets `status: "approved"`, `moderatedBy`, `moderatedAt`; then reads all approved reviews for the product → computes average rating → updates `product.rating` + `product.reviewCount` in Firestore transaction; on reject → sets `status: "rejected"`, `rejectionReason`
+- [x] Admin reply: sets `adminReply` + `adminRepliedAt` on review doc; reply shown publicly on product page below customer review
 
 #### 5.3 Storefront Review Display
 
-- [ ] `components/product/ReviewsList.tsx` — top section: average star rating (large), rating distribution bar chart (5→1 stars with fill percentage); filter row and sort dropdown; paginated `ReviewCard` list (10 per page); "Load more" button or pagination; total count display
-- [ ] `components/product/ReviewCard.tsx` — star rating, title, body, `Verified Purchase` badge (if `isVerifiedPurchase`), date, customer first name + city, review photos row (click opens lightbox), `adminReply` section (indented, labelled "Response from Licorice Herbals"), helpful vote thumbs-up (`helpfulCount`), "Report" link
-- [ ] `components/product/ReviewFilters.tsx` — pill filters: "All", "5 Stars", "4 Stars" … "1 Star", "Verified Only", "With Photos"; updates URL param `?reviewFilter=`
-- [ ] `components/product/ReviewPhotoGallery.tsx` — all customer photos from approved reviews in a masonry/grid; clicking opens `ImageLightbox` with customer name + rating overlay
-- [ ] Helpful vote: `POST /api/review/helpful` → Firestore `increment(1)` on `helpfulCount`; debounced, one vote per session (stored in `sessionStorage`)
-- [ ] Flag review: "Report" opens compact form (reason dropdown); `POST /api/review/flag` → writes `reviewFlag` doc
-- [ ] `app/api/review/flag/route.ts` — verifies auth; writes `/reviewFlags/{flagId}`; checks user hasn't flagged same review already
+- [x] `components/product/ReviewsList.tsx` — top section: average star rating (large), rating distribution bar chart (5→1 stars with fill percentage); filter row and sort dropdown; paginated `ReviewCard` list (10 per page); "Load more" button or pagination; total count display
+- [x] `components/product/ReviewCard.tsx` — star rating, title, body, `Verified Purchase` badge (if `isVerifiedPurchase`), date, customer first name + city, review photos row (click opens lightbox), `adminReply` section (indented, labelled "Response from Licorice Herbals"), helpful vote thumbs-up (`helpfulCount`), "Report" link
+- [x] `components/product/ReviewFilters.tsx` — pill filters: "All", "5 Stars", "4 Stars" … "1 Star", "Verified Only", "With Photos"; updates URL param `?reviewFilter=`
+- [x] `components/product/ReviewPhotoGallery.tsx` — all customer photos from approved reviews in a masonry/grid; clicking opens `ImageLightbox` with customer name + rating overlay
+- [x] Helpful vote: `POST /api/review/helpful` → Firestore `increment(1)` on `helpfulCount`; debounced, one vote per session (stored in `sessionStorage`)
+- [x] Flag review: "Report" opens compact form (reason dropdown); `POST /api/review/flag` → writes `reviewFlag` doc
+- [x] `app/api/review/flag/route.ts` — verifies auth; writes `/reviewFlags/{flagId}`; checks user hasn't flagged same review already
 
 ---
 

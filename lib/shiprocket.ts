@@ -76,20 +76,20 @@ export async function checkServiceability(
 
     const data = await res.json();
     const recommended = data?.data?.available_courier_companies ?? [];
-    const codCouriers = recommended.filter(
-      (c: { cod: number }) => c.cod === 1,
-    );
+    const codCouriers = recommended.filter((c: { cod: number }) => c.cod === 1);
 
     return {
       available: recommended.length > 0,
       codAvailable: codCouriers.length > 0,
       etaDays: recommended[0]?.estimated_delivery_days,
-      couriers: recommended.slice(0, 5).map((c: { id: number; courier_name: string; rate: number; etd: string }) => ({
-        id: c.id,
-        name: c.courier_name,
-        rate: c.rate,
-        etd: c.etd,
-      })),
+      couriers: recommended
+        .slice(0, 5)
+        .map((c: { id: number; courier_name: string; rate: number; etd: string }) => ({
+          id: c.id,
+          name: c.courier_name,
+          rate: c.rate,
+          etd: c.etd,
+        })),
     };
   } catch {
     return { available: true, codAvailable: true, etaDays: 5 }; // fail-open
@@ -229,8 +229,18 @@ export async function trackByAwb(awb: string): Promise<TrackingResult | null> {
       currentStatus: "In Transit",
       expectedDeliveryDate: "2026-03-12",
       events: [
-        { status: "Picked Up", activity: "Shipment picked up", date: "2026-03-08", location: "Mumbai" },
-        { status: "In Transit", activity: "In transit to destination", date: "2026-03-09", location: "Pune" },
+        {
+          status: "Picked Up",
+          activity: "Shipment picked up",
+          date: "2026-03-08",
+          location: "Mumbai",
+        },
+        {
+          status: "In Transit",
+          activity: "In transit to destination",
+          date: "2026-03-09",
+          location: "Pune",
+        },
       ],
     };
   }
@@ -348,9 +358,7 @@ export function validateWebhookSignature(payload: string, signature: string): bo
  * Map Shiprocket event status strings to internal OrderStatus values.
  * Returns null for unknown / uninteresting statuses.
  */
-export function mapShiprocketStatus(
-  status: string,
-): {
+export function mapShiprocketStatus(status: string): {
   orderStatus: import("@/lib/types").OrderStatus;
   description: string;
 } | null {

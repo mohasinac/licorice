@@ -274,8 +274,8 @@ function formatDate(val: unknown): string {
   const d =
     val instanceof Date
       ? val
-      : (val as { toDate?: () => Date }).toDate?.() ??
-        new Date((val as { seconds: number }).seconds * 1000);
+      : ((val as { toDate?: () => Date }).toDate?.() ??
+        new Date((val as { seconds: number }).seconds * 1000));
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
@@ -298,7 +298,7 @@ export default async function AdminDashboardPage() {
 
       {/* WhatsApp alert banner */}
       {stats.pendingWhatsApp > 0 && (
-        <div className="bg-amber-50 border-amber-200 mb-6 flex items-center justify-between rounded-xl border px-4 py-3">
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
           <div className="flex items-center gap-3">
             <MessageCircle className="h-5 w-5 text-amber-600" />
             <div>
@@ -416,8 +416,7 @@ export default async function AdminDashboardPage() {
                     <StatusBadge status={order.paymentStatus} type="payment" />
                   </div>
                   <p className="text-muted-foreground mt-0.5 text-xs">
-                    {order.shippingAddress?.name} ·{" "}
-                    {formatDate(order.createdAt)} ·{" "}
+                    {order.shippingAddress?.name} · {formatDate(order.createdAt)} ·{" "}
                     {order.items?.length ?? 0} item{order.items?.length !== 1 ? "s" : ""}
                   </p>
                 </div>
@@ -426,10 +425,7 @@ export default async function AdminDashboardPage() {
                     ₹{order.total?.toFixed(0)}
                   </p>
                   <div className="mt-1">
-                    <OrderStatusSelect
-                      orderId={order.id}
-                      currentStatus={order.orderStatus}
-                    />
+                    <OrderStatusSelect orderId={order.id} currentStatus={order.orderStatus} />
                   </div>
                 </div>
               </div>
@@ -440,4 +436,3 @@ export default async function AdminDashboardPage() {
     </div>
   );
 }
-

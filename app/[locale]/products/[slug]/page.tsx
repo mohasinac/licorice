@@ -1,7 +1,7 @@
 import * as React from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProduct, getProducts } from "@/lib/db";
+import { getProduct, getProducts, getProductReviews } from "@/lib/db";
 import { getLocalizedValue } from "@/lib/i18n";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ProductImages } from "@/components/product/ProductImages";
@@ -10,6 +10,8 @@ import { ProductBadges } from "@/components/product/ProductBadges";
 import { ProductTabs } from "@/components/product/ProductTabs";
 import { BuyMoreSaveMore } from "@/components/product/BuyMoreSaveMore";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
+import { ReviewsList } from "@/components/product/ReviewsList";
+import { AddReviewForm } from "@/components/product/AddReviewForm";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export async function generateStaticParams() {
@@ -57,6 +59,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const name = getLocalizedValue(product.name, locale);
   const categoryLabel =
     product.category.charAt(0).toUpperCase() + product.category.slice(1) + " Care";
+
+  // Fetch approved reviews for this product
+  const reviews = await getProductReviews(product.id);
 
   // JSON-LD structured data
   const jsonLd = {
@@ -140,16 +145,32 @@ export default async function ProductPage({ params }: ProductPageProps) {
             />
           </div>
 
-          {/* Reviews placeholder section */}
+          {/* Reviews section */}
           <div id="reviews" className="mt-14 scroll-mt-20">
             <SectionHeading
               title="Customer Reviews"
-              subtitle={`${product.reviewCount} reviews · ${product.rating.toFixed(1)} / 5`}
+              subtitle={
+                product.reviewCount > 0
+                  ? `${product.reviewCount} review${product.reviewCount !== 1 ? "s" : ""} · ${product.rating.toFixed(1)} / 5`
+                  : undefined
+              }
               className="mb-6"
             />
-            <p className="text-muted-foreground text-sm italic">
-              Review display coming in Phase 5.
-            </p>
+            <ReviewsList
+              reviews={reviews}
+              productId={product.id}
+              avgRating={product.rating}
+              reviewCount={product.reviewCount}
+            />
+
+            {/* Write a review */}
+            <div className="bg-muted/50 mt-10 rounded-2xl p-6">
+              <SectionHeading title="Write a Review" className="mb-5" />
+              <AddReviewForm
+                productId={product.id}
+                isVerifiedPurchase={false}
+              />
+            </div>
           </div>
 
           {/* Related products */}

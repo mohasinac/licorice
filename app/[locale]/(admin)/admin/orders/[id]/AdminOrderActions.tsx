@@ -13,11 +13,7 @@ interface Props {
   order: Order;
 }
 
-const SHIPPABLE_STATUSES: Order["orderStatus"][] = [
-  "confirmed",
-  "processing",
-  "ready_to_ship",
-];
+const SHIPPABLE_STATUSES: Order["orderStatus"][] = ["confirmed", "processing", "ready_to_ship"];
 
 export function AdminOrderActions({ order }: Props) {
   const router = useRouter();
@@ -27,7 +23,9 @@ export function AdminOrderActions({ order }: Props) {
 
   const canRefund = order.paymentStatus === "paid" || order.paymentStatus === "partially_refunded";
   const canShip =
-    SHIPPABLE_STATUSES.includes(order.orderStatus) && !order.shiprocketOrderId && !order.manualShipping;
+    SHIPPABLE_STATUSES.includes(order.orderStatus) &&
+    !order.shiprocketOrderId &&
+    !order.manualShipping;
   const canInitiateReturn = order.orderStatus === "return_requested";
   const canMarkReturnReceived = order.orderStatus === "return_picked_up";
 

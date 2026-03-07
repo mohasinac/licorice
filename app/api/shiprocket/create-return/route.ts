@@ -37,10 +37,9 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (!order) return new Response("Order not found", { status: 404 });
 
   if (order.orderStatus !== "return_requested") {
-    return new Response(
-      `Order status must be "return_requested", got "${order.orderStatus}"`,
-      { status: 422 },
-    );
+    return new Response(`Order status must be "return_requested", got "${order.orderStatus}"`, {
+      status: 422,
+    });
   }
 
   // Shiprocket return requires the original shipment ID

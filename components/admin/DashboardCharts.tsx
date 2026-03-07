@@ -64,12 +64,7 @@ function RevenueLineChart({ data }: { data: RevenuePoint[] }) {
     .filter((_, i) => i % 5 === 0 || i === data.length - 1);
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className="w-full"
-      aria-label="Revenue last 30 days"
-      role="img"
-    >
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" aria-label="Revenue last 30 days" role="img">
       {/* Y grid lines */}
       {yTicks.map((t) => (
         <g key={t.label}>
@@ -152,9 +147,22 @@ function OrderStatusDonut({ slices }: { slices: StatusSlice[] }) {
 
   return (
     <div className="flex items-center gap-4">
-      <svg viewBox="0 0 96 96" className="h-24 w-24 shrink-0" aria-label="Orders by status" role="img">
+      <svg
+        viewBox="0 0 96 96"
+        className="h-24 w-24 shrink-0"
+        aria-label="Orders by status"
+        role="img"
+      >
         {total === 0 ? (
-          <circle cx={CX} cy={CY} r={R} fill="none" stroke="currentColor" strokeOpacity={0.1} strokeWidth={12} />
+          <circle
+            cx={CX}
+            cy={CY}
+            r={R}
+            fill="none"
+            stroke="currentColor"
+            strokeOpacity={0.1}
+            strokeWidth={12}
+          />
         ) : (
           arcs.map((arc, i) => (
             <circle
@@ -171,10 +179,24 @@ function OrderStatusDonut({ slices }: { slices: StatusSlice[] }) {
             />
           ))
         )}
-        <text x={CX} y={CY + 2} textAnchor="middle" fontSize={13} fontWeight="600" fill="currentColor">
+        <text
+          x={CX}
+          y={CY + 2}
+          textAnchor="middle"
+          fontSize={13}
+          fontWeight="600"
+          fill="currentColor"
+        >
           {total}
         </text>
-        <text x={CX} y={CY + 13} textAnchor="middle" fontSize={7} fill="currentColor" fillOpacity={0.5}>
+        <text
+          x={CX}
+          y={CY + 13}
+          textAnchor="middle"
+          fontSize={7}
+          fill="currentColor"
+          fillOpacity={0.5}
+        >
           today
         </text>
       </svg>
@@ -182,7 +204,10 @@ function OrderStatusDonut({ slices }: { slices: StatusSlice[] }) {
       <ul className="space-y-1 text-xs">
         {slices.map((s) => (
           <li key={s.label} className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-full shrink-0" style={{ background: s.color }} />
+            <span
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              style={{ background: s.color }}
+            />
             <span className="text-muted-foreground">
               {s.label}: <strong className="text-foreground">{s.count}</strong>
             </span>
