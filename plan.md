@@ -140,17 +140,32 @@ The admin product form shows an **EN | HI | MR** tab strip for each localizable 
 
 ## Firebase Plan (Free Spark — No Blaze Required)
 
-### Spark (Free) includes:
+> **Confirmed deployment target**: Firebase **Spark** (free tier) + **Vercel Hobby** (free). No Blaze upgrade, no Cloud Functions. All background logic runs as Next.js API routes or Server Actions on Vercel.
+
+### Spark (Free) quotas:
 
 - Firestore: 1 GiB storage, 50k reads/day, 20k writes/day
 - Auth: Unlimited
 - Storage: 5 GB, 1 GB/day download
-- Hosting: 10 GB/month
+- Hosting: 10 GB/month (unused — hosting is on Vercel)
 
-### Blaze (Pay-as-you-go — same free quotas + unlocks):
+### Vercel Hobby constraints:
 
-- Cloud Functions: order webhooks, Shiprocket callbacks, email triggers, scheduled jobs (low-stock alerts, coupon expiry)
-- Estimated cost at low traffic: ~₹0 (within free tier)
+- Serverless function timeout: **10 seconds** (all API routes must complete within this)
+- Bandwidth: 100 GB/month
+- No native cron — scheduled tasks (e.g. low-stock alerts) triggered on-demand via admin dashboard
+- Auto-deploy from `main` branch on GitHub
+
+### Cloud Function → Server Action / API Route mapping:
+
+| Previously a Cloud Function | Replaced with |
+| --------------------------- | ------------- |
+| Shiprocket webhook receiver | `POST /api/shiprocket/webhook` (Next.js API route) |
+| Order confirmation email    | `POST /api/order-confirm` (called after payment confirmed) |
+| Review rating aggregation   | Server Action in approve-review flow (reads approved reviews, computes average, writes back) |
+| Low-stock alert email       | Computed on admin dashboard load; admin triggers email manually |
+| Coupon expiry cleanup       | Firestore query at coupon validation time (`expiresAt < now`) — no background job needed |
+| Shiprocket JWT refresh      | Cached in Firestore with 24h TTL; refreshed lazily on first request after expiry |
 
 ### Firestore Collections (complete):
 
@@ -319,7 +334,7 @@ interface Product {
   relatedProducts: string[]; // product IDs
   upsellProducts: string[]; // "Buy More Save More" product IDs
   certifications: string[]; // cruelty-free | vegan | no-parabens | etc.
-  rating: number; // denormalised average, updated by Cloud Function
+  rating: number; // denormalised average — updated by Server Action when admin approves a review
   reviewCount: number;
   inStock: boolean; // true if any variant has stock > 0
   isFeatured: boolean;
@@ -682,7 +697,7 @@ stock restored
   - Red = 0 (out of stock)
   - Amber = below `lowStockThreshold`
   - Green = healthy
-- **Low Stock Alerts**: Cloud Function checks daily, sends email to admin
+- **Low Stock Alerts**: computed on admin dashboard load; admin can trigger a summary email from the dashboard (no Cloud Functions — Spark tier)
 - **Stock Adjustment**: admin can add/remove manually with a note (damaged, lost, gift sample)
 - **Stock Ledger**: per-variant history of all movements with timestamps + reasons
 - **Bulk Import**: CSV upload to update stock across all variants at once
@@ -908,7 +923,7 @@ interface PaymentSettings {
 3. Review stored with `status: "pending"` — not visible on storefront until approved
 4. Admin receives notification of pending review
 5. Admin approves/rejects (with reason)
-6. On approval: product `rating` + `reviewCount` updated atomically by Cloud Function
+6. On approval: product `rating` + `reviewCount` updated by the approve-review Server Action (reads all approved reviews for the product, computes average, writes back — no Cloud Function needed)
 7. Admin can reply to approved reviews (reply shown publicly below review)
 
 ### Storefront Review Display
@@ -1798,7 +1813,7 @@ export async function POST(req: Request) {
 - [ ] `app/[locale]/admin/reviews/page.tsx` — pending queue (default) + all reviews tab; filter by product, rating, date
 - [ ] `app/[locale]/admin/reviews/[id]/page.tsx` — review detail: approve / reject (with reason) / add reply
 - [ ] `components/admin/ReviewModerationCard.tsx` — review body, images, approve/reject buttons, reply textarea
-- [ ] On approval: Server Action updates product `rating` + `reviewCount` (read all approved reviews → compute average → write back); no Cloud Function needed
+- [ ] On approval: Server Action updates product `rating` + `reviewCount` (read all approved reviews → compute average → write back in a Firestore transaction); no Cloud Function or Blaze required
 
 #### Storefront Review Display
 - [ ] `components/product/ReviewsList.tsx` — average rating banner, star distribution bar, filter/sort controls, paginated list of `ReviewCard`
@@ -1891,7 +1906,7 @@ export async function POST(req: Request) {
 
 #### Analytics & Monitoring
 - [ ] Firebase Analytics (Spark, free) or GA4 via `gtag` — page views, add-to-cart events, purchase events
-- [ ] Admin dashboard charts: Revenue (last 30 days line chart), Orders by status (donut), Top 5 products (bar) — all from Firestore reads, no Cloud Functions
+- [ ] Admin dashboard charts: Revenue (last 30 days line chart), Orders by status (donut), Top 5 products (bar) — all computed from Firestore reads in Server Components (Spark quota safe, no Cloud Functions, no Blaze)
 - [ ] Error monitoring: `console.error` → Vercel Log Drains or Sentry free tier
 
 #### Security Hardening
