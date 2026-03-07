@@ -1574,7 +1574,7 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 1 — Foundation
+### Phase 1 — Foundation ✅ COMPLETE (commit: `phase-1-foundation`)
 **Goal**: A runnable Next.js app with brand theming, locale routing, Firebase init, auth, and a complete in-memory mock data layer. Every UI built in later phases will "just work" on a fresh clone with zero Firebase config.
 
 **Exit criteria**: `npm run dev` boots, home page renders with real brand colours, login/register work, language switcher works, seed page populates Firestore.
@@ -1660,7 +1660,7 @@ export async function POST(req: Request) {
 
 ---
 
-### Phase 2 — Product Catalogue
+### Phase 2 — Product Catalogue 🔜 NEXT
 **Goal**: Complete browsable storefront — shop, concern pages, product detail — fully wired to mock data (and seamlessly to Firestore when credentials are added).
 
 **Exit criteria**: Visitor can browse all products, filter by category/concern, view a full product detail page, and see reviews. Admin can create, edit, and manage products and inventory.
