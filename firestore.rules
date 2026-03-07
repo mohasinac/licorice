@@ -205,6 +205,27 @@ service cloud.firestore {
       }
     }
 
+    // ─── Testimonials ─────────────────────────────────────────────────────────
+
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if false; // Admin SDK only
+    }
+
+    // ─── Promo Banners ────────────────────────────────────────────────────────
+
+    match /promoBanners/{bannerId} {
+      allow read: if true;
+      allow write: if false; // Admin SDK only
+    }
+
+    // ─── Pages ────────────────────────────────────────────────────────────────
+
+    match /pages/{pageId} {
+      allow read: if true;
+      allow write: if false; // Admin SDK only
+    }
+
     // ─── Settings ─────────────────────────────────────────────────────────────
     // Admins only via console / Admin SDK.
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getSiteConfig } from "@/lib/db";
+import { getConsultationConfig } from "@/lib/db";
 import { ConsultationForm } from "./ConsultationForm";
 
 export const metadata: Metadata = {
@@ -9,11 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ConsultationPage() {
-  const config = await getSiteConfig();
-  const consultantName = config?.consultantName ?? "Dr. Ayesha Sharma";
-  const consultantBio =
-    config?.consultantBio ??
-    "Certified Ayurvedic practitioner with 10+ years of experience in herbal skincare and hair care.";
+  const config = await getConsultationConfig();
+  const consultantName = config.consultantName;
+  const consultantBio = config.consultantBio;
 
   return (
     <div className="bg-background min-h-screen">

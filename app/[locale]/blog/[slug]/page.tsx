@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { BlogContent } from "@/components/blog/BlogContent";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { ProductCard } from "@/components/product/ProductCard";
-import { SEED_BLOGS } from "@/lib/mocks";
+import { SEED_BLOGS } from "@/lib/seeds";
 
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]*>/g, "");

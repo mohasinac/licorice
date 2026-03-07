@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { Order } from "@/lib/types";
-import type { Timestamp } from "firebase-admin/firestore";
+import { toSafeDate } from "@/lib/utils";
 
 interface Props {
   order: Order;
   locale?: string;
 }
 
-function formatDate(val: Timestamp | Date | undefined): string {
-  if (!val) return "—";
-  const d = val instanceof Date ? val : (val as unknown as { toDate: () => Date }).toDate?.();
+function formatDate(val: unknown): string {
+  const d = toSafeDate(val);
   return d ? d.toLocaleDateString("en-IN") : "—";
 }
 
@@ -21,7 +20,7 @@ export function OrderCard({ order, locale = "en" }: Props) {
         <div>
           <p className="text-foreground font-semibold">{order.orderNumber}</p>
           <p className="text-muted-foreground text-sm">
-            {formatDate(order.createdAt as Timestamp | Date)}
+            {formatDate(order.createdAt)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

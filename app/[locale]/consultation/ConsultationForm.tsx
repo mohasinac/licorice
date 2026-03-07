@@ -108,7 +108,10 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
               <p className="text-primary text-sm">Ayurvedic Practitioner</p>
             </div>
           </div>
-          <p className="text-muted-foreground text-sm leading-relaxed">{consultantBio}</p>
+          <div
+            className="text-muted-foreground text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: consultantBio }}
+          />
         </div>
 
         <div className="space-y-4">

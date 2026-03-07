@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { getServerUser } from "@/lib/auth";
 import { isFirebaseReady } from "@/lib/db";
+import { toSafeDate } from "@/lib/utils";
 import type { SupportTicket, TicketMessage } from "@/lib/types";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -32,11 +33,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       .orderBy("createdAt", "asc")
       .get();
 
-    const messages: TicketMessage[] = messagesSnap.docs.map((d) => ({
-      ...(d.data() as TicketMessage),
-    }));
+    const messages = messagesSnap.docs.map((d) => {
+      const msg = d.data();
+      return {
+        ...msg,
+        createdAt: (toSafeDate(msg.createdAt) ?? new Date()).toISOString(),
+      };
+    });
 
-    const ticket: SupportTicket = { id: ticketDoc.id, ...data };
+    const ticket = {
+      id: ticketDoc.id,
+      ...data,
+      createdAt: (toSafeDate(data.createdAt) ?? new Date()).toISOString(),
+      updatedAt: (toSafeDate(data.updatedAt) ?? new Date()).toISOString(),
+      resolvedAt: data.resolvedAt ? (toSafeDate(data.resolvedAt))?.toISOString() ?? null : null,
+    };
     return NextResponse.json({ ticket, messages });
   } catch (err) {
     console.error("[support/tickets/id] GET failed", err);

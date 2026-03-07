@@ -1,6 +1,6 @@
 import { CheckCircle, Circle, Package, Truck, XCircle } from "lucide-react";
 import type { OrderEvent } from "@/lib/types";
-import type { Timestamp } from "firebase-admin/firestore";
+import { toSafeDate } from "@/lib/utils";
 
 interface Props {
   events: OrderEvent[];
@@ -17,9 +17,8 @@ function iconForStatus(status: string) {
   return <Circle className="h-5 w-5 text-amber-500" />;
 }
 
-function formatDate(val: Timestamp | Date | undefined): string {
-  if (!val) return "";
-  const d = val instanceof Date ? val : (val as unknown as { toDate: () => Date }).toDate?.();
+function formatDate(val: unknown): string {
+  const d = toSafeDate(val);
   return d ? d.toLocaleString("en-IN") : "";
 }
 
@@ -40,7 +39,7 @@ export function OrderTimeline({ events }: Props) {
               <p className="text-muted-foreground text-sm">{event.description}</p>
             )}
             <p className="text-muted-foreground text-xs">
-              {formatDate(event.createdAt as Timestamp | Date)}
+              {formatDate(event.createdAt)}
             </p>
           </div>
         </li>

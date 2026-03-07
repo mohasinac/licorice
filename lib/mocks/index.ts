@@ -15,8 +15,13 @@ import {
   SEED_SHIPPING_RULES,
   SEED_PAYMENT_SETTINGS,
   SEED_INVENTORY_SETTINGS,
+  SEED_HOMEPAGE_SECTIONS,
+  SEED_CONSULTATION_CONFIG,
 } from "./settings";
 import { SEED_INVENTORY } from "./inventory";
+import { SEED_TESTIMONIALS } from "./testimonials";
+import { SEED_PAGES } from "./pages";
+import { SEED_NAVIGATION } from "./navigation";
 
 export const SEED_MAP: Record<string, SeedDoc[]> = {
   products: SEED_PRODUCTS as unknown as SeedDoc[],
@@ -30,8 +35,14 @@ export const SEED_MAP: Record<string, SeedDoc[]> = {
     SEED_SHIPPING_RULES,
     SEED_PAYMENT_SETTINGS,
     SEED_INVENTORY_SETTINGS,
+    SEED_HOMEPAGE_SECTIONS,
+    SEED_CONSULTATION_CONFIG,
   ] as unknown as SeedDoc[],
   inventory: SEED_INVENTORY as unknown as SeedDoc[],
+  testimonials: SEED_TESTIMONIALS as unknown as SeedDoc[],
+  pages: SEED_PAGES as unknown as SeedDoc[],
+  navigation: [SEED_NAVIGATION] as unknown as SeedDoc[],
+  promoBanners: [] as SeedDoc[],
 };
 
 // Re-export raw arrays for direct use in db.ts
@@ -46,5 +57,10 @@ export {
   SEED_SHIPPING_RULES,
   SEED_PAYMENT_SETTINGS,
   SEED_INVENTORY_SETTINGS,
+  SEED_HOMEPAGE_SECTIONS,
+  SEED_CONSULTATION_CONFIG,
   SEED_INVENTORY,
+  SEED_TESTIMONIALS,
+  SEED_PAGES,
+  SEED_NAVIGATION,
 };

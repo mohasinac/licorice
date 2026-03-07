@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { ShoppingBag, Heart, Search, Menu } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, User, LogIn } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { useWishlistStore } from "@/stores/useWishlistStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileMenu } from "./MobileMenu";
 import { useState } from "react";
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
   { key: "shop", href: "/shop" },
   { key: "concerns", href: "/concerns" },
   { key: "ingredients", href: "/ingredients" },
+  { key: "consultation", href: "/consultation" },
   { key: "blog", href: "/blog" },
   { key: "about", href: "/about" },
 ] as const;
@@ -24,6 +26,7 @@ export function Navbar() {
   const itemCount = useCartStore((s) => s.itemCount());
   const openCart = useCartStore((s) => s.openCart);
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
+  const user = useAuthStore((s) => s.user);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -73,6 +76,24 @@ export function Navbar() {
                 </span>
               )}
             </Link>
+
+            {user ? (
+              <Link
+                href={`/${locale}/account`}
+                className="text-foreground hover:bg-surface hidden rounded-full p-2 transition-colors md:flex"
+                aria-label={t("account")}
+              >
+                <User className="h-5 w-5" />
+              </Link>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="text-foreground hover:bg-surface hidden rounded-full p-2 transition-colors md:flex"
+                aria-label={t("login")}
+              >
+                <LogIn className="h-5 w-5" />
+              </Link>
+            )}
 
             <button
               onClick={openCart}

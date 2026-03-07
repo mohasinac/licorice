@@ -42,7 +42,7 @@ async function getDashboardStats() {
   start30Days.setDate(start30Days.getDate() - 29);
   start30Days.setHours(0, 0, 0, 0);
 
-  // In mock mode return placeholder stats
+  // In seed mode return placeholder stats
   if (!isFirebaseReady()) {
     // Build 30 zero-revenue points for the chart
     const revenue30Days = Array.from({ length: 30 }, (_, i) => {

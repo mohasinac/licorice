@@ -5,6 +5,7 @@ import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MessageCircle } from "lucide-react";
 import type { SupportTicket } from "@/lib/types";
+import { toSafeDate } from "@/lib/utils";
 
 interface Props {
   ticket: SupportTicket;
@@ -13,12 +14,7 @@ interface Props {
 }
 
 function formatRelativeDate(val: unknown): string {
-  let date: Date | null = null;
-  if (val instanceof Date) {
-    date = val;
-  } else if (val && typeof (val as Record<string, unknown>).toDate === "function") {
-    date = (val as { toDate: () => Date }).toDate();
-  }
+  const date = toSafeDate(val);
   if (!date) return "—";
   const diff = Date.now() - date.getTime();
   const hours = Math.floor(diff / 3600000);

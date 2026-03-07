@@ -42,6 +42,7 @@ export function ProductSort() {
 export type SortKey = "featured" | "newest" | "price_asc" | "price_desc" | "rating";
 
 import type { Product } from "@/lib/types";
+import { toSafeDate } from "@/lib/utils";
 
 export function sortProducts(products: Product[], sort: string): Product[] {
   const copy = [...products];
@@ -62,14 +63,8 @@ export function sortProducts(products: Product[], sort: string): Product[] {
       return copy.sort((a, b) => b.rating - a.rating);
     case "newest":
       return copy.sort((a, b) => {
-        const aTime =
-          a.createdAt instanceof Date
-            ? a.createdAt.getTime()
-            : (a.createdAt as { seconds: number }).seconds;
-        const bTime =
-          b.createdAt instanceof Date
-            ? b.createdAt.getTime()
-            : (b.createdAt as { seconds: number }).seconds;
+        const aTime = toSafeDate(a.createdAt)?.getTime() ?? 0;
+        const bTime = toSafeDate(b.createdAt)?.getTime() ?? 0;
         return bTime - aTime;
       });
     default:

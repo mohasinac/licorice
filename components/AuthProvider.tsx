@@ -10,7 +10,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseReady()) {
-      // Mock mode — no authenticated user by default
+      // Seed mode — no authenticated user by default
       setLoading(false);
       return;
     }

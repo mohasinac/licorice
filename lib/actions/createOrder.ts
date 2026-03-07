@@ -91,7 +91,7 @@ export async function createOrder(input: unknown): Promise<CreateOrderResult> {
     total: i.price * i.quantity,
   }));
 
-  // ── Mock mode ─────────────────────────────────────────────────────────────
+  // ── Seed mode ─────────────────────────────────────────────────────────────
   if (!isFirebaseReady()) {
     const orderNumber = generateFallbackOrderNumber();
     const orderId = `order_${Date.now()}`;

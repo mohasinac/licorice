@@ -1,6 +1,6 @@
 "use client";
 // app/[locale]/dev/seed/page.tsx
-// Dev-only page to seed or unseed Firestore with mock data.
+// Dev-only page to seed or unseed Firestore with seed data.
 // Middleware blocks this in production (returns 404).
 
 import { useState } from "react";

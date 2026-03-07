@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { isFirebaseReady } from "@/lib/utils";
-import { SEED_REVIEWS } from "@/lib/mocks";
+import { SEED_REVIEWS } from "@/lib/seeds";
 import type { Timestamp } from "firebase-admin/firestore";
 import type { Review, ReviewFlagReason } from "@/lib/types";
 
@@ -13,7 +13,7 @@ export async function checkReviewEligibility(
   productId: string,
 ): Promise<{ eligible: boolean; orderId?: string; alreadyReviewed: boolean }> {
   if (!isFirebaseReady()) {
-    // In mock mode always allow review submission (dev / demo)
+    // In seed mode always allow review submission (dev / demo)
     return { eligible: true, alreadyReviewed: false };
   }
   try {
@@ -86,10 +86,7 @@ export async function submitReview(input: unknown): Promise<SubmitReviewResult> 
     const { FieldValue } = await import("firebase-admin/firestore");
 
     // Re-check eligibility (prevents double-submission)
-    const { eligible, alreadyReviewed } = await checkReviewEligibility(
-      data.userId,
-      data.productId,
-    );
+    const { eligible, alreadyReviewed } = await checkReviewEligibility(data.userId, data.productId);
     if (alreadyReviewed) {
       return { success: false, error: "You have already reviewed this product." };
     }

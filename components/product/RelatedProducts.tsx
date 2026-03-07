@@ -3,7 +3,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductCard } from "@/components/product/ProductCard";
 import { getProducts } from "@/lib/db";
 import type { Product } from "@/lib/types";
-import { SEED_PRODUCTS } from "@/lib/mocks";
+import { SEED_PRODUCTS } from "@/lib/seeds";
 
 interface RelatedProductsProps {
   relatedIds: string[];

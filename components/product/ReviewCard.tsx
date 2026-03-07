@@ -7,6 +7,7 @@ import type { Review } from "@/lib/types";
 import { StarRating } from "@/components/ui/StarRating";
 import { Button } from "@/components/ui/Button";
 import { markReviewHelpful } from "@/lib/actions/reviews";
+import { toSafeDate } from "@/lib/utils";
 
 interface ReviewCardProps {
   review: Review;
@@ -14,9 +15,11 @@ interface ReviewCardProps {
   onReportClick?: (reviewId: string) => void;
 }
 
-function formatDate(d: Date | { seconds: number }) {
-  const date = d instanceof Date ? d : new Date((d as { seconds: number }).seconds * 1000);
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+function formatDate(d: unknown) {
+  const date = toSafeDate(d);
+  return date
+    ? date.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
+    : "";
 }
 
 export function ReviewCard({ review, onImageClick, onReportClick }: ReviewCardProps) {

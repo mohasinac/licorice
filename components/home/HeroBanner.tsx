@@ -4,10 +4,23 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { Button } from "@/components/ui/Button";
-import { BRAND_NAME } from "@/constants/site";
+import type { HeroBannerConfig } from "@/lib/types";
 
-export function HeroBanner() {
+interface HeroBannerProps {
+  config?: HeroBannerConfig;
+}
+
+export function HeroBanner({ config }: HeroBannerProps) {
   const locale = useLocale();
+
+  const headline = config?.headline ?? "Rediscover the Power\nof Ayurveda";
+  const subheadline =
+    config?.subheadline ??
+    "Licorice Herbals blends time-honoured botanical extracts with precision formulation for skin and hair that truly thrives.";
+  const primaryCtaText = config?.primaryCtaText ?? "Explore Products";
+  const primaryCtaHref = config?.primaryCtaHref ?? "/shop";
+  const secondaryCtaText = config?.secondaryCtaText ?? "Our Story";
+  const secondaryCtaHref = config?.secondaryCtaHref ?? "/about";
 
   return (
     <section className="from-primary to-primary/80 relative flex min-h-[80vh] items-center overflow-hidden bg-gradient-to-br">
@@ -31,9 +44,14 @@ export function HeroBanner() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="font-heading text-4xl font-bold text-white sm:text-5xl md:text-6xl lg:text-7xl"
         >
-          Rediscover the Power
-          <br />
-          of <span className="text-accent">Ayurveda</span>
+          {headline.includes("\n")
+            ? headline.split("\n").map((line, i) => (
+                <span key={i}>
+                  {i > 0 && <br />}
+                  {line}
+                </span>
+              ))
+            : headline}
         </motion.h1>
 
         <motion.p
@@ -42,8 +60,7 @@ export function HeroBanner() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="max-w-xl text-base text-white/70 sm:text-lg"
         >
-          {BRAND_NAME} blends time-honoured botanical extracts with precision formulation for skin
-          and hair that truly thrives.
+          {subheadline}
         </motion.p>
 
         <motion.div
@@ -52,18 +69,18 @@ export function HeroBanner() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col gap-3 sm:flex-row"
         >
-          <Link href={`/${locale}/shop`}>
+          <Link href={`/${locale}${primaryCtaHref}`}>
             <Button size="lg" variant="secondary">
-              Explore Products
+              {primaryCtaText}
             </Button>
           </Link>
-          <Link href={`/${locale}/about`}>
+          <Link href={`/${locale}${secondaryCtaHref}`}>
             <Button
               size="lg"
               variant="outline"
               className="border-white/40 text-white hover:bg-white/10 hover:text-white"
             >
-              Our Story
+              {secondaryCtaText}
             </Button>
           </Link>
         </motion.div>

@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
+    const { FieldValue } = await import("firebase-admin/firestore");
     const col = adminDb.collection("newsletter");
 
     // Idempotent — use email as doc ID (slug-safe base64-like key)
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     await col.doc(docId).set(
       {
         email: sanitisedEmail,
-        subscribedAt: new Date(),
+        subscribedAt: FieldValue.serverTimestamp(),
       },
       { merge: true },
     );

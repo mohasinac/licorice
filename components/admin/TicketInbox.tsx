@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Clock, AlertTriangle } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { toSafeDate } from "@/lib/utils";
 import type { SupportTicket, TicketStatus } from "@/lib/types";
 
 const TABS: { key: TicketStatus | "all"; label: string }[] = [
@@ -31,19 +32,13 @@ interface Props {
 }
 
 function msAgo(val: unknown): number {
-  let date: Date | null = null;
-  if (val instanceof Date) date = val;
-  else if (val && typeof (val as Record<string, unknown>).toDate === "function")
-    date = (val as { toDate: () => Date }).toDate();
+  const date = toSafeDate(val);
   if (!date) return 0;
   return Date.now() - date.getTime();
 }
 
 function formatDate(val: unknown): string {
-  let date: Date | null = null;
-  if (val instanceof Date) date = val;
-  else if (val && typeof (val as Record<string, unknown>).toDate === "function")
-    date = (val as { toDate: () => Date }).toDate();
+  const date = toSafeDate(val);
   if (!date) return "—";
   return date.toLocaleString("en-IN", {
     day: "numeric",

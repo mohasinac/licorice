@@ -498,6 +498,116 @@ export interface CorporateInquiry {
   updatedAt?: Timestamp | Date;
 }
 
+// ─── Navigation Config ───────────────────────────────────────────────────────
+
+export interface NavItem {
+  label: string;
+  href: string;
+  children?: { label: string; href: string }[];
+}
+
+export interface NavigationConfig {
+  mainNav: NavItem[];
+  footerNav: {
+    shop: { label: string; href: string }[];
+    account: { label: string; href: string }[];
+    policies: { label: string; href: string }[];
+  };
+}
+
+// ─── Homepage Sections ───────────────────────────────────────────────────────
+
+export interface HeroBannerConfig {
+  headline: string;
+  subheadline: string;
+  primaryCtaText: string;
+  primaryCtaHref: string;
+  secondaryCtaText: string;
+  secondaryCtaHref: string;
+  backgroundImageUrl?: string;
+  mobileImageUrl?: string;
+}
+
+export interface BrandValueItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface HomepageSections {
+  heroBanner: HeroBannerConfig;
+  featuredProductIds: string[];
+  newArrivalIds: string[];
+  brandValues: BrandValueItem[];
+  sectionVisibility: {
+    showBeforeAfter: boolean;
+    showTestimonials: boolean;
+    showBlog: boolean;
+    showNewsletter: boolean;
+    showBrandValues: boolean;
+  };
+}
+
+// ─── Testimonial ─────────────────────────────────────────────────────────────
+
+export interface Testimonial {
+  id: string;
+  customerName: string;
+  city: string;
+  rating: number;
+  text: string;
+  productId?: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: Timestamp | Date;
+}
+
+// ─── Static Page Doc ─────────────────────────────────────────────────────────
+
+export interface PageDoc {
+  id: string;
+  title: string;
+  body: string; // Tiptap HTML
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImageUrl?: string;
+  updatedAt?: Timestamp | Date;
+}
+
+// ─── Consultation Config ─────────────────────────────────────────────────────
+
+export interface ConsultationConfig {
+  consultantName: string;
+  consultantTitle: string;
+  consultantBio: string; // HTML
+  consultantPhotoUrl?: string;
+  consultationDurationMinutes: number;
+  availableTimeSlots: string[];
+  blockedDates: string[]; // ISO YYYY-MM-DD
+  isEnabled: boolean;
+}
+
+// ─── Promo Banner ────────────────────────────────────────────────────────────
+
+export type PromoBannerType = "info" | "discount" | "urgency";
+export type PromoBannerScope = "global" | "product";
+
+export interface PromoBanner {
+  id: string;
+  text: string;
+  badgeLabel?: string;
+  couponCode?: string;
+  type: PromoBannerType;
+  scope: PromoBannerScope;
+  productIds?: string[];
+  bgColor?: string;
+  textColor?: string;
+  isActive: boolean;
+  expiresAt?: Timestamp | Date;
+  sortOrder: number;
+  createdAt: Timestamp | Date;
+}
+
 // ─── Seed doc marker ─────────────────────────────────────────────────────────
 
 export interface SeedDoc {

@@ -1,0 +1,179 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useLocale } from "next-intl";
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Package,
+  Star,
+  FileText,
+  LifeBuoy,
+  Settings,
+  BookOpen,
+  MessageSquare,
+  Building2,
+  Mail,
+  Tag,
+  Megaphone,
+  Quote,
+  Globe,
+  Home,
+  Truck,
+  FileEdit,
+  Stethoscope,
+  Layers,
+  Target,
+  ChevronDown,
+} from "lucide-react";
+import { useState } from "react";
+
+interface NavGroup {
+  title: string;
+  items: { label: string; href: string; icon: React.ReactNode }[];
+}
+
+export function AdminSidebar() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const base = `/${locale}/admin`;
+
+  const groups: NavGroup[] = [
+    {
+      title: "Overview",
+      items: [
+        { label: "Dashboard", href: `${base}`, icon: <LayoutDashboard className="h-4 w-4" /> },
+      ],
+    },
+    {
+      title: "Commerce",
+      items: [
+        { label: "Orders", href: `${base}/orders`, icon: <ShoppingBag className="h-4 w-4" /> },
+        { label: "Products", href: `${base}/products`, icon: <Package className="h-4 w-4" /> },
+        { label: "Inventory", href: `${base}/inventory`, icon: <Layers className="h-4 w-4" /> },
+        { label: "Categories", href: `${base}/categories`, icon: <Tag className="h-4 w-4" /> },
+        { label: "Concerns", href: `${base}/concerns`, icon: <Target className="h-4 w-4" /> },
+        { label: "Reviews", href: `${base}/reviews`, icon: <Star className="h-4 w-4" /> },
+      ],
+    },
+    {
+      title: "Content",
+      items: [
+        { label: "Blog Posts", href: `${base}/blogs`, icon: <BookOpen className="h-4 w-4" /> },
+        {
+          label: "Testimonials",
+          href: `${base}/testimonials`,
+          icon: <Quote className="h-4 w-4" />,
+        },
+        {
+          label: "Promo Banners",
+          href: `${base}/promo-banners`,
+          icon: <Megaphone className="h-4 w-4" />,
+        },
+        { label: "Static Pages", href: `${base}/pages`, icon: <FileText className="h-4 w-4" /> },
+      ],
+    },
+    {
+      title: "Support",
+      items: [
+        { label: "Tickets", href: `${base}/support`, icon: <LifeBuoy className="h-4 w-4" /> },
+        {
+          label: "Consultations",
+          href: `${base}/consultations`,
+          icon: <Stethoscope className="h-4 w-4" />,
+        },
+        { label: "Corporate", href: `${base}/corporate`, icon: <Building2 className="h-4 w-4" /> },
+        { label: "Newsletter", href: `${base}/newsletter`, icon: <Mail className="h-4 w-4" /> },
+      ],
+    },
+    {
+      title: "Settings",
+      items: [
+        { label: "General", href: `${base}/settings`, icon: <Settings className="h-4 w-4" /> },
+        {
+          label: "Navigation",
+          href: `${base}/settings/navigation`,
+          icon: <Globe className="h-4 w-4" />,
+        },
+        {
+          label: "Homepage",
+          href: `${base}/settings/homepage`,
+          icon: <Home className="h-4 w-4" />,
+        },
+        {
+          label: "Shipping",
+          href: `${base}/settings/shipping`,
+          icon: <Truck className="h-4 w-4" />,
+        },
+        { label: "Pages", href: `${base}/settings/pages`, icon: <FileEdit className="h-4 w-4" /> },
+        {
+          label: "Consultation",
+          href: `${base}/settings/consultation`,
+          icon: <MessageSquare className="h-4 w-4" />,
+        },
+      ],
+    },
+  ];
+
+  const isActive = (href: string) => {
+    if (href === base) return pathname === base || pathname === `${base}/`;
+    return pathname.startsWith(href);
+  };
+
+  return (
+    <aside className="flex h-full w-60 flex-col border-r border-[var(--border)] bg-white">
+      <div className="flex h-16 items-center border-b border-[var(--border)] px-4">
+        <Link href={`/${locale}`} className="font-heading text-primary text-lg font-bold">
+          Licoricé Admin
+        </Link>
+      </div>
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        {groups.map((group) => (
+          <SidebarGroup key={group.title} group={group} isActive={isActive} />
+        ))}
+      </nav>
+    </aside>
+  );
+}
+
+function SidebarGroup({
+  group,
+  isActive,
+}: {
+  group: NavGroup;
+  isActive: (href: string) => boolean;
+}) {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div className="mb-2">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-2 py-1.5 text-[10px] font-semibold tracking-wider text-[var(--muted-foreground)] uppercase"
+      >
+        {group.title}
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? "" : "-rotate-90"}`} />
+      </button>
+      {open && (
+        <ul className="space-y-0.5">
+          {group.items.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors ${
+                  isActive(item.href)
+                    ? "bg-[var(--primary)] font-medium text-white"
+                    : "text-[var(--foreground)] hover:bg-[var(--muted)]"
+                }`}
+              >
+                {item.icon}
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

@@ -305,7 +305,7 @@ function GeneralTab({
             className={inputCls}
             value={form.consultantName ?? ""}
             onChange={(e) => set("consultantName", e.target.value)}
-            placeholder="Dr. Ayesha Sharma"
+            placeholder="Dr. Mariya Nallamandu"
           />
         </Field>
         <Field label="Consultant Bio">

@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import type { SupportTicket, TicketMessage } from "@/lib/types";
+import { toSafeDate } from "@/lib/utils";
 
 interface Props {
   ticket: SupportTicket;
@@ -19,12 +20,7 @@ interface Props {
 }
 
 function formatDateTime(val: unknown): string {
-  let date: Date | null = null;
-  if (val instanceof Date) {
-    date = val;
-  } else if (val && typeof (val as Record<string, unknown>).toDate === "function") {
-    date = (val as { toDate: () => Date }).toDate();
-  }
+  const date = toSafeDate(val);
   if (!date) return "—";
   return date.toLocaleString("en-IN", {
     day: "numeric",

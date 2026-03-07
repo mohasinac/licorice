@@ -1,8 +1,11 @@
 // lib/db.ts
 // Unified data-access layer.
 // All Server Components and Server Actions import from here — never from Firestore directly.
-// Automatically falls back to in-memory mock data when Firebase is unconfigured
-// or when NEXT_PUBLIC_USE_MOCK_DATA=true.
+// Strategy: Firebase-first. Falls back to seed data when:
+//   1. Firebase is unconfigured (NEXT_PUBLIC_USE_MOCK_DATA=true or no credentials)
+//   2. Firestore returns no data for a given query (empty collection / missing doc)
+//   3. Firestore throws an error (network, permissions, etc.)
+// Users/auth are exempt — no seed fallback for authentication.
 
 import type {
   Product,
@@ -22,8 +25,14 @@ import type {
   Order,
   OrderEvent,
   Address,
+  NavigationConfig,
+  HomepageSections,
+  Testimonial,
+  PageDoc,
+  ConsultationConfig,
+  PromoBanner,
 } from "@/lib/types";
-import { isFirebaseReady } from "@/lib/utils";
+import { isFirebaseReady, toSafeDate } from "@/lib/utils";
 import {
   SEED_PRODUCTS,
   SEED_CATEGORIES,
@@ -36,7 +45,12 @@ import {
   SEED_SHIPPING_RULES,
   SEED_INVENTORY_SETTINGS,
   SEED_INVENTORY,
-} from "@/lib/mocks";
+  SEED_HOMEPAGE_SECTIONS,
+  SEED_CONSULTATION_CONFIG,
+  SEED_TESTIMONIALS,
+  SEED_PAGES,
+  SEED_NAVIGATION,
+} from "@/lib/seeds";
 
 // ── Firebase readiness ────────────────────────────────────────────────────────
 
@@ -53,7 +67,7 @@ export interface ProductFilters {
   limit?: number;
 }
 
-function filterMockProducts(products: Product[], filters?: ProductFilters): Product[] {
+function filterSeedProducts(products: Product[], filters?: ProductFilters): Product[] {
   let results = products.filter((p) => p.isActive);
   if (filters?.category) results = results.filter((p) => p.category === filters.category);
   if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
@@ -68,7 +82,7 @@ function filterMockProducts(products: Product[], filters?: ProductFilters): Prod
 // ── Products ─────────────────────────────────────────────────────────────────
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
-  if (!isFirebaseReady()) return filterMockProducts(SEED_PRODUCTS, filters);
+  if (!isFirebaseReady()) return filterSeedProducts(SEED_PRODUCTS, filters);
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldPath } = await import("firebase-admin/firestore");
@@ -81,12 +95,13 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     if (filters?.isCombo !== undefined) query = query.where("isCombo", "==", filters.isCombo);
     if (filters?.limit) query = query.limit(filters.limit);
     const snap = await query.get();
+    if (snap.empty) return filterSeedProducts(SEED_PRODUCTS, filters);
     let results = snap.docs.map((d) => d.data() as Product);
     if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
     return results.sort((a, b) => a.sortOrder - b.sortOrder);
   } catch (err) {
-    console.warn("[db] Firestore getProducts failed — falling back to mock data", err);
-    return filterMockProducts(SEED_PRODUCTS, filters);
+    console.warn("[db] Firestore getProducts failed \u2014 falling back to seed data", err);
+    return filterSeedProducts(SEED_PRODUCTS, filters);
   }
 }
 
@@ -102,10 +117,10 @@ export async function getProduct(slug: string): Promise<Product | null> {
       .where("isActive", "==", true)
       .limit(1)
       .get();
-    if (snap.empty) return null;
+    if (snap.empty) return SEED_PRODUCTS.find((p) => p.slug === slug && p.isActive) ?? null;
     return snap.docs[0].data() as Product;
   } catch (err) {
-    console.warn("[db] Firestore getProduct failed — falling back to mock data", err);
+    console.warn("[db] Firestore getProduct failed \u2014 falling back to seed data", err);
     return SEED_PRODUCTS.find((p) => p.slug === slug && p.isActive) ?? null;
   }
 }
@@ -117,10 +132,10 @@ export async function getProductById(id: string): Promise<Product | null> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const doc = await adminDb.collection("products").doc(id).get();
-    if (!doc.exists) return null;
+    if (!doc.exists) return SEED_PRODUCTS.find((p) => p.id === id) ?? null;
     return doc.data() as Product;
   } catch (err) {
-    console.warn("[db] Firestore getProductById failed — falling back to mock data", err);
+    console.warn("[db] Firestore getProductById failed \u2014 falling back to seed data", err);
     return SEED_PRODUCTS.find((p) => p.id === id) ?? null;
   }
 }
@@ -132,9 +147,10 @@ export async function getCategories(): Promise<Category[]> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb.collection("categories").get();
+    if (snap.empty) return SEED_CATEGORIES;
     return snap.docs.map((d) => d.data() as Category);
   } catch (err) {
-    console.warn("[db] Firestore getCategories failed — falling back to mock data", err);
+    console.warn("[db] Firestore getCategories failed — falling back to seed data", err);
     return SEED_CATEGORIES;
   }
 }
@@ -144,9 +160,10 @@ export async function getConcerns(): Promise<Concern[]> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb.collection("concerns").get();
+    if (snap.empty) return SEED_CONCERNS;
     return snap.docs.map((d) => d.data() as Concern);
   } catch (err) {
-    console.warn("[db] Firestore getConcerns failed — falling back to mock data", err);
+    console.warn("[db] Firestore getConcerns failed — falling back to seed data", err);
     return SEED_CONCERNS;
   }
 }
@@ -159,8 +176,8 @@ export async function getBlogs(category?: BlogCategory, limit?: number): Promise
     if (category) blogs = blogs.filter((b) => b.category === category);
     if (limit) blogs = blogs.slice(0, limit);
     return blogs.sort((a, b) => {
-      const aDate = a.publishedAt instanceof Date ? a.publishedAt : new Date();
-      const bDate = b.publishedAt instanceof Date ? b.publishedAt : new Date();
+      const aDate = toSafeDate(a.publishedAt) ?? new Date(0);
+      const bDate = toSafeDate(b.publishedAt) ?? new Date(0);
       return bDate.getTime() - aDate.getTime();
     });
   }
@@ -173,9 +190,15 @@ export async function getBlogs(category?: BlogCategory, limit?: number): Promise
     if (category) query = query.where("category", "==", category);
     if (limit) query = query.limit(limit);
     const snap = await query.get();
+    if (snap.empty) {
+      let blogs = SEED_BLOGS.filter((b) => b.status === "published");
+      if (category) blogs = blogs.filter((b) => b.category === category);
+      if (limit) blogs = blogs.slice(0, limit);
+      return blogs;
+    }
     return snap.docs.map((d) => d.data() as Blog);
   } catch (err) {
-    console.warn("[db] Firestore getBlogs failed — falling back to mock data", err);
+    console.warn("[db] Firestore getBlogs failed — falling back to seed data", err);
     let blogs = SEED_BLOGS.filter((b) => b.status === "published");
     if (category) blogs = blogs.filter((b) => b.category === category);
     if (limit) blogs = blogs.slice(0, limit);
@@ -195,10 +218,11 @@ export async function getBlog(slug: string): Promise<Blog | null> {
       .where("status", "==", "published")
       .limit(1)
       .get();
-    if (snap.empty) return null;
+    if (snap.empty)
+      return SEED_BLOGS.find((b) => b.slug === slug && b.status === "published") ?? null;
     return snap.docs[0].data() as Blog;
   } catch (err) {
-    console.warn("[db] Firestore getBlog failed — falling back to mock data", err);
+    console.warn("[db] Firestore getBlog failed — falling back to seed data", err);
     return SEED_BLOGS.find((b) => b.slug === slug && b.status === "published") ?? null;
   }
 }
@@ -212,10 +236,10 @@ export async function getCoupon(code: string): Promise<Coupon | null> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const doc = await adminDb.collection("coupons").doc(code.toUpperCase()).get();
-    if (!doc.exists) return null;
+    if (!doc.exists) return SEED_COUPONS.find((c) => c.code === code.toUpperCase()) ?? null;
     return doc.data() as Coupon;
   } catch (err) {
-    console.warn("[db] Firestore getCoupon failed — falling back to mock data", err);
+    console.warn("[db] Firestore getCoupon failed — falling back to seed data", err);
     return SEED_COUPONS.find((c) => c.code === code.toUpperCase()) ?? null;
   }
 }
@@ -236,9 +260,14 @@ export async function getApprovedReviews(limit?: number): Promise<Review[]> {
       .orderBy("createdAt", "desc");
     if (limit) query = query.limit(limit);
     const snap = await query.get();
+    if (snap.empty) {
+      let results = SEED_REVIEWS.filter((r) => r.status === "approved");
+      if (limit) results = results.slice(0, limit);
+      return results;
+    }
     return snap.docs.map((d) => d.data() as Review);
   } catch (err) {
-    console.warn("[db] Firestore getApprovedReviews failed — falling back to mock data", err);
+    console.warn("[db] Firestore getApprovedReviews failed — falling back to seed data", err);
     let results = SEED_REVIEWS.filter((r) => r.status === "approved");
     if (limit) results = results.slice(0, limit);
     return results;
@@ -249,8 +278,8 @@ export async function getProductReviews(productId: string): Promise<Review[]> {
   if (!isFirebaseReady()) {
     return SEED_REVIEWS.filter((r) => r.productId === productId && r.status === "approved").sort(
       (a, b) =>
-        (b.createdAt instanceof Date ? b.createdAt : new Date()).getTime() -
-        (a.createdAt instanceof Date ? a.createdAt : new Date()).getTime(),
+        (toSafeDate(b.createdAt) ?? new Date(0)).getTime() -
+        (toSafeDate(a.createdAt) ?? new Date(0)).getTime(),
     );
   }
   try {
@@ -261,9 +290,12 @@ export async function getProductReviews(productId: string): Promise<Review[]> {
       .where("status", "==", "approved")
       .orderBy("createdAt", "desc")
       .get();
+    if (snap.empty) {
+      return SEED_REVIEWS.filter((r) => r.productId === productId && r.status === "approved");
+    }
     return snap.docs.map((d) => d.data() as Review);
   } catch (err) {
-    console.warn("[db] Firestore getProductReviews failed — falling back to mock data", err);
+    console.warn("[db] Firestore getProductReviews failed — falling back to seed data", err);
     return SEED_REVIEWS.filter((r) => r.productId === productId && r.status === "approved");
   }
 }
@@ -278,7 +310,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     if (!doc.exists) return SEED_SITE_CONFIG;
     return doc.data() as SiteConfig;
   } catch (err) {
-    console.warn("[db] Firestore getSiteConfig failed — falling back to mock data", err);
+    console.warn("[db] Firestore getSiteConfig failed — falling back to seed data", err);
     return SEED_SITE_CONFIG;
   }
 }
@@ -291,7 +323,7 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
     if (!doc.exists) return SEED_PAYMENT_SETTINGS;
     return doc.data() as PaymentSettings;
   } catch (err) {
-    console.warn("[db] Firestore getPaymentSettings failed — falling back to mock data", err);
+    console.warn("[db] Firestore getPaymentSettings failed — falling back to seed data", err);
     return SEED_PAYMENT_SETTINGS;
   }
 }
@@ -304,7 +336,7 @@ export async function getShippingRules(): Promise<ShippingRules> {
     if (!doc.exists) return SEED_SHIPPING_RULES;
     return doc.data() as ShippingRules;
   } catch (err) {
-    console.warn("[db] Firestore getShippingRules failed — falling back to mock data", err);
+    console.warn("[db] Firestore getShippingRules failed — falling back to seed data", err);
     return SEED_SHIPPING_RULES;
   }
 }
@@ -317,7 +349,7 @@ export async function getInventorySettings(): Promise<InventorySettings> {
     if (!doc.exists) return SEED_INVENTORY_SETTINGS;
     return doc.data() as InventorySettings;
   } catch (err) {
-    console.warn("[db] Firestore getInventorySettings failed — falling back to mock data", err);
+    console.warn("[db] Firestore getInventorySettings failed — falling back to seed data", err);
     return SEED_INVENTORY_SETTINGS;
   }
 }
@@ -327,7 +359,7 @@ export async function getInventorySettings(): Promise<InventorySettings> {
 export async function updateSiteConfig(
   data: Partial<Omit<SiteConfig, "createdAt" | "updatedAt" | "orderCounter">>,
 ): Promise<void> {
-  if (!isFirebaseReady()) return; // mock mode — no persistence between requests
+  if (!isFirebaseReady()) return; // seed mode — no persistence between requests
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   await adminDb
@@ -381,10 +413,10 @@ export async function getInventory(productId: string): Promise<InventoryDoc | nu
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const doc = await adminDb.collection("inventory").doc(productId).get();
-    if (!doc.exists) return null;
+    if (!doc.exists) return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
     return doc.data() as InventoryDoc;
   } catch (err) {
-    console.warn("[db] Firestore getInventory failed — falling back to mock data", err);
+    console.warn("[db] Firestore getInventory failed — falling back to seed data", err);
     return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
   }
 }
@@ -395,7 +427,7 @@ export async function getStockMovements(
   limit = 50,
 ): Promise<StockMovement[]> {
   if (!isFirebaseReady()) {
-    // No seed movements — return empty array in mock mode
+    // No seed movements — return empty array in seed mode
     return [];
   }
   try {
@@ -421,7 +453,7 @@ export async function adjustStock(
   delta: number,
   movement: Omit<StockMovement, "id" | "createdAt">,
 ): Promise<void> {
-  if (!isFirebaseReady()) return; // no persistence in mock mode
+  if (!isFirebaseReady()) return; // no persistence in seed mode
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   const inventoryRef = adminDb.collection("inventory").doc(productId);
@@ -580,14 +612,13 @@ export async function getAllReviews(status?: Review["status"]): Promise<Review[]
   }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("reviews")
-      .orderBy("createdAt", "desc");
+    let query: FirebaseFirestore.Query = adminDb.collection("reviews").orderBy("createdAt", "desc");
     if (status) query = query.where("status", "==", status);
     const snap = await query.get();
+    if (snap.empty) return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
     return snap.docs.map((d) => d.data() as Review);
   } catch (err) {
-    console.warn("[db] Firestore getAllReviews failed — falling back to mock data", err);
+    console.warn("[db] Firestore getAllReviews failed — falling back to seed data", err);
     return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
   }
 }
@@ -599,10 +630,10 @@ export async function getReviewById(reviewId: string): Promise<Review | null> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const doc = await adminDb.collection("reviews").doc(reviewId).get();
-    if (!doc.exists) return null;
+    if (!doc.exists) return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
     return doc.data() as Review;
   } catch (err) {
-    console.warn("[db] Firestore getReviewById failed — falling back to mock data", err);
+    console.warn("[db] Firestore getReviewById failed — falling back to seed data", err);
     return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
   }
 }
@@ -613,11 +644,7 @@ export async function getPendingReviewCount(): Promise<number> {
   }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("reviews")
-      .where("status", "==", "pending")
-      .count()
-      .get();
+    const snap = await adminDb.collection("reviews").where("status", "==", "pending").count().get();
     return snap.data().count;
   } catch (err) {
     console.warn("[db] Firestore getPendingReviewCount failed", err);
@@ -633,14 +660,13 @@ export async function getAllBlogs(status?: Blog["status"]): Promise<Blog[]> {
   }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("blogs")
-      .orderBy("createdAt", "desc");
+    let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
     if (status) query = query.where("status", "==", status);
     const snap = await query.get();
+    if (snap.empty) return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
     return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
   } catch (err) {
-    console.warn("[db] Firestore getAllBlogs failed — falling back to mock data", err);
+    console.warn("[db] Firestore getAllBlogs failed — falling back to seed data", err);
     return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
   }
 }
@@ -652,10 +678,10 @@ export async function getBlogById(id: string): Promise<Blog | null> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const doc = await adminDb.collection("blogs").doc(id).get();
-    if (!doc.exists) return null;
+    if (!doc.exists) return SEED_BLOGS.find((b) => b.id === id) ?? null;
     return { id: doc.id, ...(doc.data() as Omit<Blog, "id">) };
   } catch (err) {
-    console.warn("[db] Firestore getBlogById failed — falling back to mock data", err);
+    console.warn("[db] Firestore getBlogById failed — falling back to seed data", err);
     return SEED_BLOGS.find((b) => b.id === id) ?? null;
   }
 }
@@ -663,7 +689,7 @@ export async function getBlogById(id: string): Promise<Blog | null> {
 export async function saveBlog(
   blog: Omit<Blog, "id" | "createdAt" | "updatedAt"> & { id?: string },
 ): Promise<string> {
-  if (!isFirebaseReady()) return blog.id ?? "mock-blog-id";
+  if (!isFirebaseReady()) return blog.id ?? "seed-blog-id";
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
 
@@ -691,9 +717,7 @@ export async function deleteBlog(id: string): Promise<void> {
 
 // ── Newsletter (admin) ────────────────────────────────────────────────────────
 
-export async function getNewsletterSubscribers(): Promise<
-  { email: string; subscribedAt: Date }[]
-> {
+export async function getNewsletterSubscribers(): Promise<{ email: string; subscribedAt: Date }[]> {
   if (!isFirebaseReady()) return [];
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
@@ -762,4 +786,268 @@ export async function getBeforeAfterItems(): Promise<BeforeAfterItem[]> {
     console.warn("[db] Firestore getBeforeAfterItems failed", err);
     return [];
   }
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+
+export async function getNavigation(): Promise<NavigationConfig> {
+  if (!isFirebaseReady()) return SEED_NAVIGATION;
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("navigation").doc("navigation").get();
+    if (!doc.exists) return SEED_NAVIGATION;
+    return doc.data() as NavigationConfig;
+  } catch (err) {
+    console.warn("[db] Firestore getNavigation failed", err);
+    return SEED_NAVIGATION;
+  }
+}
+
+export async function updateNavigation(data: Partial<NavigationConfig>): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("navigation").doc("navigation").set(data, { merge: true });
+}
+
+// ── Homepage Sections ─────────────────────────────────────────────────────────
+
+export async function getHomepageSections(): Promise<HomepageSections> {
+  if (!isFirebaseReady()) return SEED_HOMEPAGE_SECTIONS;
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("homepageSections").get();
+    if (!doc.exists) return SEED_HOMEPAGE_SECTIONS;
+    return doc.data() as HomepageSections;
+  } catch (err) {
+    console.warn("[db] Firestore getHomepageSections failed", err);
+    return SEED_HOMEPAGE_SECTIONS;
+  }
+}
+
+export async function updateHomepageSections(data: Partial<HomepageSections>): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("settings").doc("homepageSections").set(data, { merge: true });
+}
+
+// ── Testimonials ──────────────────────────────────────────────────────────────
+
+export async function getTestimonials(limit?: number): Promise<Testimonial[]> {
+  if (!isFirebaseReady()) {
+    const active = SEED_TESTIMONIALS.filter((t) => t.isActive);
+    return limit ? active.slice(0, limit) : active;
+  }
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("testimonials")
+      .where("isActive", "==", true)
+      .orderBy("sortOrder", "asc");
+    if (limit) query = query.limit(limit);
+    const snap = await query.get();
+    if (snap.empty) {
+      const active = SEED_TESTIMONIALS.filter((t) => t.isActive);
+      return limit ? active.slice(0, limit) : active;
+    }
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }));
+  } catch (err) {
+    console.warn("[db] Firestore getTestimonials failed", err);
+    const active = SEED_TESTIMONIALS.filter((t) => t.isActive);
+    return limit ? active.slice(0, limit) : active;
+  }
+}
+
+export async function getAllTestimonials(): Promise<Testimonial[]> {
+  if (!isFirebaseReady()) return [...SEED_TESTIMONIALS];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("testimonials").orderBy("sortOrder", "asc").get();
+    if (snap.empty) return [...SEED_TESTIMONIALS];
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }));
+  } catch (err) {
+    console.warn("[db] Firestore getAllTestimonials failed", err);
+    return [...SEED_TESTIMONIALS];
+  }
+}
+
+export async function saveTestimonial(
+  testimonial: Omit<Testimonial, "id" | "createdAt"> & { id?: string },
+): Promise<string> {
+  if (!isFirebaseReady()) return testimonial.id ?? "mock-testimonial-id";
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  const ref = testimonial.id
+    ? adminDb.collection("testimonials").doc(testimonial.id)
+    : adminDb.collection("testimonials").doc();
+  const { id: _, ...data } = testimonial as Record<string, unknown>;
+  await ref.set(
+    {
+      ...data,
+      updatedAt: FieldValue.serverTimestamp(),
+      ...(testimonial.id ? {} : { createdAt: FieldValue.serverTimestamp() }),
+    },
+    { merge: true },
+  );
+  return ref.id;
+}
+
+export async function deleteTestimonial(id: string): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("testimonials").doc(id).delete();
+}
+
+// ── Static Pages ──────────────────────────────────────────────────────────────
+
+export async function getPage(pageId: string): Promise<PageDoc | null> {
+  if (!isFirebaseReady()) return SEED_PAGES.find((p) => p.id === pageId) ?? null;
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("pages").doc(pageId).get();
+    if (!doc.exists) return SEED_PAGES.find((p) => p.id === pageId) ?? null;
+    return { id: doc.id, ...(doc.data() as Omit<PageDoc, "id">) };
+  } catch (err) {
+    console.warn("[db] Firestore getPage failed", err);
+    return SEED_PAGES.find((p) => p.id === pageId) ?? null;
+  }
+}
+
+export async function getAllPages(): Promise<PageDoc[]> {
+  if (!isFirebaseReady()) return [...SEED_PAGES];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("pages").get();
+    if (snap.empty) return [...SEED_PAGES];
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PageDoc, "id">) }));
+  } catch (err) {
+    console.warn("[db] Firestore getAllPages failed", err);
+    return [...SEED_PAGES];
+  }
+}
+
+export async function savePage(page: PageDoc): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  const { id, ...data } = page;
+  await adminDb
+    .collection("pages")
+    .doc(id)
+    .set({ ...data, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+}
+
+// ── Consultation Config ───────────────────────────────────────────────────────
+
+export async function getConsultationConfig(): Promise<ConsultationConfig> {
+  if (!isFirebaseReady()) return SEED_CONSULTATION_CONFIG;
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("consultationConfig").get();
+    if (!doc.exists) return SEED_CONSULTATION_CONFIG;
+    return doc.data() as ConsultationConfig;
+  } catch (err) {
+    console.warn("[db] Firestore getConsultationConfig failed", err);
+    return SEED_CONSULTATION_CONFIG;
+  }
+}
+
+export async function updateConsultationConfig(data: Partial<ConsultationConfig>): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("settings").doc("consultationConfig").set(data, { merge: true });
+}
+
+// ── Promo Banners ─────────────────────────────────────────────────────────────
+
+export async function getActivePromoBanners(): Promise<PromoBanner[]> {
+  if (!isFirebaseReady()) return [];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("promoBanners")
+      .where("isActive", "==", true)
+      .orderBy("sortOrder", "asc")
+      .get();
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }));
+  } catch (err) {
+    console.warn("[db] Firestore getActivePromoBanners failed", err);
+    return [];
+  }
+}
+
+export async function getAllPromoBanners(): Promise<PromoBanner[]> {
+  if (!isFirebaseReady()) return [];
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("promoBanners").orderBy("sortOrder", "asc").get();
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }));
+  } catch (err) {
+    console.warn("[db] Firestore getAllPromoBanners failed", err);
+    return [];
+  }
+}
+
+export async function savePromoBanner(
+  banner: Omit<PromoBanner, "id" | "createdAt"> & { id?: string },
+): Promise<string> {
+  if (!isFirebaseReady()) return banner.id ?? "mock-promo-id";
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  const ref = banner.id
+    ? adminDb.collection("promoBanners").doc(banner.id)
+    : adminDb.collection("promoBanners").doc();
+  const { id: _, ...data } = banner as Record<string, unknown>;
+  await ref.set(
+    {
+      ...data,
+      updatedAt: FieldValue.serverTimestamp(),
+      ...(banner.id ? {} : { createdAt: FieldValue.serverTimestamp() }),
+    },
+    { merge: true },
+  );
+  return ref.id;
+}
+
+export async function deletePromoBanner(id: string): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("promoBanners").doc(id).delete();
+}
+
+// ── Category / Concern CRUD ───────────────────────────────────────────────────
+
+export async function saveCategory(
+  category: Omit<Category, "id"> & { id?: string },
+): Promise<string> {
+  if (!isFirebaseReady()) return category.id ?? "mock-cat-id";
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const ref = category.id
+    ? adminDb.collection("categories").doc(category.id)
+    : adminDb.collection("categories").doc();
+  const { id: _, ...data } = category as Record<string, unknown>;
+  await ref.set(data, { merge: true });
+  return ref.id;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("categories").doc(id).delete();
+}
+
+export async function saveConcern(concern: Omit<Concern, "id"> & { id?: string }): Promise<string> {
+  if (!isFirebaseReady()) return concern.id ?? "mock-concern-id";
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const ref = concern.id
+    ? adminDb.collection("concerns").doc(concern.id)
+    : adminDb.collection("concerns").doc();
+  const { id: _, ...data } = concern as Record<string, unknown>;
+  await ref.set(data, { merge: true });
+  return ref.id;
+}
+
+export async function deleteConcern(id: string): Promise<void> {
+  if (!isFirebaseReady()) return;
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("concerns").doc(id).delete();
 }

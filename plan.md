@@ -2156,14 +2156,14 @@ export async function POST(req: Request) {
 - [ ] `app/api/dev/seed/route.ts` — handle the nested-document pattern for `settings/*` sub-docs (homepageSections, consultationConfig, shippingRules, navigation, paymentSettings) using `adminDb.doc("settings/{docId}").set()` in the same batch; no structural change needed for top-level collections
 - [ ] `app/[locale]/(dev)/dev/seed/page.tsx` — add rows for new collections and settings docs:
 
-  | Row label             | Collection / path              | Approx doc count |
-  | --------------------- | ------------------------------ | ---------------- |
-  | Testimonials          | `testimonials`                 | 5                |
-  | Static Pages          | `settings/pages/*`             | 5                |
-  | Navigation            | `settings/navigation`          | 1                |
-  | Homepage Sections     | `settings/homepageSections`    | 1                |
-  | Consultation Config   | `settings/consultationConfig`  | 1                |
-  | Promo Banners         | `promoBanners`                 | 0                |
+  | Row label           | Collection / path             | Approx doc count |
+  | ------------------- | ----------------------------- | ---------------- |
+  | Testimonials        | `testimonials`                | 5                |
+  | Static Pages        | `settings/pages/*`            | 5                |
+  | Navigation          | `settings/navigation`         | 1                |
+  | Homepage Sections   | `settings/homepageSections`   | 1                |
+  | Consultation Config | `settings/consultationConfig` | 1                |
+  | Promo Banners       | `promoBanners`                | 0                |
 
   Each row shows its own **Seed ↑** and **Delete ✕** buttons consistent with the existing table layout; the "Seed All" / "Delete All" buttons in the footer include these new rows
 

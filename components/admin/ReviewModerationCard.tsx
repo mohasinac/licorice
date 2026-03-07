@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, MessageCircle, ExternalLink } from "lucide-react"
 import type { Review } from "@/lib/types";
 import { StarRating } from "@/components/ui/StarRating";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { toSafeDate } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { approveReview, rejectReview, addAdminReply } from "@/lib/actions/reviews";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -18,10 +19,11 @@ interface ReviewModerationCardProps {
   showActions?: boolean;
 }
 
-function formatDate(d: Date | { seconds: number } | undefined) {
-  if (!d) return "";
-  const date = d instanceof Date ? d : new Date((d as { seconds: number }).seconds * 1000);
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+function formatDate(d: unknown) {
+  const date = toSafeDate(d);
+  return date
+    ? date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+    : "";
 }
 
 export function ReviewModerationCard({

@@ -3,14 +3,16 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { X, ShoppingBag, Heart, Search, User } from "lucide-react";
+import { X, ShoppingBag, Heart, Search, User, LogIn } from "lucide-react";
 import { BRAND_NAME } from "@/constants/site";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const NAV_ITEMS = [
   { key: "shop", href: "/shop" },
   { key: "concerns", href: "/concerns" },
   { key: "ingredients", href: "/ingredients" },
+  { key: "consultation", href: "/consultation" },
   { key: "blog", href: "/blog" },
   { key: "about", href: "/about" },
 ] as const;
@@ -23,6 +25,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
   const t = useTranslations("nav");
+  const user = useAuthStore((s) => s.user);
 
   return (
     <Dialog.Root open={open} onOpenChange={(v) => !v && onClose()}>
@@ -81,14 +84,25 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
                 >
                   <Heart className="h-5 w-5" />
                 </Link>
-                <Link
-                  href={`/${locale}/account`}
-                  onClick={onClose}
-                  aria-label="Account"
-                  className="hover:bg-surface rounded-full p-2"
-                >
-                  <User className="h-5 w-5" />
-                </Link>
+                {user ? (
+                  <Link
+                    href={`/${locale}/account`}
+                    onClick={onClose}
+                    aria-label={t("account")}
+                    className="hover:bg-surface rounded-full p-2"
+                  >
+                    <User className="h-5 w-5" />
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/${locale}/login`}
+                    onClick={onClose}
+                    aria-label={t("login")}
+                    className="hover:bg-surface rounded-full p-2"
+                  >
+                    <LogIn className="h-5 w-5" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>

@@ -37,6 +37,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "home" });
 
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://licoriceherbal.in"),
     title: {
       default: "Licorice Herbals — Pure Ayurvedic Skincare",
       template: "%s | Licorice Herbals",
@@ -70,6 +71,11 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={`${cormorant.variable} ${inter.variable}`}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2B1A6B" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
       <body className="bg-background text-foreground min-h-screen antialiased">
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>

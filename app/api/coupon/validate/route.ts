@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getCoupon } from "@/lib/db";
+import { toSafeDate } from "@/lib/utils";
 
 const schema = z.object({
   code: z.string().min(1).max(50),
@@ -35,19 +36,13 @@ export async function POST(req: NextRequest) {
 
   // 2. Date validity
   const now = new Date();
-  const startsAt =
-    coupon.startsAt instanceof Date
-      ? coupon.startsAt
-      : new Date((coupon.startsAt as { seconds: number }).seconds * 1000);
-  if (now < startsAt) {
+  const startsAt = toSafeDate(coupon.startsAt);
+  if (startsAt && now < startsAt) {
     return NextResponse.json({ valid: false, error: "This coupon is not yet active." });
   }
   if (coupon.expiresAt) {
-    const expiresAt =
-      coupon.expiresAt instanceof Date
-        ? coupon.expiresAt
-        : new Date((coupon.expiresAt as { seconds: number }).seconds * 1000);
-    if (now > expiresAt) {
+    const expiresAt = toSafeDate(coupon.expiresAt);
+    if (expiresAt && now > expiresAt) {
       return NextResponse.json({ valid: false, error: "This coupon has expired." });
     }
   }

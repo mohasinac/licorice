@@ -4,6 +4,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
 import { isFirebaseReady } from "@/lib/db";
+import { toSafeDate } from "@/lib/utils";
 import type { SupportTicket } from "@/lib/types";
 
 function generateTicketNumber(): string {
@@ -27,10 +28,16 @@ export async function GET() {
       .limit(50)
       .get();
 
-    const tickets: SupportTicket[] = snap.docs.map((d) => ({
-      id: d.id,
-      ...(d.data() as Omit<SupportTicket, "id">),
-    }));
+    const tickets = snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        createdAt: (toSafeDate(data.createdAt) ?? new Date()).toISOString(),
+        updatedAt: (toSafeDate(data.updatedAt) ?? new Date()).toISOString(),
+        resolvedAt: data.resolvedAt ? (toSafeDate(data.resolvedAt))?.toISOString() ?? null : null,
+      };
+    });
     return NextResponse.json({ tickets });
   } catch (err) {
     console.error("[support/tickets] GET failed", err);

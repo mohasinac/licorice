@@ -8,7 +8,7 @@ import { ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { Button } from "@/components/ui/Button";
 import { getLocalizedValue } from "@/lib/i18n";
-import { SEED_PRODUCTS } from "@/lib/mocks";
+import { SEED_PRODUCTS } from "@/lib/seeds";
 import type { Product, Locale } from "@/lib/types";
 import toast from "react-hot-toast";
 
@@ -29,7 +29,7 @@ export function BuyMoreSaveMore({ upsellProductIds, currentProduct }: BuyMoreSav
   const locale = useLocale() as Locale;
   const { add, openCart } = useCartStore();
 
-  // In mock mode resolve upsell products from seed data
+  // In seed mode resolve upsell products from seed data
   const upsellProducts = upsellProductIds
     .map((id) => SEED_PRODUCTS.find((p) => p.id === id))
     .filter(Boolean) as Product[];

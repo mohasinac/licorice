@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getProducts } from "@/lib/db";
 import { getInventory } from "@/lib/db";
-import { SEED_INVENTORY } from "@/lib/mocks";
+import { SEED_INVENTORY } from "@/lib/seeds";
 import { AdminInventoryTable } from "./AdminInventoryTable";
 
 export const metadata: Metadata = {

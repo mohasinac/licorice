@@ -10,6 +10,7 @@ import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { Modal } from "@/components/ui/Modal";
 import { flagReview } from "@/lib/actions/reviews";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { toSafeDate } from "@/lib/utils";
 
 const PAGE_SIZE = 10;
 
@@ -45,14 +46,8 @@ function applySort(reviews: Review[], sort: SortOption): Review[] {
   switch (sort) {
     case "recent":
       return copy.sort((a, b) => {
-        const aTime =
-          a.createdAt instanceof Date
-            ? a.createdAt.getTime()
-            : (a.createdAt as { seconds: number }).seconds * 1000;
-        const bTime =
-          b.createdAt instanceof Date
-            ? b.createdAt.getTime()
-            : (b.createdAt as { seconds: number }).seconds * 1000;
+        const aTime = toSafeDate(a.createdAt)?.getTime() ?? 0;
+        const bTime = toSafeDate(b.createdAt)?.getTime() ?? 0;
         return bTime - aTime;
       });
     case "helpful":
