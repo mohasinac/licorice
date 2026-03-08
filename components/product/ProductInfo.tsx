@@ -120,12 +120,12 @@ export function ProductInfo({ product }: ProductInfoProps) {
         <button
           onClick={() => toggle(product.id)}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-          className="border-border rounded-full border p-3 transition-colors hover:border-red-300"
+          className="border-border rounded-full border p-3 transition-colors hover:border-red-300 dark:border-red-800"
         >
           <Heart
             className={[
               "h-5 w-5 transition-colors",
-              wished ? "fill-red-500 text-red-500" : "text-muted-foreground",
+              wished ? "fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" : "text-muted-foreground",
             ].join(" ")}
           />
         </button>
@@ -154,7 +154,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
       {/* Stock warning */}
       {product.inStock && selectedVariant.stock <= 5 && (
-        <p className="text-sm font-medium text-amber-600">
+        <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
           Only {selectedVariant.stock} left in stock!
         </p>
       )}

@@ -120,7 +120,7 @@ export default function DevSeedPage() {
                   <ul className="mt-2 space-y-0.5 text-xs">
                     {ids.map(([id, exists]) => (
                       <li key={id} className="flex items-center gap-2">
-                        <span className={exists ? "text-green-600" : "text-red-500"}>
+                        <span className={exists ? "text-green-600 dark:text-green-400" : "text-red-500"}>
                           {exists ? "✓" : "✗"}
                         </span>
                         <code>{id}</code>

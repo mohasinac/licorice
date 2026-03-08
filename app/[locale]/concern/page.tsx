@@ -34,12 +34,18 @@ export default async function ConcernsPage({ params }: { params: Promise<{ local
 
       {/* Concern cards */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {concerns.length === 0 ? (
+          <div className="flex flex-col items-center py-20 text-center">
+            <p className="text-foreground font-medium">No concerns listed yet</p>
+            <p className="text-muted-foreground mt-1 text-sm">Check back soon.</p>
+          </div>
+        ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {concerns.map((concern) => (
             <Link
               key={concern.id}
               href={`/${locale}/concern/${concern.slug}`}
-              className="ayur-card border-border group rounded-2xl border bg-white p-6 transition-all"
+              className="ayur-card border-border group rounded-2xl border bg-card p-6 transition-all"
             >
               <h3 className="font-heading text-foreground group-hover:text-primary text-lg font-semibold transition-colors">
                 {concern.label}
@@ -53,6 +59,7 @@ export default async function ConcernsPage({ params }: { params: Promise<{ local
             </Link>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

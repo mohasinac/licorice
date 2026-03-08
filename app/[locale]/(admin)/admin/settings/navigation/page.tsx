@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 export default function NavigationSettingsPage() {
   const token = useAdminToken();
@@ -119,7 +119,7 @@ export default function NavigationSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-card px-6 py-5">
         <div>
           <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">Navigation</h1>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
@@ -137,7 +137,7 @@ export default function NavigationSettingsPage() {
 
       <div className="mx-auto max-w-3xl space-y-8 px-6 py-8">
         {/* Main Navigation */}
-        <section className="rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
               Main Navigation
@@ -180,7 +180,7 @@ export default function NavigationSettingsPage() {
         {(["shop", "account", "policies"] as const).map((section) => (
           <section
             key={section}
-            className="rounded-xl border border-[var(--border)] bg-white shadow-sm"
+            className="rounded-xl border border-[var(--border)] bg-card shadow-sm"
           >
             <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
               <h3 className="font-heading text-base font-semibold text-[var(--foreground)] capitalize">

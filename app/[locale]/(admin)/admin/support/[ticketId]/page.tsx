@@ -78,7 +78,7 @@ export default async function AdminTicketDetailPage({
               <div className="min-w-0 flex-1">
                 <h1 className="font-heading text-foreground text-xl font-bold">{ticket.subject}</h1>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  <span className="font-mono font-semibold text-green-700">
+                  <span className="font-mono font-semibold text-green-700 dark:text-green-400">
                     {ticket.ticketNumber}
                   </span>
                   {" · "}

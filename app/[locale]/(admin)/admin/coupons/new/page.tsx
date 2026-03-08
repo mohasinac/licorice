@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import type { CouponType } from "@/lib/types";
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 const COUPON_TYPES: { value: CouponType; label: string }[] = [
   { value: "percentage", label: "Percentage" },
@@ -82,7 +82,7 @@ export default function NewCouponPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="border-b border-[var(--border)] bg-card px-6 py-5">
         <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">New Coupon</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           Create a discount coupon for customers.
@@ -91,7 +91,7 @@ export default function NewCouponPage() {
 
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-8 px-6 py-8">
         {/* Basic Info */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold">Basic Information</h3>
           </div>
@@ -147,7 +147,7 @@ export default function NewCouponPage() {
         </section>
 
         {/* Limits */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold">Limits & Validity</h3>
           </div>
@@ -227,12 +227,12 @@ export default function NewCouponPage() {
                 onClick={() => setIsActive(!isActive)}
                 className={
                   "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
-                  (isActive ? "bg-violet-600" : "bg-gray-300")
+                  (isActive ? "bg-primary" : "bg-border")
                 }
               >
                 <span
                   className={
-                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
                     (isActive ? "translate-x-6" : "translate-x-0.5")
                   }
                 />

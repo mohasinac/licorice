@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 function Toggle({
   label,
@@ -47,13 +47,13 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={
-          "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:outline-none " +
-          (checked ? "bg-violet-600" : "bg-gray-300")
+          "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background focus:outline-none " +
+          (checked ? "bg-primary" : "bg-border")
         }
       >
         <span
           className={
-            "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+            "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
             (checked ? "translate-x-6" : "translate-x-0.5")
           }
         />
@@ -109,7 +109,7 @@ export default function PaymentSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-card px-6 py-5">
         <div>
           <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">
             Payment Settings
@@ -129,7 +129,7 @@ export default function PaymentSettingsPage() {
 
       <div className="mx-auto max-w-2xl space-y-8 px-6 py-8">
         {/* Payment Methods */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <CreditCard className="h-4 w-4 text-[var(--muted-foreground)]" />
             <h3 className="font-heading text-base font-semibold">Payment Methods</h3>
@@ -158,7 +158,7 @@ export default function PaymentSettingsPage() {
 
         {/* Razorpay Config */}
         {data.razorpayEnabled && (
-          <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
             <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
               <h3 className="font-heading text-base font-semibold">Razorpay Configuration</h3>
             </div>
@@ -182,7 +182,7 @@ export default function PaymentSettingsPage() {
 
         {/* WhatsApp Config */}
         {data.whatsappEnabled && (
-          <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
             <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
               <h3 className="font-heading text-base font-semibold">WhatsApp Configuration</h3>
             </div>

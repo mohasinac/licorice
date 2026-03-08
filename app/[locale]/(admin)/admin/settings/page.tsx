@@ -71,13 +71,13 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={
-          "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:outline-none " +
-          (checked ? "bg-violet-600" : "bg-gray-300")
+          "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background focus:outline-none " +
+          (checked ? "bg-primary" : "bg-border")
         }
       >
         <span
           className={
-            "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+            "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
             (checked ? "translate-x-6" : "translate-x-0.5")
           }
         />
@@ -113,7 +113,7 @@ function Field({
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 disabled:opacity-50";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50";
 
 // ── Section Card ─────────────────────────────────────────────────────────────
 
@@ -129,7 +129,7 @@ function Section({
   saving: boolean;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
       <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
         <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">{title}</h3>
         <button
@@ -185,7 +185,7 @@ function GeneralTab({ initial, token }: { initial: SiteConfig; token: string | n
               <img
                 src={form.logoUrl}
                 alt="Current logo"
-                className="h-12 w-auto rounded-lg border border-[var(--border)] bg-white object-contain p-1"
+                className="h-12 w-auto rounded-lg border border-[var(--border)] bg-card object-contain p-1"
               />
             ) : (
               <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--muted)] text-xs text-[var(--muted-foreground)]">
@@ -854,7 +854,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <div className="border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="border-b border-[var(--border)] bg-card px-6 py-5">
         <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">Settings</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           Manage site configuration, shipping, payments, and inventory defaults.
@@ -862,7 +862,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-[var(--border)] bg-white px-6">
+      <div className="border-b border-[var(--border)] bg-card px-6">
         <nav className="flex gap-1" aria-label="Settings tabs">
           {TABS.map((tab) => (
             <button

@@ -487,7 +487,7 @@ export default async function AdminAnalyticsPage({
           icon={DollarSign}
           subtext={`${percentChange(data.thisMonthRevenue, data.prevMonthRevenue)} vs last month`}
           trend={data.revenueTrend}
-          accentColor="text-green-600"
+          accentColor="text-green-600 dark:text-green-400"
         />
         <StatsCard
           label="Orders This Month"
@@ -517,7 +517,7 @@ export default async function AdminAnalyticsPage({
           label="Active Products"
           value={data.totalProducts}
           icon={Package}
-          accentColor="text-amber-600"
+          accentColor="text-amber-600 dark:text-amber-400"
         />
         <StatsCard
           label="Approved Reviews"

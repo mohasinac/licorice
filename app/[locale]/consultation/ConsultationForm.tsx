@@ -98,8 +98,8 @@ export function ConsultationForm({
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle2 className="h-8 w-8 text-green-600" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
+          <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
         <h2 className="font-heading text-foreground text-2xl font-bold">Booking Received!</h2>
         <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
@@ -114,7 +114,7 @@ export function ConsultationForm({
     <div className="grid gap-12 lg:grid-cols-2">
       {/* Consultant bio */}
       <div className="flex flex-col gap-6">
-        <div className="ayur-card rounded-2xl border border-border bg-white p-6 shadow-sm">
+        <div className="ayur-card rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-4">
             <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full">
               <Leaf className="text-primary h-8 w-8" />
@@ -132,8 +132,8 @@ export function ConsultationForm({
 
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle2 className="h-4 w-4 text-green-700" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
+              <CheckCircle2 className="h-4 w-4 text-green-700 dark:text-green-400" />
             </div>
             <div>
               <p className="text-foreground text-sm font-semibold">Completely Free</p>
@@ -275,7 +275,7 @@ export function ConsultationForm({
             </label>
             <select
               {...register("preferredTime")}
-              className="border-border text-foreground w-full rounded-xl border bg-white px-4 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+              className="border-border text-foreground w-full rounded-xl border bg-card px-4 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             >
               <option value="">Select time slot</option>
               {TIME_SLOTS.map((t) => (

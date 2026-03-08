@@ -126,7 +126,7 @@ export default function IngredientsPage() {
               {INGREDIENTS.filter((i) => i.category === cat).map((ingredient) => (
                 <div
                   key={ingredient.name}
-                  className="ayur-card border-border rounded-2xl border bg-white p-5"
+                  className="ayur-card border-border rounded-2xl border bg-card p-5"
                 >
                   <h3 className="font-heading text-foreground text-base font-semibold">
                     {ingredient.name}

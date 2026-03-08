@@ -32,7 +32,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           <Link
             key={link.href}
             href={link.href}
-            className="ayur-card hover:border-primary/20 border-border rounded-2xl border bg-white px-5 py-4 shadow-sm"
+            className="ayur-card hover:border-primary/20 border-border rounded-2xl border bg-card px-5 py-4 shadow-sm"
           >
             <span className="text-foreground font-medium">{link.label} →</span>
           </Link>

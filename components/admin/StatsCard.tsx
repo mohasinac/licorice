@@ -10,7 +10,7 @@ interface StatsCardProps {
   subtext?: string;
   trend?: "up" | "down" | "neutral";
   href?: string;
-  accentColor?: string; // Tailwind colour class e.g. "text-green-600"
+  accentColor?: string; // Tailwind colour class e.g. "text-green-600 dark:text-green-400"
 }
 
 export function StatsCard({
@@ -32,7 +32,7 @@ export function StatsCard({
         <p className={`font-heading mt-0.5 text-2xl font-bold ${accentColor}`}>{value}</p>
         {subtext && (
           <p className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
-            {trend === "up" && <span className="font-medium text-green-600">↑</span>}
+            {trend === "up" && <span className="font-medium text-green-600 dark:text-green-400">↑</span>}
             {trend === "down" && <span className="font-medium text-destructive">↓</span>}
             {subtext}
           </p>

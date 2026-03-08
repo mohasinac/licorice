@@ -46,7 +46,7 @@ export function TicketCard({ ticket, locale = "en", unread = false }: Props) {
 
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <span className="font-mono text-xs font-semibold text-green-700">
+          <span className="font-mono text-xs font-semibold text-green-700 dark:text-green-400">
             {ticket.ticketNumber}
           </span>
           <StatusBadge status={ticket.status} type="ticket" />

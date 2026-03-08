@@ -30,7 +30,7 @@ const STATIC_PAGES = [
 ];
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 export default function PagesSettingsPage() {
   const token = useAdminToken();
@@ -82,7 +82,7 @@ export default function PagesSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="border-b border-[var(--border)] bg-card px-6 py-5">
         <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">
           Page Settings
         </h1>
@@ -99,7 +99,7 @@ export default function PagesSettingsPage() {
           return (
             <div
               key={sp.id}
-              className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm"
+              className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm"
             >
               <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4">
                 <div className="flex items-center gap-3">

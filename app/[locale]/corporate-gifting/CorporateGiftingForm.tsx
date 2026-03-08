@@ -39,13 +39,13 @@ const VALUE_PROPS = [
     icon: Paintbrush,
     title: "Custom Branding",
     desc: "Add your company's logo and message on the packaging for a truly personal touch.",
-    color: "bg-amber-100 text-amber-700",
+    color: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
   },
   {
     icon: Gift,
     title: "Curated Gift Sets",
     desc: "We help you select the perfect product combination for your budget and occasion.",
-    color: "bg-green-100 text-green-700",
+    color: "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400",
   },
   {
     icon: BadgePercent,
@@ -80,8 +80,8 @@ export function CorporateGiftingForm() {
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle2 className="h-8 w-8 text-green-600" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
+          <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
         <h2 className="font-heading text-foreground text-2xl font-bold">Inquiry Received!</h2>
         <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
@@ -172,7 +172,7 @@ export function CorporateGiftingForm() {
           <Input label="Required Delivery Date" type="date" {...register("deliveryDateRequired")} />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-foreground">
             Custom Branding Required?
           </label>
           <div className="flex gap-4">

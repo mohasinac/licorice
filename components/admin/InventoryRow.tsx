@@ -42,14 +42,14 @@ export function InventoryRow({
       <td className="px-4 py-3 text-right">
         <span
           className={`font-semibold tabular-nums ${
-            isOOS ? "text-destructive" : isLow ? "text-yellow-600" : "text-green-600"
+            isOOS ? "text-destructive" : isLow ? "text-yellow-600 dark:text-yellow-400" : "text-green-600 dark:text-green-400"
           }`}
         >
           {available}
         </span>
         {(isLow || isOOS) && (
           <AlertCircle
-            className={`ml-1 inline h-3.5 w-3.5 ${isOOS ? "text-destructive" : "text-yellow-500"}`}
+            className={`ml-1 inline h-3.5 w-3.5 ${isOOS ? "text-destructive" : "text-yellow-500 dark:text-yellow-400"}`}
           />
         )}
       </td>

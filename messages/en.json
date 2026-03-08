@@ -173,7 +173,8 @@
     "approve": "Approve",
     "reject": "Reject",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "mediaKit": "Media Kit"
   },
   "support": {
     "title": "Support",

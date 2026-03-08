@@ -156,7 +156,7 @@ function CorporateStatusSelect({ inquiry }: { inquiry: CorporateInquiry }) {
       </select>
       <button
         type="submit"
-        className="rounded-lg bg-gray-100 px-2 py-1 text-xs font-medium hover:bg-gray-200"
+        className="rounded-lg bg-muted px-2 py-1 text-xs font-medium hover:bg-muted/80"
       >
         Save
       </button>

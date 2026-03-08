@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 export default function HomepageSettingsPage() {
   const token = useAdminToken();
@@ -111,7 +111,7 @@ export default function HomepageSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-card px-6 py-5">
         <div>
           <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">
             Homepage Sections
@@ -131,7 +131,7 @@ export default function HomepageSettingsPage() {
 
       <div className="mx-auto max-w-3xl space-y-8 px-6 py-8">
         {/* Hero Banner */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
               Hero Banner
@@ -205,7 +205,7 @@ export default function HomepageSettingsPage() {
         </section>
 
         {/* Featured Product IDs */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
               Featured Products
@@ -233,7 +233,7 @@ export default function HomepageSettingsPage() {
         </section>
 
         {/* New Arrival IDs */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
               New Arrivals
@@ -261,7 +261,7 @@ export default function HomepageSettingsPage() {
         </section>
 
         {/* Brand Values */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
               Brand Values
@@ -314,7 +314,7 @@ export default function HomepageSettingsPage() {
         </section>
 
         {/* Instagram Reels */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <div className="flex items-center gap-2">
               <Instagram className="h-4 w-4 text-[var(--primary)]" />
@@ -371,7 +371,7 @@ export default function HomepageSettingsPage() {
         </section>
 
         {/* Section Visibility */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
               Section Visibility
@@ -403,12 +403,12 @@ export default function HomepageSettingsPage() {
                   onClick={() => setVis(key, !data.sectionVisibility[key])}
                   className={
                     "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
-                    (data.sectionVisibility[key] ? "bg-violet-600" : "bg-gray-300")
+                    (data.sectionVisibility[key] ? "bg-primary" : "bg-border")
                   }
                 >
                   <span
                     className={
-                      "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                      "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
                       (data.sectionVisibility[key] ? "translate-x-6" : "translate-x-0.5")
                     }
                   />

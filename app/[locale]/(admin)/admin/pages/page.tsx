@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 export default function PagesAdminPage() {
   const token = useAdminToken();
@@ -54,13 +54,13 @@ export default function PagesAdminPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="border-b border-[var(--border)] bg-card px-6 py-5">
         <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">Pages</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">Edit static pages like About, Policies etc.</p>
       </div>
       <div className="mx-auto max-w-4xl px-6 py-8">
         {editing ? (
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-card p-6 shadow-sm">
             <h3 className="mb-4 font-heading text-lg font-semibold">Editing: {editing.title}</h3>
             <div className="space-y-4">
               <div>
@@ -95,7 +95,7 @@ export default function PagesAdminPage() {
         ) : (
           <div className="space-y-4">
             {pages.map((p) => (
-              <div key={p.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <div key={p.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-card p-5 shadow-sm">
                 <div>
                   <span className="font-medium text-[var(--foreground)]">{p.title}</span>
                   <span className="ml-2 text-xs text-[var(--muted-foreground)]">/{p.id}</span>

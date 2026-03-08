@@ -36,7 +36,7 @@ export default async function AdminNewsletterPage() {
 
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="border-border flex items-center gap-4 rounded-2xl border bg-white p-5">
+        <div className="border-border flex items-center gap-4 rounded-2xl border bg-card p-5">
           <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-xl">
             <Users className="text-primary h-5 w-5" />
           </div>
@@ -45,7 +45,7 @@ export default async function AdminNewsletterPage() {
             <p className="text-muted-foreground text-xs">Total Subscribers</p>
           </div>
         </div>
-        <div className="border-border flex items-center gap-4 rounded-2xl border bg-white p-5">
+        <div className="border-border flex items-center gap-4 rounded-2xl border bg-card p-5">
           <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-xl">
             <Mail className="text-primary h-5 w-5" />
           </div>

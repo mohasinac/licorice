@@ -651,6 +651,26 @@ export interface PromoBanner {
   createdAt: Timestamp | Date;
 }
 
+// ─── Media Kit ───────────────────────────────────────────────────────────────
+
+export type MediaKitCategory = "logo" | "brand-guide" | "press-release" | "product-images" | "other";
+
+export interface MediaKitFile {
+  id: string;
+  title: string;
+  description: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number; // bytes
+  mimeType: string;
+  category: MediaKitCategory;
+  sortOrder: number;
+  isActive: boolean;
+  downloads: number;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
+}
+
 // ─── Seed doc marker ─────────────────────────────────────────────────────────
 
 export interface SeedDoc {

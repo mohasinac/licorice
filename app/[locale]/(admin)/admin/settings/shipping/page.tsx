@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 export default function ShippingSettingsPage() {
   const token = useAdminToken();
@@ -69,7 +69,7 @@ export default function ShippingSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-card px-6 py-5">
         <div>
           <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">
             Shipping Settings
@@ -89,7 +89,7 @@ export default function ShippingSettingsPage() {
 
       <div className="mx-auto max-w-2xl space-y-8 px-6 py-8">
         {/* Free Shipping */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <Truck className="h-4 w-4 text-[var(--muted-foreground)]" />
             <h3 className="font-heading text-base font-semibold">Shipping Thresholds</h3>
@@ -126,7 +126,7 @@ export default function ShippingSettingsPage() {
         </section>
 
         {/* COD Rules */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold">Cash on Delivery</h3>
           </div>
@@ -145,12 +145,12 @@ export default function ShippingSettingsPage() {
                 onClick={() => set("codEnabled", !data.codEnabled)}
                 className={
                   "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
-                  (data.codEnabled ? "bg-violet-600" : "bg-gray-300")
+                  (data.codEnabled ? "bg-primary" : "bg-border")
                 }
               >
                 <span
                   className={
-                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
                     (data.codEnabled ? "translate-x-6" : "translate-x-0.5")
                   }
                 />
@@ -169,7 +169,7 @@ export default function ShippingSettingsPage() {
         </section>
 
         {/* Processing */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <h3 className="font-heading text-base font-semibold">Processing & SLA</h3>
           </div>
@@ -205,7 +205,7 @@ export default function ShippingSettingsPage() {
         </section>
 
         {/* GST */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <Receipt className="h-4 w-4 text-[var(--muted-foreground)]" />
             <h3 className="font-heading text-base font-semibold">GST Settings</h3>
@@ -239,12 +239,12 @@ export default function ShippingSettingsPage() {
                 onClick={() => set("gstIncluded", !(data.gstIncluded ?? true))}
                 className={
                   "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
-                  ((data.gstIncluded ?? true) ? "bg-violet-600" : "bg-gray-300")
+                  ((data.gstIncluded ?? true) ? "bg-primary" : "bg-border")
                 }
               >
                 <span
                   className={
-                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
                     ((data.gstIncluded ?? true) ? "translate-x-6" : "translate-x-0.5")
                   }
                 />
@@ -254,7 +254,7 @@ export default function ShippingSettingsPage() {
         </section>
 
         {/* Shiprocket Live Rates */}
-        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-card shadow-sm">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
             <Globe className="h-4 w-4 text-[var(--muted-foreground)]" />
             <h3 className="font-heading text-base font-semibold">Shiprocket Live Rates</h3>
@@ -274,12 +274,12 @@ export default function ShippingSettingsPage() {
                 onClick={() => set("useShiprocketRates", !data.useShiprocketRates)}
                 className={
                   "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
-                  (data.useShiprocketRates ? "bg-violet-600" : "bg-gray-300")
+                  (data.useShiprocketRates ? "bg-primary" : "bg-border")
                 }
               >
                 <span
                   className={
-                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    "inline-block h-5 w-5 transform rounded-full bg-card shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
                     (data.useShiprocketRates ? "translate-x-6" : "translate-x-0.5")
                   }
                 />

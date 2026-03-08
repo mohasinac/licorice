@@ -34,7 +34,7 @@ export default async function AdminSupportPage({
         <div className="flex items-center gap-3">
           <h1 className="font-heading text-foreground text-3xl font-bold">Support Inbox</h1>
           {openCount > 0 && (
-            <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-bold text-red-700">
+            <span className="rounded-full bg-red-100 dark:bg-red-950/40 px-3 py-1 text-sm font-bold text-red-700 dark:text-red-400">
               {openCount} open
             </span>
           )}

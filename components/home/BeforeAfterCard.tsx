@@ -91,11 +91,11 @@ export function BeforeAfterCard({ item }: Props) {
 
         {/* Divider line */}
         <div
-          className="absolute top-0 bottom-0 z-10 w-0.5 bg-white shadow-md"
+          className="absolute top-0 bottom-0 z-10 w-0.5 bg-card shadow-md"
           style={{ left: `${position}%` }}
         >
           {/* Handle */}
-          <div className="absolute top-1/2 left-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg">
+          <div className="absolute top-1/2 left-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-card shadow-lg">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-foreground">
               <path
                 d="M4 8L1 5M4 8L1 11M4 8H12M12 8L15 5M12 8L15 11"

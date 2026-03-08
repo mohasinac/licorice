@@ -121,7 +121,7 @@ export function ConcernsClient({ initialConcerns }: Props) {
   }
 
   const inputCls =
-    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+    "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -143,7 +143,7 @@ export function ConcernsClient({ initialConcerns }: Props) {
 
       {/* Form dialog */}
       {showForm && (
-        <div className="mb-6 rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <div className="mb-6 rounded-2xl border border-[var(--border)] bg-card p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-lg font-semibold">
               {editing ? "Edit Concern" : "New Concern"}
@@ -212,13 +212,13 @@ export function ConcernsClient({ initialConcerns }: Props) {
       )}
 
       {concerns.length === 0 ? (
-        <div className="flex flex-col items-center rounded-2xl bg-white py-16 text-center shadow-sm">
+        <div className="flex flex-col items-center rounded-2xl bg-card py-16 text-center shadow-sm">
           <Target className="text-muted-foreground mb-3 h-10 w-10" />
           <p className="text-foreground font-medium">No concerns yet</p>
           <p className="text-muted-foreground mt-1 text-sm">Click "Add Concern" to create one.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl bg-card shadow-sm">
           <table className="w-full">
             <thead>
               <tr className="border-b text-left text-xs font-medium tracking-wider uppercase">
@@ -255,7 +255,7 @@ export function ConcernsClient({ initialConcerns }: Props) {
                       </button>
                       <button
                         onClick={() => handleDelete(concern)}
-                        className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-red-50 hover:text-red-600"
+                        className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                         title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />

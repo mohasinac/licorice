@@ -48,7 +48,7 @@ export default async function AdminConsultationsPage({
         <Calendar className="text-primary h-6 w-6" />
         <h1 className="font-heading text-foreground text-2xl font-bold">Consultations</h1>
         {upcoming.length > 0 && (
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
             {upcoming.length} upcoming
           </span>
         )}

@@ -43,7 +43,7 @@ export function QuantitySelector({ value, onChange, min = 1, max = 99 }: Quantit
           <Plus className="h-4 w-4" />
         </button>
       </div>
-      {nearlyOut && max > 0 && <p className="text-xs text-amber-600">Only {max} left</p>}
+      {nearlyOut && max > 0 && <p className="text-xs text-amber-600 dark:text-amber-400">Only {max} left</p>}
     </div>
   );
 }

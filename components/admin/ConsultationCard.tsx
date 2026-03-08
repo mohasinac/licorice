@@ -88,14 +88,14 @@ export function ConsultationCard({ consultation }: Props) {
             <button
               onClick={() => updateStatus("confirmed")}
               disabled={loading}
-              className="flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg bg-green-600 dark:bg-green-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
               <CheckCircle className="h-3.5 w-3.5" /> Confirm
             </button>
             <button
               onClick={() => updateStatus("cancelled")}
               disabled={loading}
-              className="flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg bg-red-600 dark:bg-red-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
             >
               <XCircle className="h-3.5 w-3.5" /> Cancel
             </button>
@@ -105,7 +105,7 @@ export function ConsultationCard({ consultation }: Props) {
           <button
             onClick={() => updateStatus("completed")}
             disabled={loading}
-            className="flex items-center gap-1 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+            className="flex items-center gap-1 rounded-lg bg-purple-600 dark:bg-purple-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50"
           >
             <CircleCheckBig className="h-3.5 w-3.5" /> Mark Complete
           </button>

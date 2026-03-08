@@ -184,7 +184,7 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
             )}
           </div>
 
-          <div className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+          <div className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
             Returns are accepted only for damaged, defective, wrong, or expired items within{" "}
             {RETURN_WINDOW_DAYS} days of delivery.
           </div>

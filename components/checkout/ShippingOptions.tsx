@@ -115,7 +115,7 @@ export function ShippingOptions({
               <span
                 className={[
                   "text-sm font-semibold",
-                  price === 0 ? "text-green-600" : "text-foreground",
+                  price === 0 ? "text-green-600 dark:text-green-400" : "text-foreground",
                 ].join(" ")}
               >
                 {price === 0 ? "Free" : fmt(price)}

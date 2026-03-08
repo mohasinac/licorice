@@ -22,6 +22,9 @@ import { SEED_INVENTORY } from "./inventory";
 import { SEED_TESTIMONIALS } from "./testimonials";
 import { SEED_PAGES } from "./pages";
 import { SEED_NAVIGATION } from "./navigation";
+import { SEED_PROMO_BANNERS } from "./promoBanners";
+import { SEED_BEFORE_AFTER } from "./beforeAfterGallery";
+import { SEED_MEDIA_KIT } from "./mediaKit";
 
 export const SEED_MAP: Record<string, SeedDoc[]> = {
   products: SEED_PRODUCTS as unknown as SeedDoc[],
@@ -42,7 +45,9 @@ export const SEED_MAP: Record<string, SeedDoc[]> = {
   testimonials: SEED_TESTIMONIALS as unknown as SeedDoc[],
   pages: SEED_PAGES as unknown as SeedDoc[],
   navigation: [SEED_NAVIGATION] as unknown as SeedDoc[],
-  promoBanners: [] as SeedDoc[],
+  promoBanners: SEED_PROMO_BANNERS as unknown as SeedDoc[],
+  beforeAfterGallery: SEED_BEFORE_AFTER as unknown as SeedDoc[],
+  mediaKit: SEED_MEDIA_KIT as unknown as SeedDoc[],
 };
 
 // Re-export raw arrays for direct use in db.ts
@@ -63,4 +68,7 @@ export {
   SEED_TESTIMONIALS,
   SEED_PAGES,
   SEED_NAVIGATION,
+  SEED_PROMO_BANNERS,
+  SEED_BEFORE_AFTER,
+  SEED_MEDIA_KIT,
 };

@@ -58,15 +58,15 @@ export function CouponInput({
 
   if (appliedCode) {
     return (
-      <div className="flex items-center justify-between rounded-lg bg-green-50 px-3 py-2 text-sm">
-        <div className="flex items-center gap-2 text-green-700">
+      <div className="flex items-center justify-between rounded-lg bg-green-50 dark:bg-green-950/30 px-3 py-2 text-sm">
+        <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
           <Tag className="h-4 w-4" />
           <span className="font-medium">{appliedCode}</span>
-          <span className="text-green-600">applied</span>
+          <span className="text-green-600 dark:text-green-400">applied</span>
         </div>
         <button
           onClick={onRemoved}
-          className="text-green-700 transition-colors hover:text-red-600"
+          className="text-green-700 transition-colors hover:text-red-600 dark:text-red-400"
           aria-label="Remove coupon"
         >
           <X className="h-4 w-4" />

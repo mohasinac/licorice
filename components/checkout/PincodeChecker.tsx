@@ -57,7 +57,7 @@ export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
         <div
           className={[
             "flex items-start gap-2 rounded-lg p-2 text-sm",
-            result.serviceable ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700",
+            result.serviceable ? "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400",
           ].join(" ")}
         >
           {loading ? (

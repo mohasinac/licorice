@@ -50,7 +50,7 @@ export function WhatsAppPaymentConfirm({
 
   if (confirmed) {
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-green-700">
+      <div className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-green-700 dark:bg-green-950/30 dark:text-green-400">
         <CheckCircle className="h-5 w-5 flex-none" />
         <span className="text-sm font-medium">Payment confirmed for #{orderNumber}</span>
       </div>

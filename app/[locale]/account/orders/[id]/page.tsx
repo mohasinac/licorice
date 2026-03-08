@@ -78,7 +78,7 @@ export default async function AccountOrderDetailPage({
               <span>₹{order.subtotal.toFixed(2)}</span>
             </div>
             {order.discount > 0 && (
-              <div className="flex justify-between text-green-700">
+              <div className="flex justify-between text-green-700 dark:text-green-400">
                 <span>Discount</span>
                 <span>−₹{order.discount.toFixed(2)}</span>
               </div>
@@ -168,14 +168,14 @@ export default async function AccountOrderDetailPage({
 
         {/* Return status */}
         {(order.orderStatus === "return_requested" || order.orderStatus === "return_picked_up") && (
-          <section className="rounded-2xl bg-amber-50 p-5 shadow-sm">
+          <section className="rounded-2xl bg-amber-50 dark:bg-amber-950/30 p-5 shadow-sm">
             <h2 className="mb-2 font-semibold text-amber-800">Return in Progress</h2>
             <p className="text-sm text-amber-700">
               Your return request has been received and is being processed. We&apos;ll keep you
               updated via email.
             </p>
             {order.returnReason && (
-              <p className="mt-2 text-xs text-amber-600">
+              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
                 Reason: <span className="font-medium">{order.returnReason.replace(/_/g, " ")}</span>
               </p>
             )}

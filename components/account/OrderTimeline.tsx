@@ -7,13 +7,13 @@ interface Props {
 }
 
 function iconForStatus(status: string) {
-  if (status === "delivered") return <CheckCircle className="h-5 w-5 text-green-600" />;
+  if (status === "delivered") return <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />;
   if (status === "cancelled" || status === "refunded")
-    return <XCircle className="h-5 w-5 text-red-400" />;
+    return <XCircle className="h-5 w-5 text-red-400 dark:text-red-500" />;
   if (status === "shipped" || status === "out_for_delivery")
-    return <Truck className="h-5 w-5 text-purple-600" />;
+    return <Truck className="h-5 w-5 text-purple-600 dark:text-purple-400" />;
   if (status === "processing" || status === "ready_to_ship")
-    return <Package className="h-5 w-5 text-blue-500" />;
+    return <Package className="h-5 w-5 text-blue-500 dark:text-blue-400" />;
   return <Circle className="h-5 w-5 text-amber-500" />;
 }
 

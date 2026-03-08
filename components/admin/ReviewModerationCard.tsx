@@ -94,7 +94,7 @@ export function ReviewModerationCard({
               {review.authorName ?? "Customer"}
             </span>
             {review.isVerifiedPurchase && (
-              <span className="flex items-center gap-1 text-xs text-green-600">
+              <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                 <CheckCircle className="h-3 w-3" />
                 Verified
               </span>
@@ -131,9 +131,9 @@ export function ReviewModerationCard({
 
       {/* Rejection reason (if rejected) */}
       {review.status === "rejected" && review.rejectionReason && (
-        <div className="mb-3 rounded-lg bg-red-50 px-4 py-3">
-          <p className="text-xs font-medium text-red-800">Rejection reason:</p>
-          <p className="mt-0.5 text-sm text-red-700">{review.rejectionReason}</p>
+        <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-950/30 px-4 py-3">
+          <p className="text-xs font-medium text-red-800 dark:text-red-400">Rejection reason:</p>
+          <p className="mt-0.5 text-sm text-red-700 dark:text-red-400">{review.rejectionReason}</p>
         </div>
       )}
 

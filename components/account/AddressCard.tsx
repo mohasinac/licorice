@@ -82,7 +82,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
             size="sm"
             onClick={handleDelete}
             loading={deleting}
-            className="gap-1 text-red-600 hover:text-red-700"
+            className="gap-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
           </Button>

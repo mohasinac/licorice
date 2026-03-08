@@ -75,7 +75,7 @@ export function BuyMoreSaveMore({ upsellProducts, currentProduct }: BuyMoreSaveM
       <div className="flex items-center justify-between">
         <div>
           <p className="text-foreground font-bold">{formatPrice(bundleTotal)}</p>
-          {savings > 0 && <p className="text-sm text-green-600">You save {formatPrice(savings)}</p>}
+          {savings > 0 && <p className="text-sm text-green-600 dark:text-green-400">You save {formatPrice(savings)}</p>}
         </div>
         <Button onClick={handleAddBundle}>
           <ShoppingBag className="h-4 w-4" /> Add Bundle

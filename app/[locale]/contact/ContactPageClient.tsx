@@ -120,13 +120,13 @@ export function ContactPageClient() {
 
           {/* Form / Success state */}
           {ticketNumber ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-green-50 p-8 text-center">
-              <CheckCircle2 className="mb-4 h-12 w-12 text-green-600" />
+            <div className="flex flex-col items-center justify-center rounded-2xl bg-green-50 dark:bg-green-950/30 p-8 text-center">
+              <CheckCircle2 className="mb-4 h-12 w-12 text-green-600 dark:text-green-400" />
               <h2 className="text-foreground text-xl font-semibold">Message Sent!</h2>
               <p className="text-muted-foreground mt-2 text-sm">
                 Your support ticket has been created.
               </p>
-              <p className="mt-3 rounded-lg bg-white px-4 py-2 font-mono text-sm font-semibold text-green-700 shadow-sm">
+              <p className="mt-3 rounded-lg bg-card px-4 py-2 font-mono text-sm font-semibold text-green-700 shadow-sm">
                 {ticketNumber}
               </p>
               <p className="text-muted-foreground mt-3 text-xs">

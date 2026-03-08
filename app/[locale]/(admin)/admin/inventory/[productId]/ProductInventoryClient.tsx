@@ -136,8 +136,8 @@ export function ProductInventoryClient({ product, inventory, movements }: Props)
                         <span
                           className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                             isRemoval
-                              ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
-                              : "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                              ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 dark:bg-red-950/50 dark:text-red-400"
+                              : "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400 dark:bg-green-950/50 dark:text-green-400"
                           }`}
                         >
                           {MOVEMENT_LABELS[m.type] ?? m.type}
@@ -148,7 +148,7 @@ export function ProductInventoryClient({ product, inventory, movements }: Props)
                       </td>
                       <td
                         className={`px-4 py-2.5 text-right font-semibold tabular-nums ${
-                          isRemoval ? "text-red-600" : "text-green-600"
+                          isRemoval ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"
                         }`}
                       >
                         {isRemoval ? "-" : "+"}

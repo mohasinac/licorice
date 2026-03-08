@@ -182,7 +182,7 @@ export function BlogForm({ blog, locale }: BlogFormProps) {
           placeholder="<h2>...</h2><p>...</p>"
           {...register("body")}
         />
-        {errors.body?.message && <p className="mt-1 text-sm text-red-600">{errors.body.message}</p>}
+        {errors.body?.message && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.body.message}</p>}
       </div>
 
       {/* Category + Author */}
@@ -200,7 +200,7 @@ export function BlogForm({ blog, locale }: BlogFormProps) {
             ))}
           </select>
           {errors.category?.message && (
-            <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.category.message}</p>
           )}
         </div>
         <Input

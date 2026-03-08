@@ -73,7 +73,7 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
         <div className="min-w-0 flex-1">
           <h2 className="font-heading text-foreground text-xl font-bold">{ticket.subject}</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            <span className="font-mono font-semibold text-green-700">{ticket.ticketNumber}</span>
+            <span className="font-mono font-semibold text-green-700 dark:text-green-400">{ticket.ticketNumber}</span>
             {" · "}
             Opened {formatDateTime(ticket.createdAt)}
           </p>
@@ -83,7 +83,7 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
 
       {/* Status banner for resolved/closed */}
       {isClosed && (
-        <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/30 dark:text-green-400">
           ✅ {STATUS_LABELS[ticket.status]} — This ticket has been{" "}
           {ticket.status === "resolved" ? "resolved" : "closed"}.{" "}
           {allowReply && (

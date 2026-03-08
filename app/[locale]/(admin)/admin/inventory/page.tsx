@@ -45,7 +45,7 @@ export default async function AdminInventoryPage() {
         <h1 className="font-heading text-foreground text-3xl font-bold">Inventory</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           {rows.length} variants ·{" "}
-          <span className="font-medium text-yellow-600">{lowCount} low stock</span> ·{" "}
+          <span className="font-medium text-yellow-600 dark:text-yellow-400">{lowCount} low stock</span> ·{" "}
           <span className="text-destructive font-medium">{oosCount} out of stock</span>
         </p>
       </div>

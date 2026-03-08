@@ -10,6 +10,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+#### Media Kit System
+
+- `app/[locale]/media-kit/page.tsx` — public media kit page listing downloadable brand assets (logos, brand guides, press releases, product images)
+- `app/[locale]/media-kit/MediaKitDownloads.tsx` — client-side download cards with category badges, file size display, and download tracking
+- `app/[locale]/(admin)/admin/media-kit/page.tsx` — admin media kit management page
+- `app/[locale]/(admin)/admin/media-kit/AdminMediaKitManager.tsx` — admin CRUD for media kit files with inline create/edit/delete
+- `app/api/admin/media-kit/route.ts` — POST create, PATCH update, DELETE media kit file APIs with admin auth
+- `app/api/media-kit/download/route.ts` — public download endpoint with download count tracking
+- `lib/db.ts` — added `getMediaKitFiles()`, `saveMediaKitFile()`, `deleteMediaKitFile()`, `incrementMediaKitDownload()`
+- `lib/types.ts` — added `MediaKitFile`, `MediaKitCategory` types
+- `lib/seeds/mediaKit.ts` — seed data for media kit files
+- Added "Media Kit" link with `FolderDown` icon to `AdminSidebar.tsx` under Content group
+
+#### Seed Data Expansion
+
+- `lib/seeds/promoBanners.ts` — seed data for promo banners (previously empty)
+- `lib/seeds/beforeAfterGallery.ts` — seed data for before/after gallery entries
+- `lib/seeds/index.ts` — registered new seed collections (promoBanners, beforeAfterGallery, mediaKit)
+
+#### Firestore Indexes
+
+- `firestore.indexes.json` — added composite indexes for `promoBanners` (isActive + sortOrder) and `mediaKit` (isActive + sortOrder)
+
+### Changed
+
+#### Dark Mode Polish (70+ components)
+
+- Added `dark:` variant classes across all admin pages, storefront pages, checkout, cart, account, and support components for full dark mode compatibility
+- `components/ui/Badge.tsx` — dark mode colour variants for success, warning, error, and info badges
+- `components/ui/Input.tsx` — dark mode error text colour
+- Updated form inputs, cards, tables, status badges, stat cards, charts, sidebar, timeline, and ticket UI with dark-aware styles
+
+#### i18n
+
+- `messages/en.json`, `messages/hi.json`, `messages/mr.json` — added `admin.mediaKit` translation key
+
+---
+
+## [Phase 10] — Admin Analytics, Dark Theme, Product CRUD, Promo Banners & PWA Icons
+
+### Added
+
 #### Admin Analytics Page
 
 - `app/[locale]/(admin)/admin/analytics/page.tsx` — server-rendered analytics page with economic and website growth charts; queries Firestore for paid orders, all orders, users, products, and reviews over a configurable rolling window

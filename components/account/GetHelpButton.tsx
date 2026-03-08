@@ -78,7 +78,7 @@ export function GetHelpButton({ orderId, orderNumber }: Props) {
                 <p className="text-muted-foreground text-sm">
                   Your support ticket has been created.
                 </p>
-                <p className="mt-3 rounded-lg bg-green-50 px-4 py-2 font-mono text-sm font-semibold text-green-700">
+                <p className="mt-3 rounded-lg bg-green-50 dark:bg-green-950/30 px-4 py-2 font-mono text-sm font-semibold text-green-700 dark:text-green-400">
                   {ticketNumber}
                 </p>
                 <p className="text-muted-foreground mt-3 text-xs">

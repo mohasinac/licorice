@@ -78,7 +78,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Heart
             className={[
               "h-4 w-4 transition-colors",
-              wished ? "fill-red-500 text-red-500" : "text-foreground",
+              wished ? "fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" : "text-foreground",
             ].join(" ")}
           />
         </button>

@@ -98,7 +98,7 @@ export function OrderSummary({
           <span>{fmt(subtotal)}</span>
         </div>
         {discount > 0 && (
-          <div className="flex justify-between text-green-600">
+          <div className="flex justify-between text-green-600 dark:text-green-400">
             <span>Discount {couponCode && `(${couponCode})`}</span>
             <span>−{fmt(discount)}</span>
           </div>
@@ -113,7 +113,7 @@ export function OrderSummary({
         )}
         <div className="flex justify-between">
           <span className="text-muted-foreground">Shipping</span>
-          <span className={shipping === 0 ? "font-medium text-green-600" : ""}>
+          <span className={shipping === 0 ? "font-medium text-green-600 dark:text-green-400" : ""}>
             {shipping === 0 ? "Free" : fmt(shipping)}
           </span>
         </div>

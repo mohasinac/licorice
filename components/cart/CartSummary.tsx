@@ -62,7 +62,7 @@ export function CartSummary({
       </div>
 
       {discount > 0 && couponCode && (
-        <div className="flex justify-between text-green-600">
+        <div className="flex justify-between text-green-600 dark:text-green-400">
           <span>Discount ({couponCode})</span>
           <span>−{fmt(discount)}</span>
         </div>
@@ -82,7 +82,7 @@ export function CartSummary({
           <span className="text-muted-foreground">Shipping</span>
           <span
             className={
-              shipping === 0 ? "font-medium text-green-600" : "text-foreground font-medium"
+              shipping === 0 ? "font-medium text-green-600 dark:text-green-400" : "text-foreground font-medium"
             }
           >
             {shipping === 0 ? "Free" : fmt(shipping)}

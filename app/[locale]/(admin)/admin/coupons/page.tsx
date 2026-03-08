@@ -43,7 +43,7 @@ export default async function AdminCouponsPage() {
       </div>
 
       {coupons.length === 0 ? (
-        <div className="flex flex-col items-center rounded-2xl bg-white py-16 text-center shadow-sm">
+        <div className="flex flex-col items-center rounded-2xl bg-card py-16 text-center shadow-sm">
           <Ticket className="text-muted-foreground mb-3 h-10 w-10" />
           <p className="text-foreground font-medium">No coupons yet</p>
           <p className="text-muted-foreground mt-1 text-sm">
@@ -51,7 +51,7 @@ export default async function AdminCouponsPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl bg-card shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -98,7 +98,7 @@ export default async function AdminCouponsPage() {
                     <td className="px-4 py-3">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          coupon.isActive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                          coupon.isActive ? "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
                         }`}
                       >
                         {coupon.isActive ? "Active" : "Inactive"}

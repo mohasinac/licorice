@@ -69,10 +69,10 @@ export default function CartPage() {
           <div className="lg:col-span-2">
             {/* Free shipping progress */}
             {remaining > 0 && (
-              <div className="border-border mb-6 rounded-xl border bg-white p-4">
+              <div className="border-border mb-6 rounded-xl border bg-card p-4">
                 <p className="text-muted-foreground text-sm">
                   Add <span className="text-primary font-semibold">{fmt(remaining)}</span> more for{" "}
-                  <span className="font-semibold text-green-600">free shipping</span>
+                  <span className="font-semibold text-green-600 dark:text-green-400">free shipping</span>
                 </p>
                 <div className="bg-muted mt-2 h-2 overflow-hidden rounded-full">
                   <div
@@ -85,7 +85,7 @@ export default function CartPage() {
               </div>
             )}
 
-            <div className="border-border rounded-xl border bg-white">
+            <div className="border-border rounded-xl border bg-card">
               <ul className="divide-border divide-y px-5">
                 {items.map((item) => (
                   <CartItem key={item.variantId} item={item} />
@@ -111,7 +111,7 @@ export default function CartPage() {
 
           {/* Summary sidebar */}
           <div className="lg:col-span-1">
-            <div className="border-border sticky top-24 space-y-6 rounded-xl border bg-white p-6">
+            <div className="border-border sticky top-24 space-y-6 rounded-xl border bg-card p-6">
               <h2 className="font-heading text-foreground text-lg font-semibold">Order Summary</h2>
 
               <CartSummary

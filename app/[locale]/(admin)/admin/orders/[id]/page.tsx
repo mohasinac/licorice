@@ -81,7 +81,7 @@ export default async function AdminOrderDetailPage({
                 <span>₹{order.subtotal.toFixed(2)}</span>
               </div>
               {order.discount > 0 && (
-                <div className="flex justify-between text-green-700">
+                <div className="flex justify-between text-green-700 dark:text-green-400">
                   <span>Discount {order.couponCode ? `(${order.couponCode})` : ""}</span>
                   <span>−₹{order.discount.toFixed(2)}</span>
                 </div>
@@ -213,7 +213,7 @@ export default async function AdminOrderDetailPage({
               {order.manualShipping && (
                 <div className="flex justify-between">
                   <dt>Source</dt>
-                  <dd className="text-amber-600">Manual</dd>
+                  <dd className="text-amber-600 dark:text-amber-400">Manual</dd>
                 </div>
               )}
               <div className="flex justify-between">

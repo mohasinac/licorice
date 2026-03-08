@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -23,7 +23,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
+  "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
 
 const emptyBanner = (): Omit<PromoBanner, "id" | "createdAt"> => ({
   text: "",
@@ -70,7 +70,7 @@ export default function PromoBannersPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-5">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-card px-6 py-5">
         <div>
           <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">Promo Banners</h1>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">Manage promotional banners across the site.</p>
@@ -84,7 +84,7 @@ export default function PromoBannersPage() {
       </div>
       <div className="mx-auto max-w-4xl px-6 py-8">
         {editing && (
-          <div className="mb-8 rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+          <div className="mb-8 rounded-xl border border-[var(--border)] bg-card p-6 shadow-sm">
             <h3 className="mb-4 font-heading text-lg font-semibold">{form.id ? "Edit" : "New"} Promo Banner</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
@@ -121,14 +121,14 @@ export default function PromoBannersPage() {
               <div>
                 <label className="mb-1 block text-sm font-medium">Background Color</label>
                 <div className="flex items-center gap-2">
-                  <input type="color" value={form.bgColor || "#eff6ff"} onChange={(e) => setForm({ ...form, bgColor: e.target.value })} className="h-9 w-10 cursor-pointer rounded border border-gray-300" />
+                  <input type="color" value={form.bgColor || "#eff6ff"} onChange={(e) => setForm({ ...form, bgColor: e.target.value })} className="h-9 w-10 cursor-pointer rounded border border-border" />
                   <input className={inputCls} value={form.bgColor || ""} placeholder="e.g. #ecfdf5" onChange={(e) => setForm({ ...form, bgColor: e.target.value || undefined })} />
                 </div>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Text Color</label>
                 <div className="flex items-center gap-2">
-                  <input type="color" value={form.textColor || "#1e40af"} onChange={(e) => setForm({ ...form, textColor: e.target.value })} className="h-9 w-10 cursor-pointer rounded border border-gray-300" />
+                  <input type="color" value={form.textColor || "#1e40af"} onChange={(e) => setForm({ ...form, textColor: e.target.value })} className="h-9 w-10 cursor-pointer rounded border border-border" />
                   <input className={inputCls} value={form.textColor || ""} placeholder="e.g. #065f46" onChange={(e) => setForm({ ...form, textColor: e.target.value || undefined })} />
                 </div>
               </div>
@@ -149,7 +149,7 @@ export default function PromoBannersPage() {
             </div>
             {form.text && (
               <div className="mt-4">
-                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-500"><Eye className="h-3.5 w-3.5" /> Preview</label>
+                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-muted-foreground"><Eye className="h-3.5 w-3.5" /> Preview</label>
                 <PromoBannerStrip banners={[{ id: "preview", text: form.text, type: form.type, scope: form.scope, isActive: true, sortOrder: 0, createdAt: new Date(), badgeLabel: form.badgeLabel, couponCode: form.couponCode, bgColor: form.bgColor, textColor: form.textColor } as PromoBanner]} />
               </div>
             )}
@@ -166,10 +166,10 @@ export default function PromoBannersPage() {
         ) : (
           <div className="space-y-4">
             {items.map((b) => (
-              <div key={b.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <div key={b.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-card p-5 shadow-sm">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium">{b.text}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${b.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{b.isActive ? "Active" : "Inactive"}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${b.isActive ? "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400" : "bg-muted text-muted-foreground"}`}>{b.isActive ? "Active" : "Inactive"}</span>
                   <span className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]">{b.type}</span>
                   <span className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]">{b.scope}</span>
                 </div>

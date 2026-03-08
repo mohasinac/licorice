@@ -16,6 +16,7 @@ interface CategoryGridProps {
 }
 
 export async function CategoryGrid({ categories }: CategoryGridProps) {
+  if (categories.length === 0) return null;
 
   return (
     <section className="py-20">

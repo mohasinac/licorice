@@ -100,15 +100,15 @@ export function TicketInbox({ tickets, locale = "en" }: Props) {
               <div
                 key={ticket.id}
                 onClick={() => router.push(`/admin/support/${ticket.id}`)}
-                className={`bg-surface flex cursor-pointer items-start gap-4 px-5 py-4 transition-colors hover:bg-gray-50 ${
+                className={`bg-surface flex cursor-pointer items-start gap-4 px-5 py-4 transition-colors hover:bg-muted ${
                   isOld && (ticket.status === "open" || ticket.status === "in_progress")
-                    ? "border-l-4 border-amber-400"
+                    ? "border-l-4 border-amber-400 dark:border-amber-600"
                     : ""
                 }`}
               >
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-green-700">
+                    <span className="font-mono text-xs font-semibold text-green-700 dark:text-green-400">
                       {ticket.ticketNumber}
                     </span>
                     <StatusBadge status={ticket.status} type="ticket" />
@@ -116,7 +116,7 @@ export function TicketInbox({ tickets, locale = "en" }: Props) {
                       {CATEGORY_LABELS[ticket.category] ?? ticket.category}
                     </span>
                     {isOld && (ticket.status === "open" || ticket.status === "in_progress") && (
-                      <span className="flex items-center gap-1 text-xs text-amber-600">
+                      <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
                         <AlertTriangle className="h-3 w-3" /> Overdue
                       </span>
                     )}

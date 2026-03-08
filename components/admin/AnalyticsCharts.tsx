@@ -323,15 +323,15 @@ function LowInventoryTable({ items }: { items: LowStockItem[] }) {
               </td>
               <td className="py-2 text-right">
                 {item.stock <= 0 ? (
-                  <span className="inline-block rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                  <span className="inline-block rounded-full bg-red-100 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-semibold text-red-700 dark:text-red-400">
                     Out of stock
                   </span>
                 ) : item.stock <= 5 ? (
-                  <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                  <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
                     Critical
                   </span>
                 ) : (
-                  <span className="inline-block rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold text-yellow-700">
+                  <span className="inline-block rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400">
                     Low
                   </span>
                 )}

@@ -1,0 +1,51 @@
+import type { MediaKitFile } from "@/lib/types";
+
+const now = new Date();
+
+export const SEED_MEDIA_KIT: (MediaKitFile & { id: string })[] = [
+  {
+    id: "mk_logo_primary",
+    title: "Primary Logo (SVG)",
+    description: "Full-colour Licorice Herbals logo for digital and print use.",
+    fileUrl: "/images/logo.svg",
+    fileName: "licorice-herbals-logo.svg",
+    fileSize: 12400,
+    mimeType: "image/svg+xml",
+    category: "logo",
+    sortOrder: 1,
+    isActive: true,
+    downloads: 0,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "mk_brand_guide",
+    title: "Brand Guidelines (PDF)",
+    description: "Colours, typography, tone-of-voice and logo usage rules.",
+    fileUrl: "/docs/brand-guide.pdf",
+    fileName: "licorice-herbals-brand-guide.pdf",
+    fileSize: 2_450_000,
+    mimeType: "application/pdf",
+    category: "brand-guide",
+    sortOrder: 2,
+    isActive: true,
+    downloads: 0,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "mk_product_images",
+    title: "Product Photo Pack (ZIP)",
+    description: "High-resolution product images for editorial and press use.",
+    fileUrl: "/docs/product-images.zip",
+    fileName: "licorice-herbals-product-photos.zip",
+    fileSize: 18_500_000,
+    mimeType: "application/zip",
+    category: "product-images",
+    sortOrder: 3,
+    isActive: true,
+    downloads: 0,
+    createdAt: now,
+    updatedAt: now,
+  },
+];

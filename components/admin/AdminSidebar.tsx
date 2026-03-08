@@ -27,6 +27,7 @@ import {
   ChevronDown,
   Ticket,
   CreditCard,
+  FolderDown,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -74,6 +75,11 @@ export function AdminSidebar() {
           icon: <Megaphone className="h-4 w-4" />,
         },
         { label: "Static Pages", href: `${base}/pages`, icon: <FileText className="h-4 w-4" /> },
+        {
+          label: "Media Kit",
+          href: `${base}/media-kit`,
+          icon: <FolderDown className="h-4 w-4" />,
+        },
       ],
     },
     {

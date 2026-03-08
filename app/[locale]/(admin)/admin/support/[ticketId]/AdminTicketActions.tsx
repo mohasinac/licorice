@@ -98,7 +98,7 @@ export function AdminTicketActions({ ticket, messages }: Props) {
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
                   isInternal
-                    ? "border border-gray-300 bg-gray-50 text-gray-600"
+                    ? "border border-border bg-muted text-muted-foreground"
                     : isAdmin
                       ? "bg-muted text-foreground"
                       : "bg-primary text-white"
@@ -133,7 +133,7 @@ export function AdminTicketActions({ ticket, messages }: Props) {
               checked={isInternalNote}
               onChange={(e) => setIsInternalNote(e.target.checked)}
             />
-            <Lock className="h-3.5 w-3.5 text-gray-500" />
+            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
             Internal Note (not visible to customer)
           </label>
         </div>

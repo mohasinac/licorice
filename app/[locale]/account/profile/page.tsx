@@ -95,9 +95,9 @@ export default function ProfilePage() {
       </form>
 
       {/* Danger zone */}
-      <div className="mt-10 rounded-2xl border border-red-200 bg-red-50 p-6">
-        <h2 className="mb-1 text-base font-semibold text-red-700">Delete Account</h2>
-        <p className="mb-4 text-sm text-red-600">
+      <div className="mt-10 rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 p-6">
+        <h2 className="mb-1 text-base font-semibold text-red-700 dark:text-red-400">Delete Account</h2>
+        <p className="mb-4 text-sm text-red-600 dark:text-red-400">
           This permanently deletes your account and all associated data. This action cannot be
           undone.
         </p>
@@ -106,7 +106,7 @@ export default function ProfilePage() {
             value={deleteConfirm}
             onChange={(e) => setDeleteConfirm(e.target.value)}
             placeholder='Type "DELETE" to confirm'
-            className="border-red-300 bg-white focus:ring-red-400"
+            className="border-red-300 bg-card dark:border-red-800 focus:ring-red-400"
           />
           <Button
             type="submit"

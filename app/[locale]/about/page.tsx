@@ -94,7 +94,7 @@ export default function AboutPage() {
                 desc: "Free consultations, transparent policies, and a support team that genuinely cares.",
               },
             ].map((card) => (
-              <div key={card.title} className="ayur-card border-border rounded-2xl border bg-white p-6">
+              <div key={card.title} className="ayur-card border-border rounded-2xl border bg-card p-6">
                 <h3 className="font-heading text-foreground mb-2 text-lg font-semibold">
                   {card.title}
                 </h3>

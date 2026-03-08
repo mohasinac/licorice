@@ -27,6 +27,7 @@ import type {
   PageDoc,
   ConsultationConfig,
   PromoBanner,
+  MediaKitFile,
 } from "@/lib/types";
 
 // ── Product filters ───────────────────────────────────────────────────────────
@@ -72,24 +73,28 @@ function stripTimestamps<T>(obj: T): T {
 // ── Products ─────────────────────────────────────────────────────────────────
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb.collection("products").where("isActive", "==", true);
-  if (filters?.category) query = query.where("category", "==", filters.category);
-  if (filters?.isFeatured !== undefined)
-    query = query.where("isFeatured", "==", filters.isFeatured);
-  if (filters?.isCombo !== undefined) query = query.where("isCombo", "==", filters.isCombo);
-  // When combining concern (client-side filter) with limit, fetch more to compensate
-  if (filters?.limit && filters?.concern) {
-    query = query.limit(filters.limit * 3);
-  } else if (filters?.limit) {
-    query = query.limit(filters.limit);
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb.collection("products").where("isActive", "==", true);
+    if (filters?.category) query = query.where("category", "==", filters.category);
+    if (filters?.isFeatured !== undefined)
+      query = query.where("isFeatured", "==", filters.isFeatured);
+    if (filters?.isCombo !== undefined) query = query.where("isCombo", "==", filters.isCombo);
+    // When combining concern (client-side filter) with limit, fetch more to compensate
+    if (filters?.limit && filters?.concern) {
+      query = query.limit(filters.limit * 3);
+    } else if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    const snap = await query.get();
+    if (snap.empty) return [];
+    let results = snap.docs.map((d) => stripTimestamps(d.data() as Product));
+    if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
+    if (filters?.limit) results = results.slice(0, filters.limit);
+    return results.sort((a, b) => a.sortOrder - b.sortOrder);
+  } catch {
+    return [];
   }
-  const snap = await query.get();
-  if (snap.empty) return [];
-  let results = snap.docs.map((d) => stripTimestamps(d.data() as Product));
-  if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
-  if (filters?.limit) results = results.slice(0, filters.limit);
-  return results.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
@@ -114,9 +119,13 @@ export async function getProductById(id: string): Promise<Product | null> {
 // ── Products (admin write) ────────────────────────────────────────────────────
 
 export async function getAllProducts(): Promise<Product[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("products").orderBy("sortOrder", "asc").get();
-  return snap.docs.map((d) => stripTimestamps({ id: d.id, ...d.data() } as Product));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("products").orderBy("sortOrder", "asc").get();
+    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...d.data() } as Product));
+  } catch {
+    return [];
+  }
 }
 
 export async function saveProduct(
@@ -152,29 +161,41 @@ export async function deleteProduct(id: string): Promise<void> {
 // ── Categories & Concerns ─────────────────────────────────────────────────────
 
 export async function getCategories(): Promise<Category[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("categories").get();
-  return snap.docs.map((d) => d.data() as Category);
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("categories").get();
+    return snap.docs.map((d) => d.data() as Category);
+  } catch {
+    return [];
+  }
 }
 
 export async function getConcerns(): Promise<Concern[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("concerns").get();
-  return snap.docs.map((d) => d.data() as Concern);
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("concerns").get();
+    return snap.docs.map((d) => d.data() as Concern);
+  } catch {
+    return [];
+  }
 }
 
 // ── Blogs ─────────────────────────────────────────────────────────────────────
 
 export async function getBlogs(category?: BlogCategory, limit?: number): Promise<Blog[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb
-    .collection("blogs")
-    .where("status", "==", "published")
-    .orderBy("publishedAt", "desc");
-  if (category) query = query.where("category", "==", category);
-  if (limit) query = query.limit(limit);
-  const snap = await query.get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as Blog));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("blogs")
+      .where("status", "==", "published")
+      .orderBy("publishedAt", "desc");
+    if (category) query = query.where("category", "==", category);
+    if (limit) query = query.limit(limit);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as Blog));
+  } catch {
+    return [];
+  }
 }
 
 export async function getBlog(slug: string): Promise<Blog | null> {
@@ -192,9 +213,13 @@ export async function getBlog(slug: string): Promise<Blog | null> {
 // ── Coupons ───────────────────────────────────────────────────────────────────
 
 export async function getCoupons(): Promise<Coupon[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("coupons").orderBy("createdAt", "desc").get();
-  return snap.docs.map((d) => stripTimestamps({ ...d.data(), code: d.id } as Coupon));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("coupons").orderBy("createdAt", "desc").get();
+    return snap.docs.map((d) => stripTimestamps({ ...d.data(), code: d.id } as Coupon));
+  } catch {
+    return [];
+  }
 }
 
 export async function createCoupon(
@@ -227,86 +252,110 @@ export async function getCoupon(code: string): Promise<Coupon | null> {
 
 
 export async function getApprovedReviews(limit?: number): Promise<Review[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb
-    .collection("reviews")
-    .where("status", "==", "approved")
-    .orderBy("createdAt", "desc");
-  if (limit) query = query.limit(limit);
-  const snap = await query.get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as Review));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("reviews")
+      .where("status", "==", "approved")
+      .orderBy("createdAt", "desc");
+    if (limit) query = query.limit(limit);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as Review));
+  } catch {
+    return [];
+  }
 }
 
 export async function getProductReviews(productId: string): Promise<Review[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb
-    .collection("reviews")
-    .where("productId", "==", productId)
-    .where("status", "==", "approved")
-    .orderBy("createdAt", "desc")
-    .get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as Review));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("reviews")
+      .where("productId", "==", productId)
+      .where("status", "==", "approved")
+      .orderBy("createdAt", "desc")
+      .get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as Review));
+  } catch {
+    return [];
+  }
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 
 export async function getSiteConfig(): Promise<SiteConfig> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("settings").doc("siteConfig").get();
-  return stripTimestamps(
-    (doc.data() as SiteConfig | undefined) ?? {
-      announcementText: "",
-      maintenanceMode: false,
-      orderCounter: 0,
-      logoUrl: "",
-    },
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("siteConfig").get();
+    return stripTimestamps(
+      (doc.data() as SiteConfig | undefined) ?? {
+        announcementText: "",
+        maintenanceMode: false,
+        orderCounter: 0,
+        logoUrl: "",
+      },
+    );
+  } catch {
+    return { announcementText: "", maintenanceMode: false, orderCounter: 0, logoUrl: "" } as SiteConfig;
+  }
 }
 
 export async function getPaymentSettings(): Promise<PaymentSettings> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("settings").doc("paymentSettings").get();
-  return stripTimestamps(
-    (doc.data() as PaymentSettings | undefined) ?? {
-      whatsappEnabled: false,
-      whatsappUpiId: "",
-      whatsappBusinessNumber: "",
-      razorpayEnabled: false,
-      codEnabled: false,
-      codFee: 0,
-    },
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("paymentSettings").get();
+    return stripTimestamps(
+      (doc.data() as PaymentSettings | undefined) ?? {
+        whatsappEnabled: false,
+        whatsappUpiId: "",
+        whatsappBusinessNumber: "",
+        razorpayEnabled: false,
+        codEnabled: false,
+        codFee: 0,
+      },
+    );
+  } catch {
+    return { whatsappEnabled: false, whatsappUpiId: "", whatsappBusinessNumber: "", razorpayEnabled: false, codEnabled: false, codFee: 0 } as PaymentSettings;
+  }
 }
 
 export async function getShippingRules(): Promise<ShippingRules> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("settings").doc("shippingRules").get();
-  return stripTimestamps(
-    (doc.data() as ShippingRules | undefined) ?? {
-      freeShippingThreshold: 0,
-      standardRate: 0,
-      codFee: 0,
-      codEnabled: false,
-      expressEnabled: false,
-      sameDayEnabled: false,
-      gstPercent: 0,
-      gstIncluded: false,
-      useShiprocketRates: false,
-    },
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("shippingRules").get();
+    return stripTimestamps(
+      (doc.data() as ShippingRules | undefined) ?? {
+        freeShippingThreshold: 0,
+        standardRate: 0,
+        codFee: 0,
+        codEnabled: false,
+        expressEnabled: false,
+        sameDayEnabled: false,
+        gstPercent: 0,
+        gstIncluded: false,
+        useShiprocketRates: false,
+      },
+    );
+  } catch {
+    return { freeShippingThreshold: 0, standardRate: 0, codFee: 0, codEnabled: false, expressEnabled: false, sameDayEnabled: false, gstPercent: 0, gstIncluded: false, useShiprocketRates: false } as ShippingRules;
+  }
 }
 
 export async function getInventorySettings(): Promise<InventorySettings> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("settings").doc("inventorySettings").get();
-  return stripTimestamps(
-    (doc.data() as InventorySettings | undefined) ?? {
-      defaultLowStockThreshold: 10,
-      defaultReorderPoint: 5,
-      defaultStockPerVariant: 0,
-      reservationTimeoutMinutes: 30,
-    },
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("inventorySettings").get();
+    return stripTimestamps(
+      (doc.data() as InventorySettings | undefined) ?? {
+        defaultLowStockThreshold: 10,
+        defaultReorderPoint: 5,
+        defaultStockPerVariant: 0,
+        reservationTimeoutMinutes: 30,
+      },
+    );
+  } catch {
+    return { defaultLowStockThreshold: 10, defaultReorderPoint: 5, defaultStockPerVariant: 0, reservationTimeoutMinutes: 30 } as InventorySettings;
+  }
 }
 
 // ── Settings write functions ──────────────────────────────────────────────────
@@ -369,16 +418,20 @@ export async function getStockMovements(
   variantId?: string,
   limit = 50,
 ): Promise<StockMovement[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb
-    .collection("inventory")
-    .doc(productId)
-    .collection("movements")
-    .orderBy("createdAt", "desc")
-    .limit(limit);
-  if (variantId) query = query.where("variantId", "==", variantId);
-  const snap = await query.get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as StockMovement));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("inventory")
+      .doc(productId)
+      .collection("movements")
+      .orderBy("createdAt", "desc")
+      .limit(limit);
+    if (variantId) query = query.where("variantId", "==", variantId);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as StockMovement));
+  } catch {
+    return [];
+  }
 }
 
 export async function adjustStock(
@@ -432,25 +485,33 @@ export async function getOrders(filters?: {
   paymentStatus?: string;
   limit?: number;
 }): Promise<Order[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb.collection("orders").orderBy("createdAt", "desc");
-  if (filters?.userId) query = query.where("userId", "==", filters.userId);
-  if (filters?.orderStatus) query = query.where("orderStatus", "==", filters.orderStatus);
-  if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus);
-  if (filters?.limit) query = query.limit(filters.limit);
-  const snap = await query.get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as Order));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb.collection("orders").orderBy("createdAt", "desc");
+    if (filters?.userId) query = query.where("userId", "==", filters.userId);
+    if (filters?.orderStatus) query = query.where("orderStatus", "==", filters.orderStatus);
+    if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus);
+    if (filters?.limit) query = query.limit(filters.limit);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as Order));
+  } catch {
+    return [];
+  }
 }
 
 export async function getOrderTimeline(orderId: string): Promise<OrderEvent[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb
-    .collection("orders")
-    .doc(orderId)
-    .collection("timeline")
-    .orderBy("createdAt", "asc")
-    .get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as OrderEvent));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("orders")
+      .doc(orderId)
+      .collection("timeline")
+      .orderBy("createdAt", "asc")
+      .get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as OrderEvent));
+  } catch {
+    return [];
+  }
 }
 
 export async function updateOrderStatus(
@@ -515,11 +576,15 @@ export async function saveUserAddress(userId: string, address: Address): Promise
 // ── Reviews (admin) ───────────────────────────────────────────────────────────
 
 export async function getAllReviews(status?: Review["status"]): Promise<Review[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb.collection("reviews").orderBy("createdAt", "desc");
-  if (status) query = query.where("status", "==", status);
-  const snap = await query.get();
-  return snap.docs.map((d) => stripTimestamps(d.data() as Review));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb.collection("reviews").orderBy("createdAt", "desc");
+    if (status) query = query.where("status", "==", status);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps(d.data() as Review));
+  } catch {
+    return [];
+  }
 }
 
 export async function getReviewById(reviewId: string): Promise<Review | null> {
@@ -530,19 +595,27 @@ export async function getReviewById(reviewId: string): Promise<Review | null> {
 }
 
 export async function getPendingReviewCount(): Promise<number> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("reviews").where("status", "==", "pending").count().get();
-  return snap.data().count;
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("reviews").where("status", "==", "pending").count().get();
+    return snap.data().count ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 // ── Blogs (admin) ─────────────────────────────────────────────────────────────
 
 export async function getAllBlogs(status?: Blog["status"]): Promise<Blog[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
-  if (status) query = query.where("status", "==", status);
-  const snap = await query.get();
-  return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
+    if (status) query = query.where("status", "==", status);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
+  } catch {
+    return [];
+  }
 }
 
 export async function getBlogById(id: string): Promise<Blog | null> {
@@ -582,19 +655,23 @@ export async function deleteBlog(id: string): Promise<void> {
 // ── Newsletter (admin) ────────────────────────────────────────────────────────
 
 export async function getNewsletterSubscribers(): Promise<{ email: string; subscribedAt: Date }[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb
-    .collection("newsletter")
-    .orderBy("subscribedAt", "desc")
-    .limit(500)
-    .get();
-  return snap.docs.map((d) => {
-    const data = d.data();
-    return {
-      email: data.email ?? "",
-      subscribedAt: data.subscribedAt?.toDate?.() ?? new Date(),
-    };
-  });
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("newsletter")
+      .orderBy("subscribedAt", "desc")
+      .limit(500)
+      .get();
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        email: data.email ?? "",
+        subscribedAt: data.subscribedAt?.toDate?.() ?? new Date(),
+      };
+    });
+  } catch {
+    return [];
+  }
 }
 
 // ── Before/After Gallery ──────────────────────────────────────────────────────
@@ -609,29 +686,37 @@ export interface BeforeAfterItem {
 }
 
 export async function getBeforeAfterItems(): Promise<BeforeAfterItem[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb
-    .collection("beforeAfterGallery")
-    .orderBy("sortOrder", "asc")
-    .limit(10)
-    .get();
-  return snap.docs.map((d) => ({
-    id: d.id,
-    ...(d.data() as Omit<BeforeAfterItem, "id">),
-  }));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb
+      .collection("beforeAfterGallery")
+      .orderBy("sortOrder", "asc")
+      .limit(10)
+      .get();
+    return snap.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<BeforeAfterItem, "id">),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 export async function getNavigation(): Promise<NavigationConfig> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("navigation").doc("navigation").get();
-  return (
-    (doc.data() as NavigationConfig | undefined) ?? {
-      mainNav: [],
-      footerNav: { shop: [], account: [], policies: [] },
-    }
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("navigation").doc("navigation").get();
+    return (
+      (doc.data() as NavigationConfig | undefined) ?? {
+        mainNav: [],
+        footerNav: { shop: [], account: [], policies: [] },
+      }
+    );
+  } catch {
+    return { mainNav: [], footerNav: { shop: [], account: [], policies: [] } };
+  }
 }
 
 export async function updateNavigation(data: Partial<NavigationConfig>): Promise<void> {
@@ -642,6 +727,7 @@ export async function updateNavigation(data: Partial<NavigationConfig>): Promise
 // ── Homepage Sections ─────────────────────────────────────────────────────────
 
 export async function getHomepageSections(): Promise<HomepageSections> {
+  try {
   const { adminDb } = await import("@/lib/firebase/admin");
   const doc = await adminDb.collection("settings").doc("homepageSections").get();
   return (
@@ -673,6 +759,9 @@ export async function getHomepageSections(): Promise<HomepageSections> {
       },
     }
   );
+  } catch {
+    return { heroBanner: { headline: "", subheadline: "", primaryCtaText: "", primaryCtaHref: "/shop", secondaryCtaText: "", secondaryCtaHref: "" }, featuredProductIds: [], newArrivalIds: [], brandValues: [], instagramReels: [], trustBadges: [], brandStory: { tag: "", headline: "", body: "" }, sectionVisibility: { showBeforeAfter: false, showTestimonials: false, showBlog: false, showNewsletter: false, showBrandValues: false, showInstagramReels: false, showTrustBadges: false, showBrandStory: false, showConcernGrid: false } } as HomepageSections;
+  }
 }
 
 export async function updateHomepageSections(data: Partial<HomepageSections>): Promise<void> {
@@ -683,24 +772,32 @@ export async function updateHomepageSections(data: Partial<HomepageSections>): P
 // ── Testimonials ──────────────────────────────────────────────────────────────
 
 export async function getTestimonials(limit?: number): Promise<Testimonial[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  let query: FirebaseFirestore.Query = adminDb
-    .collection("testimonials")
-    .where("isActive", "==", true)
-    .orderBy("sortOrder", "asc");
-  if (limit) query = query.limit(limit);
-  const snap = await query.get();
-  return snap.docs.map((d) =>
-    stripTimestamps({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }),
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("testimonials")
+      .where("isActive", "==", true)
+      .orderBy("sortOrder", "asc");
+    if (limit) query = query.limit(limit);
+    const snap = await query.get();
+    return snap.docs.map((d) =>
+      stripTimestamps({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }),
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function getAllTestimonials(): Promise<Testimonial[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("testimonials").orderBy("sortOrder", "asc").get();
-  return snap.docs.map((d) =>
-    stripTimestamps({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }),
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("testimonials").orderBy("sortOrder", "asc").get();
+    return snap.docs.map((d) =>
+      stripTimestamps({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }),
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function saveTestimonial(
@@ -738,9 +835,13 @@ export async function getPage(pageId: string): Promise<PageDoc | null> {
 }
 
 export async function getAllPages(): Promise<PageDoc[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("pages").get();
-  return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<PageDoc, "id">) }));
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("pages").get();
+    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<PageDoc, "id">) }));
+  } catch {
+    return [];
+  }
 }
 
 export async function savePage(page: PageDoc): Promise<void> {
@@ -756,21 +857,25 @@ export async function savePage(page: PageDoc): Promise<void> {
 // ── Consultation Config ───────────────────────────────────────────────────────
 
 export async function getConsultationConfig(): Promise<ConsultationConfig> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("settings").doc("consultationConfig").get();
-  return (
-    (doc.data() as ConsultationConfig | undefined) ?? {
-      consultantName: "",
-      consultantTitle: "",
-      consultantBio: "",
-      consultationDurationMinutes: 30,
-      availableTimeSlots: [],
-      blockedDates: [],
-      isEnabled: false,
-      clinicName: "",
-      clinicAddress: "",
-    }
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("consultationConfig").get();
+    return (
+      (doc.data() as ConsultationConfig | undefined) ?? {
+        consultantName: "",
+        consultantTitle: "",
+        consultantBio: "",
+        consultationDurationMinutes: 30,
+        availableTimeSlots: [],
+        blockedDates: [],
+        isEnabled: false,
+        clinicName: "",
+        clinicAddress: "",
+      }
+    );
+  } catch {
+    return { consultantName: "", consultantTitle: "", consultantBio: "", consultationDurationMinutes: 30, availableTimeSlots: [], blockedDates: [], isEnabled: false, clinicName: "", clinicAddress: "" } as ConsultationConfig;
+  }
 }
 
 export async function updateConsultationConfig(data: Partial<ConsultationConfig>): Promise<void> {
@@ -781,6 +886,7 @@ export async function updateConsultationConfig(data: Partial<ConsultationConfig>
 // ── Promo Banners ─────────────────────────────────────────────────────────────
 
 export async function getActivePromoBanners(productId?: string): Promise<PromoBanner[]> {
+  try {
   const { adminDb } = await import("@/lib/firebase/admin");
   const snap = await adminDb
     .collection("promoBanners")
@@ -804,14 +910,21 @@ export async function getActivePromoBanners(productId?: string): Promise<PromoBa
       }
       return b.scope === "global";
     });
+  } catch {
+    return [];
+  }
 }
 
 export async function getAllPromoBanners(): Promise<PromoBanner[]> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb.collection("promoBanners").orderBy("sortOrder", "asc").get();
-  return snap.docs.map((d) =>
-    stripTimestamps({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }),
-  );
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const snap = await adminDb.collection("promoBanners").orderBy("sortOrder", "asc").get();
+    return snap.docs.map((d) =>
+      stripTimestamps({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }),
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function savePromoBanner(
@@ -871,4 +984,52 @@ export async function saveConcern(concern: Omit<Concern, "id"> & { id?: string }
 export async function deleteConcern(id: string): Promise<void> {
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("concerns").doc(id).delete();
+}
+
+// ── Media Kit ─────────────────────────────────────────────────────────────────
+
+export async function getMediaKitFiles(activeOnly = false): Promise<MediaKitFile[]> {
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    let query: FirebaseFirestore.Query = adminDb.collection("mediaKit").orderBy("sortOrder", "asc");
+    if (activeOnly) query = query.where("isActive", "==", true);
+    const snap = await query.get();
+    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...d.data() } as MediaKitFile));
+  } catch {
+    return [];
+  }
+}
+
+export async function saveMediaKitFile(
+  file: Omit<MediaKitFile, "id" | "createdAt" | "updatedAt" | "downloads"> & { id?: string },
+): Promise<string> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+
+  const ref = file.id
+    ? adminDb.collection("mediaKit").doc(file.id)
+    : adminDb.collection("mediaKit").doc();
+
+  const { id: _, ...data } = file as Record<string, unknown>;
+  await ref.set(
+    {
+      ...data,
+      id: ref.id,
+      updatedAt: FieldValue.serverTimestamp(),
+      ...(file.id ? {} : { createdAt: FieldValue.serverTimestamp(), downloads: 0 }),
+    },
+    { merge: true },
+  );
+  return ref.id;
+}
+
+export async function deleteMediaKitFile(id: string): Promise<void> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("mediaKit").doc(id).delete();
+}
+
+export async function incrementMediaKitDownload(id: string): Promise<void> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  await adminDb.collection("mediaKit").doc(id).update({ downloads: FieldValue.increment(1) });
 }

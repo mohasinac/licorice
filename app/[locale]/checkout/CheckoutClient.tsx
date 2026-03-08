@@ -210,7 +210,7 @@ export function CheckoutClient({
     return (
       <div className="mx-auto max-w-6xl px-4 py-8">
         <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Checkout</h1>
-        <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-64 animate-pulse rounded-2xl bg-muted" />
       </div>
     );
   }
@@ -219,9 +219,9 @@ export function CheckoutClient({
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <div className="mb-6">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
             <svg
-              className="h-8 w-8 text-green-600"
+              className="h-8 w-8 text-green-600 dark:text-green-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

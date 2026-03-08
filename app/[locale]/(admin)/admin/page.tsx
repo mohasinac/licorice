@@ -272,15 +272,15 @@ export default async function AdminDashboardPage() {
 
       {/* WhatsApp alert banner */}
       {stats.pendingWhatsApp > 0 && (
-        <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800/50 dark:bg-amber-950/30 px-4 py-3">
           <div className="flex items-center gap-3">
-            <MessageCircle className="h-5 w-5 text-amber-600" />
+            <MessageCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <div>
               <p className="text-sm font-medium text-amber-800">
                 {stats.pendingWhatsApp} WhatsApp Payment{stats.pendingWhatsApp > 1 ? "s" : ""}{" "}
                 Pending
               </p>
-              <p className="text-xs text-amber-600">Review and confirm customer payments</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400">Review and confirm customer payments</p>
             </div>
           </div>
           <Link
@@ -299,7 +299,7 @@ export default async function AdminDashboardPage() {
           value={formatCurrency(stats.revenueToday)}
           icon={TrendingUp}
           subtext={`${formatCurrency(stats.revenueThisMonth)} this month`}
-          accentColor="text-green-600"
+          accentColor="text-green-600 dark:text-green-400"
         />
         <StatsCard
           label="Orders Today"
@@ -315,7 +315,7 @@ export default async function AdminDashboardPage() {
           icon={AlertTriangle}
           subtext="Products out of stock"
           href="/admin/inventory"
-          accentColor={stats.lowStockCount > 0 ? "text-amber-600" : "text-muted-foreground"}
+          accentColor={stats.lowStockCount > 0 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}
         />
         <StatsCard
           label="Open Tickets"
@@ -334,7 +334,7 @@ export default async function AdminDashboardPage() {
           value={stats.pendingReviews}
           icon={Star}
           href="/admin/reviews"
-          accentColor="text-yellow-600"
+          accentColor="text-yellow-600 dark:text-yellow-400"
         />
         <StatsCard
           label="Awaiting Processing"
@@ -349,7 +349,7 @@ export default async function AdminDashboardPage() {
           icon={MessageCircle}
           subtext="Pending confirmation"
           href="/admin/orders?paymentStatus=proof_submitted"
-          accentColor="text-amber-600"
+          accentColor="text-amber-600 dark:text-amber-400"
         />
       </div>
 

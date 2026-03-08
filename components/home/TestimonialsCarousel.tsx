@@ -57,7 +57,7 @@ export function TestimonialsCarousel({ reviews }: TestimonialsCarouselProps) {
                       {review.authorName ?? "Verified Customer"}
                     </p>
                     {review.isVerifiedPurchase && (
-                      <p className="flex items-center gap-1 text-xs text-green-600">
+                      <p className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
                         Verified Purchase
                       </p>

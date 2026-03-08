@@ -59,7 +59,7 @@ export function AdminProductsTable({ products }: Props) {
         return (
           <span
             className={`text-sm font-medium ${
-              total === 0 ? "text-destructive" : total < 10 ? "text-yellow-600" : "text-green-600"
+              total === 0 ? "text-destructive" : total < 10 ? "text-yellow-600 dark:text-yellow-400" : "text-green-600 dark:text-green-400"
             }`}
           >
             {total}

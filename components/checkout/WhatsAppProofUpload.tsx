@@ -61,7 +61,7 @@ export function WhatsAppProofUpload({ orderId }: WhatsAppProofUploadProps) {
 
   if (uploaded) {
     return (
-      <div className="flex items-center gap-3 rounded-xl bg-green-50 p-4 text-green-700">
+      <div className="flex items-center gap-3 rounded-xl bg-green-50 p-4 text-green-700 dark:bg-green-950/30 dark:text-green-400">
         <CheckCircle className="h-5 w-5 flex-none" />
         <p className="text-sm font-medium">
           Screenshot received — we&apos;ll confirm your order shortly!
@@ -96,8 +96,8 @@ export function WhatsAppProofUpload({ orderId }: WhatsAppProofUploadProps) {
           <span className="text-muted-foreground text-xs">JPG, PNG, WebP · Max 5 MB</span>
         </button>
       ) : (
-        <div className="flex items-center gap-3 rounded-xl bg-blue-50 p-3">
-          <ImageIcon className="h-5 w-5 flex-none text-blue-600" />
+        <div className="flex items-center gap-3 rounded-xl bg-blue-50 p-3 dark:bg-blue-950/30">
+          <ImageIcon className="h-5 w-5 flex-none text-blue-600 dark:text-blue-400" />
           <p className="text-foreground flex-1 truncate text-sm">{file.name}</p>
           <button
             type="button"
