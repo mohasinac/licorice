@@ -86,6 +86,24 @@ function normalizeProduct(p: Product): Product {
     benefits: p.benefits ?? [],
     ingredients: p.ingredients ?? [],
     faqs: p.faqs ?? [],
+    howToUse: p.howToUse ?? [],
+    tags: p.tags ?? [],
+  };
+}
+
+function normalizeBlog(b: Blog): Blog {
+  return {
+    ...b,
+    tags: b.tags ?? [],
+    relatedProducts: b.relatedProducts ?? [],
+  };
+}
+
+function normalizeOrder(o: Order): Order {
+  return {
+    ...o,
+    items: o.items ?? [],
+    returnImages: o.returnImages ?? [],
   };
 }
 
@@ -211,7 +229,7 @@ export async function getBlogs(category?: BlogCategory, limit?: number): Promise
     if (category) query = query.where("category", "==", category);
     if (limit) query = query.limit(limit);
     const snap = await query.get();
-    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
+    return snap.docs.map((d) => normalizeBlog(stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) })));
   } catch {
     return [];
   }
@@ -226,7 +244,7 @@ export async function getBlog(slug: string): Promise<Blog | null> {
     .limit(1)
     .get();
   if (snap.empty) return null;
-  return stripTimestamps({ id: snap.docs[0].id, ...(snap.docs[0].data() as Omit<Blog, "id">) });
+  return normalizeBlog(stripTimestamps({ id: snap.docs[0].id, ...(snap.docs[0].data() as Omit<Blog, "id">) }));
 }
 
 // ── Coupons ───────────────────────────────────────────────────────────────────
@@ -496,7 +514,7 @@ export async function getOrder(orderId: string): Promise<Order | null> {
     const { adminDb } = await import("@/lib/firebase/admin");
     const doc = await adminDb.collection("orders").doc(orderId).get();
     if (!doc.exists) return null;
-    return stripTimestamps({ id: doc.id, ...doc.data() } as Order);
+    return normalizeOrder(stripTimestamps({ id: doc.id, ...doc.data() } as Order));
   } catch {
     return null;
   }
@@ -516,7 +534,7 @@ export async function getOrders(filters?: {
     if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus);
     if (filters?.limit) query = query.limit(filters.limit);
     const snap = await query.get();
-    return snap.docs.map((d) => stripTimestamps(d.data() as Order));
+    return snap.docs.map((d) => normalizeOrder(stripTimestamps(d.data() as Order)));
   } catch {
     return [];
   }
@@ -635,7 +653,7 @@ export async function getAllBlogs(status?: Blog["status"]): Promise<Blog[]> {
     let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
     if (status) query = query.where("status", "==", status);
     const snap = await query.get();
-    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
+    return snap.docs.map((d) => normalizeBlog(stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) })));
   } catch {
     return [];
   }
@@ -645,7 +663,7 @@ export async function getBlogById(id: string): Promise<Blog | null> {
   const { adminDb } = await import("@/lib/firebase/admin");
   const doc = await adminDb.collection("blogs").doc(id).get();
   if (!doc.exists) return null;
-  return stripTimestamps({ id: doc.id, ...(doc.data() as Omit<Blog, "id">) });
+  return normalizeBlog(stripTimestamps({ id: doc.id, ...(doc.data() as Omit<Blog, "id">) }));
 }
 
 export async function saveBlog(
