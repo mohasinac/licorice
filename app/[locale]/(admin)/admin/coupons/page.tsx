@@ -12,8 +12,12 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-function formatDate(d: Date | { toDate?: () => Date } | null | undefined): string {
-  if (!d) return "—";
+function formatDate(d: Date | { toDate?: () => Date } | string | null | undefined): string {
+  if (!d) return "\u2014";
+  if (typeof d === "string") {
+    const date = new Date(d);
+    return isNaN(date.getTime()) ? "\u2014" : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  }
   const date =
     typeof (d as { toDate?: () => Date }).toDate === "function"
       ? (d as { toDate: () => Date }).toDate()

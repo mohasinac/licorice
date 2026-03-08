@@ -36,9 +36,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "File too large. Maximum 5 MB." }, { status: 400 });
   }
 
-  // Verify the order belongs to this user
+  // Verify the order belongs to this user.
+  // Guest orders have userId="" so allow any authenticated user to upload
+  // proof for an order with no associated userId (they know the orderId).
   const order = await getOrder(orderId);
-  if (!order || order.userId !== user.uid) {
+  if (!order || (order.userId && order.userId !== user.uid)) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
   }
 

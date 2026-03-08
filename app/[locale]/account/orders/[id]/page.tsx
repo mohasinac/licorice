@@ -13,8 +13,12 @@ import type { Timestamp } from "firebase-admin/firestore";
 
 export const metadata: Metadata = { title: "Order Details" };
 
-function formatDate(val: Timestamp | Date | undefined): string {
+function formatDate(val: Timestamp | Date | string | undefined): string {
   if (!val) return "—";
+  if (typeof val === "string") {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? "—" : d.toLocaleString("en-IN");
+  }
   const d = val instanceof Date ? val : (val as unknown as { toDate: () => Date }).toDate?.();
   return d ? d.toLocaleString("en-IN") : "—";
 }
@@ -155,11 +159,13 @@ export default async function AccountOrderDetailPage({
               orderId={order.id}
               orderNumber={order.orderNumber}
               deliveredAt={
-                order.deliveredAt instanceof Date
-                  ? order.deliveredAt.toISOString()
-                  : ((order.deliveredAt as unknown as { toDate?: () => Date })
-                      ?.toDate?.()
-                      ?.toISOString() ?? null)
+                typeof order.deliveredAt === "string"
+                  ? order.deliveredAt
+                  : order.deliveredAt instanceof Date
+                    ? order.deliveredAt.toISOString()
+                    : ((order.deliveredAt as unknown as { toDate?: () => Date })
+                        ?.toDate?.())
+                        ?.toISOString() ?? null
               }
             />
           </section>

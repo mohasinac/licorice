@@ -65,7 +65,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     const deliveredDate =
       deliveredAt instanceof Date
         ? deliveredAt
-        : (deliveredAt as unknown as { toDate: () => Date }).toDate?.() ?? new Date(0);
+        : new Date(deliveredAt as unknown as string);
     const daysSinceDelivery = Math.floor(
       (Date.now() - deliveredDate.getTime()) / (1000 * 60 * 60 * 24),
     );

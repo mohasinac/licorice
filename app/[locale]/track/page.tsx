@@ -14,8 +14,12 @@ export const metadata: Metadata = {
   description: "Enter your order ID or AWB number to track your Licorice Herbals order.",
 };
 
-function formatDate(val: Timestamp | Date | undefined): string {
+function formatDate(val: Timestamp | Date | string | undefined): string {
   if (!val) return "—";
+  if (typeof val === "string") {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  }
   const d = val instanceof Date ? val : (val as unknown as { toDate: () => Date }).toDate?.();
   return d ? d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
 }

@@ -334,6 +334,10 @@ export async function createReturnShipment(
 
 function formatDate(val: unknown): string {
   if (!val) return new Date().toISOString().slice(0, 10);
+  if (typeof val === "string") {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? new Date().toISOString().slice(0, 10) : d.toISOString().slice(0, 10);
+  }
   if (val instanceof Date) return val.toISOString().slice(0, 10);
   if (typeof val === "object" && "toDate" in (val as object)) {
     return (val as { toDate: () => Date }).toDate().toISOString().slice(0, 10);

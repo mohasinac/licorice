@@ -31,6 +31,7 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
 
   const categories = Array.isArray(sp.category) ? sp.category : sp.category ? [sp.category] : [];
   const concerns = Array.isArray(sp.concern) ? sp.concern : sp.concern ? [sp.concern] : [];
+  const certs = Array.isArray(sp.cert) ? sp.cert : sp.cert ? [sp.cert] : [];
   const sort = sp.sort ?? "featured";
 
   // Fetch products — category filter if exactly one selected
@@ -40,10 +41,11 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
     getProducts(categories.length === 1 ? { category: categories[0] } : undefined),
   ]);
 
-  // Further filter by multiple categories or concerns (mock/client side)
+  // Further filter by multiple categories, concerns, or certifications
   const filtered = products.filter((p) => {
     if (categories.length > 1 && !categories.includes(p.category)) return false;
     if (concerns.length > 0 && !concerns.some((c) => p.concerns.includes(c))) return false;
+    if (certs.length > 0 && !certs.some((c) => p.certifications?.includes(c))) return false;
     return true;
   });
 
