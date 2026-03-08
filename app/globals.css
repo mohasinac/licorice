@@ -25,6 +25,12 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #1a0f3c;
 
+  /* ── Warm Ayurvedic Accents ────────────────────────────────────────────── */
+  --color-herb: #3d6b4f;
+  --color-herb-foreground: #ffffff;
+  --color-earth: #8b7355;
+  --color-saffron: #d4a55a;
+
   /* ── Typography ─────────────────────────────────────────────────────────── */
   --font-heading: "Cormorant Garamond", Georgia, serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
@@ -70,6 +76,8 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-body);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -81,12 +89,78 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* Ayurvedic prose rhythm — consistent vertical spacing */
+p {
+  line-height: 1.7;
 }
 
 /* ── Focus ring ───────────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
+}
+
+/* ── Smooth scrolling ─────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Selection ────────────────────────────────────────────────────────────── */
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  color: var(--color-foreground);
+}
+
+/* ── Scrollbar hide utility ───────────────────────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Ayurvedic Card ───────────────────────────────────────────────────────── */
+/* Consistent card hover behavior: lift + shadow. Apply as a utility. */
+.ayur-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.ayur-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px -4px color-mix(in srgb, var(--color-primary) 8%, transparent),
+    0 2px 8px -2px color-mix(in srgb, var(--color-primary) 5%, transparent);
+}
+
+/* ── Page Hero ────────────────────────────────────────────────────────────── */
+/* Standardised page hero banner with Ayurvedic warmth */
+.ayur-hero {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 5%, var(--color-background)),
+    color-mix(in srgb, var(--color-accent) 6%, var(--color-background))
+  );
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
+/* ── Section Divider ──────────────────────────────────────────────────────── */
+/* Thin accent separator between major sections */
+.ayur-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-accent),
+    transparent
+  );
+  margin: 0 auto;
+  opacity: 0.35;
 }
 
 

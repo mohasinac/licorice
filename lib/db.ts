@@ -1,11 +1,7 @@
-// lib/db.ts
+﻿// lib/db.ts
 // Unified data-access layer.
 // All Server Components and Server Actions import from here — never from Firestore directly.
-// Strategy: Firebase-first. Falls back to seed data when:
-//   1. Firebase is unconfigured (NEXT_PUBLIC_USE_MOCK_DATA=true or no credentials)
-//   2. Firestore returns no data for a given query (empty collection / missing doc)
-//   3. Firestore throws an error (network, permissions, etc.)
-// Users/auth are exempt — no seed fallback for authentication.
+// All data is read from / written to Firebase Firestore. No seed fallbacks.
 
 import type {
   Product,
@@ -32,29 +28,6 @@ import type {
   ConsultationConfig,
   PromoBanner,
 } from "@/lib/types";
-import { isFirebaseReady, toSafeDate } from "@/lib/utils";
-import {
-  SEED_PRODUCTS,
-  SEED_CATEGORIES,
-  SEED_CONCERNS,
-  SEED_BLOGS,
-  SEED_COUPONS,
-  SEED_REVIEWS,
-  SEED_SITE_CONFIG,
-  SEED_PAYMENT_SETTINGS,
-  SEED_SHIPPING_RULES,
-  SEED_INVENTORY_SETTINGS,
-  SEED_INVENTORY,
-  SEED_HOMEPAGE_SECTIONS,
-  SEED_CONSULTATION_CONFIG,
-  SEED_TESTIMONIALS,
-  SEED_PAGES,
-  SEED_NAVIGATION,
-} from "@/lib/seeds";
-
-// ── Firebase readiness ────────────────────────────────────────────────────────
-
-export { isFirebaseReady } from "@/lib/utils";
 
 // ── Product filters ───────────────────────────────────────────────────────────
 
@@ -67,291 +40,235 @@ export interface ProductFilters {
   limit?: number;
 }
 
-function filterSeedProducts(products: Product[], filters?: ProductFilters): Product[] {
-  let results = products.filter((p) => p.isActive);
-  if (filters?.category) results = results.filter((p) => p.category === filters.category);
-  if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
-  if (filters?.isFeatured !== undefined)
-    results = results.filter((p) => p.isFeatured === filters.isFeatured);
-  if (filters?.isCombo !== undefined)
-    results = results.filter((p) => p.isCombo === filters.isCombo);
-  if (filters?.limit) results = results.slice(0, filters.limit);
-  return results.sort((a, b) => a.sortOrder - b.sortOrder);
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Recursively convert all Firestore Timestamp-like values in an object to ISO
+ * strings so the result is safe to pass from Server Components to Client
+ * Components (RSC serialisation boundary).
+ */
+function stripTimestamps<T>(obj: T): T {
+  if (obj == null || typeof obj !== "object") return obj;
+  // Firestore admin Timestamp instance (has .toDate())
+  if (typeof (obj as Record<string, unknown>).toDate === "function") {
+    return (obj as unknown as { toDate: () => Date }).toDate().toISOString() as unknown as T;
+  }
+  // Serialised Timestamp — { _seconds, _nanoseconds } or { seconds, nanoseconds }
+  const secs =
+    (obj as Record<string, unknown>)._seconds ?? (obj as Record<string, unknown>).seconds;
+  const nanos =
+    (obj as Record<string, unknown>)._nanoseconds ?? (obj as Record<string, unknown>).nanoseconds;
+  if (typeof secs === "number" && typeof nanos === "number") {
+    return new Date(secs * 1000 + nanos / 1e6).toISOString() as unknown as T;
+  }
+  if (Array.isArray(obj)) return obj.map(stripTimestamps) as unknown as T;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[k] = stripTimestamps(v);
+  }
+  return out as T;
 }
 
 // ── Products ─────────────────────────────────────────────────────────────────
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
-  if (!isFirebaseReady()) return filterSeedProducts(SEED_PRODUCTS, filters);
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const { FieldPath } = await import("firebase-admin/firestore");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("products")
-      .where("isActive", "==", true);
-    if (filters?.category) query = query.where("category", "==", filters.category);
-    if (filters?.isFeatured !== undefined)
-      query = query.where("isFeatured", "==", filters.isFeatured);
-    if (filters?.isCombo !== undefined) query = query.where("isCombo", "==", filters.isCombo);
-    if (filters?.limit) query = query.limit(filters.limit);
-    const snap = await query.get();
-    if (snap.empty) return filterSeedProducts(SEED_PRODUCTS, filters);
-    let results = snap.docs.map((d) => d.data() as Product);
-    if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
-    return results.sort((a, b) => a.sortOrder - b.sortOrder);
-  } catch (err) {
-    console.warn("[db] Firestore getProducts failed \u2014 falling back to seed data", err);
-    return filterSeedProducts(SEED_PRODUCTS, filters);
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb.collection("products").where("isActive", "==", true);
+  if (filters?.category) query = query.where("category", "==", filters.category);
+  if (filters?.isFeatured !== undefined)
+    query = query.where("isFeatured", "==", filters.isFeatured);
+  if (filters?.isCombo !== undefined) query = query.where("isCombo", "==", filters.isCombo);
+  // When combining concern (client-side filter) with limit, fetch more to compensate
+  if (filters?.limit && filters?.concern) {
+    query = query.limit(filters.limit * 3);
+  } else if (filters?.limit) {
+    query = query.limit(filters.limit);
   }
+  const snap = await query.get();
+  if (snap.empty) return [];
+  let results = snap.docs.map((d) => stripTimestamps(d.data() as Product));
+  if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
+  if (filters?.limit) results = results.slice(0, filters.limit);
+  return results.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
-  if (!isFirebaseReady()) {
-    return SEED_PRODUCTS.find((p) => p.slug === slug && p.isActive) ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("products")
-      .where("slug", "==", slug)
-      .where("isActive", "==", true)
-      .limit(1)
-      .get();
-    if (snap.empty) return SEED_PRODUCTS.find((p) => p.slug === slug && p.isActive) ?? null;
-    return snap.docs[0].data() as Product;
-  } catch (err) {
-    console.warn("[db] Firestore getProduct failed \u2014 falling back to seed data", err);
-    return SEED_PRODUCTS.find((p) => p.slug === slug && p.isActive) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("products")
+    .where("slug", "==", slug)
+    .where("isActive", "==", true)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return stripTimestamps(snap.docs[0].data() as Product);
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  if (!isFirebaseReady()) {
-    return SEED_PRODUCTS.find((p) => p.id === id) ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("products").doc(id).get();
-    if (!doc.exists) return SEED_PRODUCTS.find((p) => p.id === id) ?? null;
-    return doc.data() as Product;
-  } catch (err) {
-    console.warn("[db] Firestore getProductById failed \u2014 falling back to seed data", err);
-    return SEED_PRODUCTS.find((p) => p.id === id) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("products").doc(id).get();
+  if (!doc.exists) return null;
+  return stripTimestamps(doc.data() as Product);
 }
 
 // ── Categories & Concerns ─────────────────────────────────────────────────────
 
 export async function getCategories(): Promise<Category[]> {
-  if (!isFirebaseReady()) return SEED_CATEGORIES;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("categories").get();
-    if (snap.empty) return SEED_CATEGORIES;
-    return snap.docs.map((d) => d.data() as Category);
-  } catch (err) {
-    console.warn("[db] Firestore getCategories failed — falling back to seed data", err);
-    return SEED_CATEGORIES;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("categories").get();
+  return snap.docs.map((d) => d.data() as Category);
 }
 
 export async function getConcerns(): Promise<Concern[]> {
-  if (!isFirebaseReady()) return SEED_CONCERNS;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("concerns").get();
-    if (snap.empty) return SEED_CONCERNS;
-    return snap.docs.map((d) => d.data() as Concern);
-  } catch (err) {
-    console.warn("[db] Firestore getConcerns failed — falling back to seed data", err);
-    return SEED_CONCERNS;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("concerns").get();
+  return snap.docs.map((d) => d.data() as Concern);
 }
 
 // ── Blogs ─────────────────────────────────────────────────────────────────────
 
 export async function getBlogs(category?: BlogCategory, limit?: number): Promise<Blog[]> {
-  if (!isFirebaseReady()) {
-    let blogs = SEED_BLOGS.filter((b) => b.status === "published");
-    if (category) blogs = blogs.filter((b) => b.category === category);
-    if (limit) blogs = blogs.slice(0, limit);
-    return blogs.sort((a, b) => {
-      const aDate = toSafeDate(a.publishedAt) ?? new Date(0);
-      const bDate = toSafeDate(b.publishedAt) ?? new Date(0);
-      return bDate.getTime() - aDate.getTime();
-    });
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("blogs")
-      .where("status", "==", "published")
-      .orderBy("publishedAt", "desc");
-    if (category) query = query.where("category", "==", category);
-    if (limit) query = query.limit(limit);
-    const snap = await query.get();
-    if (snap.empty) {
-      let blogs = SEED_BLOGS.filter((b) => b.status === "published");
-      if (category) blogs = blogs.filter((b) => b.category === category);
-      if (limit) blogs = blogs.slice(0, limit);
-      return blogs;
-    }
-    return snap.docs.map((d) => d.data() as Blog);
-  } catch (err) {
-    console.warn("[db] Firestore getBlogs failed — falling back to seed data", err);
-    let blogs = SEED_BLOGS.filter((b) => b.status === "published");
-    if (category) blogs = blogs.filter((b) => b.category === category);
-    if (limit) blogs = blogs.slice(0, limit);
-    return blogs;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb
+    .collection("blogs")
+    .where("status", "==", "published")
+    .orderBy("publishedAt", "desc");
+  if (category) query = query.where("category", "==", category);
+  if (limit) query = query.limit(limit);
+  const snap = await query.get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as Blog));
 }
 
 export async function getBlog(slug: string): Promise<Blog | null> {
-  if (!isFirebaseReady()) {
-    return SEED_BLOGS.find((b) => b.slug === slug && b.status === "published") ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("blogs")
-      .where("slug", "==", slug)
-      .where("status", "==", "published")
-      .limit(1)
-      .get();
-    if (snap.empty)
-      return SEED_BLOGS.find((b) => b.slug === slug && b.status === "published") ?? null;
-    return snap.docs[0].data() as Blog;
-  } catch (err) {
-    console.warn("[db] Firestore getBlog failed — falling back to seed data", err);
-    return SEED_BLOGS.find((b) => b.slug === slug && b.status === "published") ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("blogs")
+    .where("slug", "==", slug)
+    .where("status", "==", "published")
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return stripTimestamps(snap.docs[0].data() as Blog);
 }
 
 // ── Coupons ───────────────────────────────────────────────────────────────────
 
+export async function getCoupons(): Promise<Coupon[]> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("coupons").orderBy("createdAt", "desc").get();
+  return snap.docs.map((d) => stripTimestamps({ ...d.data(), code: d.id } as Coupon));
+}
+
+export async function createCoupon(
+  data: Omit<Coupon, "code" | "createdAt" | "updatedAt" | "usedCount"> & { code: string },
+): Promise<void> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { Timestamp } = await import("firebase-admin/firestore");
+  const now = Timestamp.now();
+  const { code, ...rest } = data;
+  await adminDb
+    .collection("coupons")
+    .doc(code.toUpperCase())
+    .set({
+      ...rest,
+      usedCount: 0,
+      createdAt: now,
+      updatedAt: now,
+    });
+}
+
 export async function getCoupon(code: string): Promise<Coupon | null> {
-  if (!isFirebaseReady()) {
-    return SEED_COUPONS.find((c) => c.code === code.toUpperCase()) ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("coupons").doc(code.toUpperCase()).get();
-    if (!doc.exists) return SEED_COUPONS.find((c) => c.code === code.toUpperCase()) ?? null;
-    return doc.data() as Coupon;
-  } catch (err) {
-    console.warn("[db] Firestore getCoupon failed — falling back to seed data", err);
-    return SEED_COUPONS.find((c) => c.code === code.toUpperCase()) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("coupons").doc(code.toUpperCase()).get();
+  if (!doc.exists) return null;
+  return stripTimestamps({ ...doc.data(), code: doc.id } as Coupon);
 }
 
 // ── Reviews ───────────────────────────────────────────────────────────────────
 
+
+
 export async function getApprovedReviews(limit?: number): Promise<Review[]> {
-  if (!isFirebaseReady()) {
-    let results = SEED_REVIEWS.filter((r) => r.status === "approved");
-    if (limit) results = results.slice(0, limit);
-    return results;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("reviews")
-      .where("status", "==", "approved")
-      .orderBy("createdAt", "desc");
-    if (limit) query = query.limit(limit);
-    const snap = await query.get();
-    if (snap.empty) {
-      let results = SEED_REVIEWS.filter((r) => r.status === "approved");
-      if (limit) results = results.slice(0, limit);
-      return results;
-    }
-    return snap.docs.map((d) => d.data() as Review);
-  } catch (err) {
-    console.warn("[db] Firestore getApprovedReviews failed — falling back to seed data", err);
-    let results = SEED_REVIEWS.filter((r) => r.status === "approved");
-    if (limit) results = results.slice(0, limit);
-    return results;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb
+    .collection("reviews")
+    .where("status", "==", "approved")
+    .orderBy("createdAt", "desc");
+  if (limit) query = query.limit(limit);
+  const snap = await query.get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as Review));
 }
 
 export async function getProductReviews(productId: string): Promise<Review[]> {
-  if (!isFirebaseReady()) {
-    return SEED_REVIEWS.filter((r) => r.productId === productId && r.status === "approved").sort(
-      (a, b) =>
-        (toSafeDate(b.createdAt) ?? new Date(0)).getTime() -
-        (toSafeDate(a.createdAt) ?? new Date(0)).getTime(),
-    );
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("reviews")
-      .where("productId", "==", productId)
-      .where("status", "==", "approved")
-      .orderBy("createdAt", "desc")
-      .get();
-    if (snap.empty) {
-      return SEED_REVIEWS.filter((r) => r.productId === productId && r.status === "approved");
-    }
-    return snap.docs.map((d) => d.data() as Review);
-  } catch (err) {
-    console.warn("[db] Firestore getProductReviews failed — falling back to seed data", err);
-    return SEED_REVIEWS.filter((r) => r.productId === productId && r.status === "approved");
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("reviews")
+    .where("productId", "==", productId)
+    .where("status", "==", "approved")
+    .orderBy("createdAt", "desc")
+    .get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as Review));
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 
 export async function getSiteConfig(): Promise<SiteConfig> {
-  if (!isFirebaseReady()) return SEED_SITE_CONFIG;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("settings").doc("siteConfig").get();
-    if (!doc.exists) return SEED_SITE_CONFIG;
-    return doc.data() as SiteConfig;
-  } catch (err) {
-    console.warn("[db] Firestore getSiteConfig failed — falling back to seed data", err);
-    return SEED_SITE_CONFIG;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("settings").doc("siteConfig").get();
+  return stripTimestamps(
+    (doc.data() as SiteConfig | undefined) ?? {
+      announcementText: "",
+      maintenanceMode: false,
+      orderCounter: 0,
+      logoUrl: "",
+    },
+  );
 }
 
 export async function getPaymentSettings(): Promise<PaymentSettings> {
-  if (!isFirebaseReady()) return SEED_PAYMENT_SETTINGS;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("settings").doc("paymentSettings").get();
-    if (!doc.exists) return SEED_PAYMENT_SETTINGS;
-    return doc.data() as PaymentSettings;
-  } catch (err) {
-    console.warn("[db] Firestore getPaymentSettings failed — falling back to seed data", err);
-    return SEED_PAYMENT_SETTINGS;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("settings").doc("paymentSettings").get();
+  return stripTimestamps(
+    (doc.data() as PaymentSettings | undefined) ?? {
+      whatsappEnabled: false,
+      whatsappUpiId: "",
+      whatsappBusinessNumber: "",
+      razorpayEnabled: false,
+      codEnabled: false,
+      codFee: 0,
+    },
+  );
 }
 
 export async function getShippingRules(): Promise<ShippingRules> {
-  if (!isFirebaseReady()) return SEED_SHIPPING_RULES;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("settings").doc("shippingRules").get();
-    if (!doc.exists) return SEED_SHIPPING_RULES;
-    return doc.data() as ShippingRules;
-  } catch (err) {
-    console.warn("[db] Firestore getShippingRules failed — falling back to seed data", err);
-    return SEED_SHIPPING_RULES;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("settings").doc("shippingRules").get();
+  return stripTimestamps(
+    (doc.data() as ShippingRules | undefined) ?? {
+      freeShippingThreshold: 0,
+      standardRate: 0,
+      codFee: 0,
+      codEnabled: false,
+      expressEnabled: false,
+      sameDayEnabled: false,
+      gstPercent: 0,
+      gstIncluded: false,
+      useShiprocketRates: false,
+    },
+  );
 }
 
 export async function getInventorySettings(): Promise<InventorySettings> {
-  if (!isFirebaseReady()) return SEED_INVENTORY_SETTINGS;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("settings").doc("inventorySettings").get();
-    if (!doc.exists) return SEED_INVENTORY_SETTINGS;
-    return doc.data() as InventorySettings;
-  } catch (err) {
-    console.warn("[db] Firestore getInventorySettings failed — falling back to seed data", err);
-    return SEED_INVENTORY_SETTINGS;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("settings").doc("inventorySettings").get();
+  return stripTimestamps(
+    (doc.data() as InventorySettings | undefined) ?? {
+      defaultLowStockThreshold: 10,
+      defaultReorderPoint: 5,
+      defaultStockPerVariant: 0,
+      reservationTimeoutMinutes: 30,
+    },
+  );
 }
 
 // ── Settings write functions ──────────────────────────────────────────────────
@@ -359,7 +276,6 @@ export async function getInventorySettings(): Promise<InventorySettings> {
 export async function updateSiteConfig(
   data: Partial<Omit<SiteConfig, "createdAt" | "updatedAt" | "orderCounter">>,
 ): Promise<void> {
-  if (!isFirebaseReady()) return; // seed mode — no persistence between requests
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   await adminDb
@@ -371,7 +287,6 @@ export async function updateSiteConfig(
 export async function updateShippingRules(
   data: Partial<Omit<ShippingRules, "createdAt" | "updatedAt">>,
 ): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   await adminDb
@@ -383,7 +298,6 @@ export async function updateShippingRules(
 export async function updatePaymentSettings(
   data: Partial<Omit<PaymentSettings, "createdAt" | "updatedAt">>,
 ): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   await adminDb
@@ -395,7 +309,6 @@ export async function updatePaymentSettings(
 export async function updateInventorySettings(
   data: Partial<Omit<InventorySettings, "createdAt" | "updatedAt">>,
 ): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   await adminDb
@@ -407,18 +320,10 @@ export async function updateInventorySettings(
 // ── Inventory ─────────────────────────────────────────────────────────────────
 
 export async function getInventory(productId: string): Promise<InventoryDoc | null> {
-  if (!isFirebaseReady()) {
-    return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("inventory").doc(productId).get();
-    if (!doc.exists) return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
-    return doc.data() as InventoryDoc;
-  } catch (err) {
-    console.warn("[db] Firestore getInventory failed — falling back to seed data", err);
-    return SEED_INVENTORY.find((inv) => inv.productId === productId) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("inventory").doc(productId).get();
+  if (!doc.exists) return null;
+  return stripTimestamps(doc.data() as InventoryDoc);
 }
 
 export async function getStockMovements(
@@ -426,25 +331,16 @@ export async function getStockMovements(
   variantId?: string,
   limit = 50,
 ): Promise<StockMovement[]> {
-  if (!isFirebaseReady()) {
-    // No seed movements — return empty array in seed mode
-    return [];
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("inventory")
-      .doc(productId)
-      .collection("movements")
-      .orderBy("createdAt", "desc")
-      .limit(limit);
-    if (variantId) query = query.where("variantId", "==", variantId);
-    const snap = await query.get();
-    return snap.docs.map((d) => d.data() as StockMovement);
-  } catch (err) {
-    console.warn("[db] Firestore getStockMovements failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb
+    .collection("inventory")
+    .doc(productId)
+    .collection("movements")
+    .orderBy("createdAt", "desc")
+    .limit(limit);
+  if (variantId) query = query.where("variantId", "==", variantId);
+  const snap = await query.get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as StockMovement));
 }
 
 export async function adjustStock(
@@ -453,7 +349,6 @@ export async function adjustStock(
   delta: number,
   movement: Omit<StockMovement, "id" | "createdAt">,
 ): Promise<void> {
-  if (!isFirebaseReady()) return; // no persistence in seed mode
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   const inventoryRef = adminDb.collection("inventory").doc(productId);
@@ -487,16 +382,10 @@ export async function adjustStock(
 // ── Orders ────────────────────────────────────────────────────────────────────
 
 export async function getOrder(orderId: string): Promise<Order | null> {
-  if (!isFirebaseReady()) return null;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("orders").doc(orderId).get();
-    if (!doc.exists) return null;
-    return doc.data() as Order;
-  } catch (err) {
-    console.warn("[db] Firestore getOrder failed", err);
-    return null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("orders").doc(orderId).get();
+  if (!doc.exists) return null;
+  return stripTimestamps(doc.data() as Order);
 }
 
 export async function getOrders(filters?: {
@@ -505,37 +394,25 @@ export async function getOrders(filters?: {
   paymentStatus?: string;
   limit?: number;
 }): Promise<Order[]> {
-  if (!isFirebaseReady()) return [];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb.collection("orders").orderBy("createdAt", "desc");
-    if (filters?.userId) query = query.where("userId", "==", filters.userId);
-    if (filters?.orderStatus) query = query.where("orderStatus", "==", filters.orderStatus);
-    if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus);
-    if (filters?.limit) query = query.limit(filters.limit);
-    const snap = await query.get();
-    return snap.docs.map((d) => d.data() as Order);
-  } catch (err) {
-    console.warn("[db] Firestore getOrders failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb.collection("orders").orderBy("createdAt", "desc");
+  if (filters?.userId) query = query.where("userId", "==", filters.userId);
+  if (filters?.orderStatus) query = query.where("orderStatus", "==", filters.orderStatus);
+  if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus);
+  if (filters?.limit) query = query.limit(filters.limit);
+  const snap = await query.get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as Order));
 }
 
 export async function getOrderTimeline(orderId: string): Promise<OrderEvent[]> {
-  if (!isFirebaseReady()) return [];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("orders")
-      .doc(orderId)
-      .collection("timeline")
-      .orderBy("createdAt", "asc")
-      .get();
-    return snap.docs.map((d) => d.data() as OrderEvent);
-  } catch (err) {
-    console.warn("[db] Firestore getOrderTimeline failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("orders")
+    .doc(orderId)
+    .collection("timeline")
+    .orderBy("createdAt", "asc")
+    .get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as OrderEvent));
 }
 
 export async function updateOrderStatus(
@@ -567,7 +444,6 @@ export async function updateOrderStatus(
   >,
   timelineEvent?: Omit<OrderEvent, "createdAt">,
 ): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
 
@@ -585,15 +461,9 @@ export async function updateOrderStatus(
 }
 
 export async function getUserAddresses(userId: string): Promise<Address[]> {
-  if (!isFirebaseReady()) return [];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("users").doc(userId).collection("addresses").get();
-    return snap.docs.map((d) => d.data() as Address);
-  } catch (err) {
-    console.warn("[db] Firestore getUserAddresses failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("users").doc(userId).collection("addresses").get();
+  return snap.docs.map((d) => d.data() as Address);
 }
 
 export async function saveUserAddress(userId: string, address: Address): Promise<string> {
@@ -607,89 +477,46 @@ export async function saveUserAddress(userId: string, address: Address): Promise
 // ── Reviews (admin) ───────────────────────────────────────────────────────────
 
 export async function getAllReviews(status?: Review["status"]): Promise<Review[]> {
-  if (!isFirebaseReady()) {
-    return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb.collection("reviews").orderBy("createdAt", "desc");
-    if (status) query = query.where("status", "==", status);
-    const snap = await query.get();
-    if (snap.empty) return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
-    return snap.docs.map((d) => d.data() as Review);
-  } catch (err) {
-    console.warn("[db] Firestore getAllReviews failed — falling back to seed data", err);
-    return status ? SEED_REVIEWS.filter((r) => r.status === status) : SEED_REVIEWS;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb.collection("reviews").orderBy("createdAt", "desc");
+  if (status) query = query.where("status", "==", status);
+  const snap = await query.get();
+  return snap.docs.map((d) => stripTimestamps(d.data() as Review));
 }
 
 export async function getReviewById(reviewId: string): Promise<Review | null> {
-  if (!isFirebaseReady()) {
-    return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("reviews").doc(reviewId).get();
-    if (!doc.exists) return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
-    return doc.data() as Review;
-  } catch (err) {
-    console.warn("[db] Firestore getReviewById failed — falling back to seed data", err);
-    return SEED_REVIEWS.find((r) => r.id === reviewId) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("reviews").doc(reviewId).get();
+  if (!doc.exists) return null;
+  return stripTimestamps(doc.data() as Review);
 }
 
 export async function getPendingReviewCount(): Promise<number> {
-  if (!isFirebaseReady()) {
-    return SEED_REVIEWS.filter((r) => r.status === "pending").length;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("reviews").where("status", "==", "pending").count().get();
-    return snap.data().count;
-  } catch (err) {
-    console.warn("[db] Firestore getPendingReviewCount failed", err);
-    return 0;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("reviews").where("status", "==", "pending").count().get();
+  return snap.data().count;
 }
 
 // ── Blogs (admin) ─────────────────────────────────────────────────────────────
 
 export async function getAllBlogs(status?: Blog["status"]): Promise<Blog[]> {
-  if (!isFirebaseReady()) {
-    return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
-    if (status) query = query.where("status", "==", status);
-    const snap = await query.get();
-    if (snap.empty) return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
-  } catch (err) {
-    console.warn("[db] Firestore getAllBlogs failed — falling back to seed data", err);
-    return status ? SEED_BLOGS.filter((b) => b.status === status) : SEED_BLOGS;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
+  if (status) query = query.where("status", "==", status);
+  const snap = await query.get();
+  return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
 }
 
 export async function getBlogById(id: string): Promise<Blog | null> {
-  if (!isFirebaseReady()) {
-    return SEED_BLOGS.find((b) => b.id === id) ?? null;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("blogs").doc(id).get();
-    if (!doc.exists) return SEED_BLOGS.find((b) => b.id === id) ?? null;
-    return { id: doc.id, ...(doc.data() as Omit<Blog, "id">) };
-  } catch (err) {
-    console.warn("[db] Firestore getBlogById failed — falling back to seed data", err);
-    return SEED_BLOGS.find((b) => b.id === id) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("blogs").doc(id).get();
+  if (!doc.exists) return null;
+  return stripTimestamps({ id: doc.id, ...(doc.data() as Omit<Blog, "id">) });
 }
 
 export async function saveBlog(
   blog: Omit<Blog, "id" | "createdAt" | "updatedAt"> & { id?: string },
 ): Promise<string> {
-  if (!isFirebaseReady()) return blog.id ?? "seed-blog-id";
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
 
@@ -710,7 +537,6 @@ export async function saveBlog(
 }
 
 export async function deleteBlog(id: string): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("blogs").doc(id).delete();
 }
@@ -718,25 +544,19 @@ export async function deleteBlog(id: string): Promise<void> {
 // ── Newsletter (admin) ────────────────────────────────────────────────────────
 
 export async function getNewsletterSubscribers(): Promise<{ email: string; subscribedAt: Date }[]> {
-  if (!isFirebaseReady()) return [];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("newsletter")
-      .orderBy("subscribedAt", "desc")
-      .limit(500)
-      .get();
-    return snap.docs.map((d) => {
-      const data = d.data();
-      return {
-        email: data.email ?? "",
-        subscribedAt: data.subscribedAt?.toDate?.() ?? new Date(),
-      };
-    });
-  } catch (err) {
-    console.warn("[db] Firestore getNewsletterSubscribers failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("newsletter")
+    .orderBy("subscribedAt", "desc")
+    .limit(500)
+    .get();
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      email: data.email ?? "",
+      subscribedAt: data.subscribedAt?.toDate?.() ?? new Date(),
+    };
+  });
 }
 
 // ── Before/After Gallery ──────────────────────────────────────────────────────
@@ -751,60 +571,32 @@ export interface BeforeAfterItem {
 }
 
 export async function getBeforeAfterItems(): Promise<BeforeAfterItem[]> {
-  if (!isFirebaseReady()) {
-    return [
-      {
-        id: "ba_1",
-        beforeImage: "/images/before-after/before-1.jpg",
-        afterImage: "/images/before-after/after-1.jpg",
-        productId: "prod_kumkumadi_oil",
-        caption: "4 weeks of Kumkumadi Oil — visible brightening",
-        sortOrder: 1,
-      },
-      {
-        id: "ba_2",
-        beforeImage: "/images/before-after/before-2.jpg",
-        afterImage: "/images/before-after/after-2.jpg",
-        productId: "prod_vitamin_c_serum",
-        caption: "6 weeks of Vitamin C Serum — reduced dark spots",
-        sortOrder: 2,
-      },
-    ];
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("beforeAfterGallery")
-      .orderBy("sortOrder", "asc")
-      .limit(10)
-      .get();
-    return snap.docs.map((d) => ({
-      id: d.id,
-      ...(d.data() as Omit<BeforeAfterItem, "id">),
-    }));
-  } catch (err) {
-    console.warn("[db] Firestore getBeforeAfterItems failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("beforeAfterGallery")
+    .orderBy("sortOrder", "asc")
+    .limit(10)
+    .get();
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...(d.data() as Omit<BeforeAfterItem, "id">),
+  }));
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 export async function getNavigation(): Promise<NavigationConfig> {
-  if (!isFirebaseReady()) return SEED_NAVIGATION;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("navigation").doc("navigation").get();
-    if (!doc.exists) return SEED_NAVIGATION;
-    return doc.data() as NavigationConfig;
-  } catch (err) {
-    console.warn("[db] Firestore getNavigation failed", err);
-    return SEED_NAVIGATION;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("navigation").doc("navigation").get();
+  return (
+    (doc.data() as NavigationConfig | undefined) ?? {
+      mainNav: [],
+      footerNav: { shop: [], account: [], policies: [] },
+    }
+  );
 }
 
 export async function updateNavigation(data: Partial<NavigationConfig>): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("navigation").doc("navigation").set(data, { merge: true });
 }
@@ -812,20 +604,40 @@ export async function updateNavigation(data: Partial<NavigationConfig>): Promise
 // ── Homepage Sections ─────────────────────────────────────────────────────────
 
 export async function getHomepageSections(): Promise<HomepageSections> {
-  if (!isFirebaseReady()) return SEED_HOMEPAGE_SECTIONS;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("settings").doc("homepageSections").get();
-    if (!doc.exists) return SEED_HOMEPAGE_SECTIONS;
-    return doc.data() as HomepageSections;
-  } catch (err) {
-    console.warn("[db] Firestore getHomepageSections failed", err);
-    return SEED_HOMEPAGE_SECTIONS;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("settings").doc("homepageSections").get();
+  return (
+    (doc.data() as HomepageSections | undefined) ?? {
+      heroBanner: {
+        headline: "",
+        subheadline: "",
+        primaryCtaText: "",
+        primaryCtaHref: "/shop",
+        secondaryCtaText: "",
+        secondaryCtaHref: "",
+      },
+      featuredProductIds: [],
+      newArrivalIds: [],
+      brandValues: [],
+      instagramReels: [],
+      trustBadges: [],
+      brandStory: { tag: "", headline: "", body: "" },
+      sectionVisibility: {
+        showBeforeAfter: false,
+        showTestimonials: false,
+        showBlog: false,
+        showNewsletter: false,
+        showBrandValues: false,
+        showInstagramReels: false,
+        showTrustBadges: false,
+        showBrandStory: false,
+        showConcernGrid: false,
+      },
+    }
+  );
 }
 
 export async function updateHomepageSections(data: Partial<HomepageSections>): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("settings").doc("homepageSections").set(data, { merge: true });
 }
@@ -833,47 +645,29 @@ export async function updateHomepageSections(data: Partial<HomepageSections>): P
 // ── Testimonials ──────────────────────────────────────────────────────────────
 
 export async function getTestimonials(limit?: number): Promise<Testimonial[]> {
-  if (!isFirebaseReady()) {
-    const active = SEED_TESTIMONIALS.filter((t) => t.isActive);
-    return limit ? active.slice(0, limit) : active;
-  }
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("testimonials")
-      .where("isActive", "==", true)
-      .orderBy("sortOrder", "asc");
-    if (limit) query = query.limit(limit);
-    const snap = await query.get();
-    if (snap.empty) {
-      const active = SEED_TESTIMONIALS.filter((t) => t.isActive);
-      return limit ? active.slice(0, limit) : active;
-    }
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }));
-  } catch (err) {
-    console.warn("[db] Firestore getTestimonials failed", err);
-    const active = SEED_TESTIMONIALS.filter((t) => t.isActive);
-    return limit ? active.slice(0, limit) : active;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  let query: FirebaseFirestore.Query = adminDb
+    .collection("testimonials")
+    .where("isActive", "==", true)
+    .orderBy("sortOrder", "asc");
+  if (limit) query = query.limit(limit);
+  const snap = await query.get();
+  return snap.docs.map((d) =>
+    stripTimestamps({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }),
+  );
 }
 
 export async function getAllTestimonials(): Promise<Testimonial[]> {
-  if (!isFirebaseReady()) return [...SEED_TESTIMONIALS];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("testimonials").orderBy("sortOrder", "asc").get();
-    if (snap.empty) return [...SEED_TESTIMONIALS];
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }));
-  } catch (err) {
-    console.warn("[db] Firestore getAllTestimonials failed", err);
-    return [...SEED_TESTIMONIALS];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("testimonials").orderBy("sortOrder", "asc").get();
+  return snap.docs.map((d) =>
+    stripTimestamps({ id: d.id, ...(d.data() as Omit<Testimonial, "id">) }),
+  );
 }
 
 export async function saveTestimonial(
   testimonial: Omit<Testimonial, "id" | "createdAt"> & { id?: string },
 ): Promise<string> {
-  if (!isFirebaseReady()) return testimonial.id ?? "mock-testimonial-id";
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   const ref = testimonial.id
@@ -892,41 +686,26 @@ export async function saveTestimonial(
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("testimonials").doc(id).delete();
 }
 
-// ── Static Pages ──────────────────────────────────────────────────────────────
+// ── Pages ─────────────────────────────────────────────────────────────────────
 
 export async function getPage(pageId: string): Promise<PageDoc | null> {
-  if (!isFirebaseReady()) return SEED_PAGES.find((p) => p.id === pageId) ?? null;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("pages").doc(pageId).get();
-    if (!doc.exists) return SEED_PAGES.find((p) => p.id === pageId) ?? null;
-    return { id: doc.id, ...(doc.data() as Omit<PageDoc, "id">) };
-  } catch (err) {
-    console.warn("[db] Firestore getPage failed", err);
-    return SEED_PAGES.find((p) => p.id === pageId) ?? null;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("pages").doc(pageId).get();
+  if (!doc.exists) return null;
+  return stripTimestamps({ id: doc.id, ...(doc.data() as Omit<PageDoc, "id">) });
 }
 
 export async function getAllPages(): Promise<PageDoc[]> {
-  if (!isFirebaseReady()) return [...SEED_PAGES];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("pages").get();
-    if (snap.empty) return [...SEED_PAGES];
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PageDoc, "id">) }));
-  } catch (err) {
-    console.warn("[db] Firestore getAllPages failed", err);
-    return [...SEED_PAGES];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("pages").get();
+  return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<PageDoc, "id">) }));
 }
 
 export async function savePage(page: PageDoc): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   const { id, ...data } = page;
@@ -939,20 +718,24 @@ export async function savePage(page: PageDoc): Promise<void> {
 // ── Consultation Config ───────────────────────────────────────────────────────
 
 export async function getConsultationConfig(): Promise<ConsultationConfig> {
-  if (!isFirebaseReady()) return SEED_CONSULTATION_CONFIG;
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const doc = await adminDb.collection("settings").doc("consultationConfig").get();
-    if (!doc.exists) return SEED_CONSULTATION_CONFIG;
-    return doc.data() as ConsultationConfig;
-  } catch (err) {
-    console.warn("[db] Firestore getConsultationConfig failed", err);
-    return SEED_CONSULTATION_CONFIG;
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const doc = await adminDb.collection("settings").doc("consultationConfig").get();
+  return (
+    (doc.data() as ConsultationConfig | undefined) ?? {
+      consultantName: "",
+      consultantTitle: "",
+      consultantBio: "",
+      consultationDurationMinutes: 30,
+      availableTimeSlots: [],
+      blockedDates: [],
+      isEnabled: false,
+      clinicName: "",
+      clinicAddress: "",
+    }
+  );
 }
 
 export async function updateConsultationConfig(data: Partial<ConsultationConfig>): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("settings").doc("consultationConfig").set(data, { merge: true });
 }
@@ -960,37 +743,28 @@ export async function updateConsultationConfig(data: Partial<ConsultationConfig>
 // ── Promo Banners ─────────────────────────────────────────────────────────────
 
 export async function getActivePromoBanners(): Promise<PromoBanner[]> {
-  if (!isFirebaseReady()) return [];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb
-      .collection("promoBanners")
-      .where("isActive", "==", true)
-      .orderBy("sortOrder", "asc")
-      .get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }));
-  } catch (err) {
-    console.warn("[db] Firestore getActivePromoBanners failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb
+    .collection("promoBanners")
+    .where("isActive", "==", true)
+    .orderBy("sortOrder", "asc")
+    .get();
+  return snap.docs.map((d) =>
+    stripTimestamps({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }),
+  );
 }
 
 export async function getAllPromoBanners(): Promise<PromoBanner[]> {
-  if (!isFirebaseReady()) return [];
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("promoBanners").orderBy("sortOrder", "asc").get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }));
-  } catch (err) {
-    console.warn("[db] Firestore getAllPromoBanners failed", err);
-    return [];
-  }
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("promoBanners").orderBy("sortOrder", "asc").get();
+  return snap.docs.map((d) =>
+    stripTimestamps({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }),
+  );
 }
 
 export async function savePromoBanner(
   banner: Omit<PromoBanner, "id" | "createdAt"> & { id?: string },
 ): Promise<string> {
-  if (!isFirebaseReady()) return banner.id ?? "mock-promo-id";
   const { adminDb } = await import("@/lib/firebase/admin");
   const { FieldValue } = await import("firebase-admin/firestore");
   const ref = banner.id
@@ -1009,7 +783,6 @@ export async function savePromoBanner(
 }
 
 export async function deletePromoBanner(id: string): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("promoBanners").doc(id).delete();
 }
@@ -1019,7 +792,6 @@ export async function deletePromoBanner(id: string): Promise<void> {
 export async function saveCategory(
   category: Omit<Category, "id"> & { id?: string },
 ): Promise<string> {
-  if (!isFirebaseReady()) return category.id ?? "mock-cat-id";
   const { adminDb } = await import("@/lib/firebase/admin");
   const ref = category.id
     ? adminDb.collection("categories").doc(category.id)
@@ -1030,13 +802,11 @@ export async function saveCategory(
 }
 
 export async function deleteCategory(id: string): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("categories").doc(id).delete();
 }
 
 export async function saveConcern(concern: Omit<Concern, "id"> & { id?: string }): Promise<string> {
-  if (!isFirebaseReady()) return concern.id ?? "mock-concern-id";
   const { adminDb } = await import("@/lib/firebase/admin");
   const ref = concern.id
     ? adminDb.collection("concerns").doc(concern.id)
@@ -1047,7 +817,6 @@ export async function saveConcern(concern: Omit<Concern, "id"> & { id?: string }
 }
 
 export async function deleteConcern(id: string): Promise<void> {
-  if (!isFirebaseReady()) return;
   const { adminDb } = await import("@/lib/firebase/admin");
   await adminDb.collection("concerns").doc(id).delete();
 }

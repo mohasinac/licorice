@@ -1,6 +1,5 @@
 // app/api/contact/route.ts
 import { NextResponse, type NextRequest } from "next/server";
-import { isFirebaseReady } from "@/lib/db";
 
 interface ContactBody {
   name: string;
@@ -51,11 +50,6 @@ export async function POST(request: NextRequest) {
   };
 
   const ticketNumber = generateTicketNumber();
-
-  if (!isFirebaseReady()) {
-    console.log("[contact] Mock submission:", sanitised, "ticketNumber:", ticketNumber);
-    return NextResponse.json({ success: true, ticketNumber });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

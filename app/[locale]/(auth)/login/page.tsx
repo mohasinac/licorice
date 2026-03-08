@@ -1,17 +1,14 @@
 "use client";
 // app/[locale]/(auth)/login/page.tsx
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
 import toast from "react-hot-toast";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { BRAND_NAME } from "@/constants/site";
 
 export default function LoginPage() {
   const router = useRouter();
-  const locale = useLocale();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +23,7 @@ export default function LoginPage() {
       const auth = getClientAuth();
       await signInWithEmailAndPassword(auth, email.trim(), password);
       toast.success("Welcome back!");
-      router.replace(`/${locale}`);
+      router.replace("/");
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code;
       if (
@@ -52,7 +49,7 @@ export default function LoginPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       toast.success("Signed in with Google!");
-      router.replace(`/${locale}`);
+      router.replace("/");
     } catch {
       toast.error("Google sign-in failed. Please try again.");
     } finally {
@@ -87,10 +84,7 @@ export default function LoginPage() {
           />
 
           <div className="flex justify-end">
-            <Link
-              href={`/${locale}/account/forgot-password`}
-              className="text-primary text-xs hover:underline"
-            >
+            <Link href="/account/forgot-password" className="text-primary text-xs hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -137,7 +131,7 @@ export default function LoginPage() {
 
         <p className="text-muted-foreground mt-6 text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link href={`/${locale}/register`} className="text-primary font-medium hover:underline">
+          <Link href="/register" className="text-primary font-medium hover:underline">
             Sign up
           </Link>
         </p>

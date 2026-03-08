@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Trash2, Edit2, Star } from "lucide-react";
+import { MapPin, Trash2, Edit2, Pin } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import type { Address } from "@/lib/types";
@@ -75,7 +75,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
             onClick={() => onSetDefault(address.id)}
             className="gap-1"
           >
-            <Star className="h-3.5 w-3.5" /> Set default
+            <Pin className="h-3.5 w-3.5" /> Set default
           </Button>
         )}
         {onDeleted && (

@@ -33,14 +33,21 @@ export function NewsletterBanner() {
   }
 
   return (
-    <section className="bg-accent/20 py-20">
-      <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
-        <h2 className="font-heading text-primary text-3xl font-bold sm:text-4xl">
+    <section className="from-primary via-primary/95 to-secondary relative overflow-hidden bg-gradient-to-br py-24">
+      {/* Decorative rings */}
+      <div className="pointer-events-none absolute -top-20 -right-20 h-60 w-60 rounded-full border border-white/[0.06]" />
+      <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full border border-dashed border-white/[0.08]" />
+
+      <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
+        <span className="border-accent/30 text-accent mb-4 inline-flex rounded-full border px-3 py-1 text-xs tracking-widest uppercase">
+          Stay Connected
+        </span>
+        <h2 className="font-heading text-3xl font-bold text-white sm:text-4xl">
           Join the Licorice Community
         </h2>
-        <p className="text-muted-foreground mt-3">
+        <p className="mt-4 text-white/60">
           Subscribe for Ayurvedic tips, exclusive offers, and a{" "}
-          <strong className="text-primary">10% welcome discount</strong> on your first order.
+          <strong className="text-accent">10% welcome discount</strong> on your first order.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex gap-3">
@@ -50,14 +57,14 @@ export function NewsletterBanner() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="flex-1"
+            className="flex-1 border-white/20 bg-white/10 text-white placeholder:text-white/40 focus:border-accent"
           />
-          <Button type="submit" loading={loading} size="md">
+          <Button type="submit" loading={loading} size="md" variant="secondary">
             Subscribe
           </Button>
         </form>
 
-        <p className="text-muted-foreground mt-3 text-xs">No spam, ever. Unsubscribe anytime.</p>
+        <p className="mt-4 text-xs text-white/40">No spam, ever. Unsubscribe anytime.</p>
       </div>
     </section>
   );

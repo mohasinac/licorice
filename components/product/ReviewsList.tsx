@@ -90,7 +90,7 @@ export function ReviewsList({
   const hasMore = page * PAGE_SIZE < sorted.length;
 
   // Photos from filtered list
-  const allPhotos = reviews.flatMap((r) => r.images ?? []);
+  const allPhotos = filtered.flatMap((r) => r.images ?? []);
 
   function openLightbox(images: string[], idx: number) {
     setLightboxImages(images);

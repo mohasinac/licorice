@@ -193,6 +193,7 @@ export interface Order {
   couponValue?: number;
   shippingCharge: number;
   codFee: number;
+  gstAmount: number;
   total: number;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
@@ -245,11 +246,11 @@ export interface Coupon {
   maxDiscount?: number;
   applicableTo: "all" | "category" | "product" | "combo";
   applicableIds?: string[];
-  usageLimit?: number;
-  usageLimitPerUser?: number;
+  usageLimit?: number | null;
+  usageLimitPerUser?: number | null;
   usedCount: number;
   startsAt: Timestamp | Date;
-  expiresAt?: Timestamp | Date;
+  expiresAt?: Timestamp | Date | null;
   isActive: boolean;
   buyQuantity?: number;
   getQuantity?: number;
@@ -362,6 +363,7 @@ export interface TicketMessage {
 // ─── Consultation ────────────────────────────────────────────────────────────
 
 export type ConsultationStatus = "pending" | "confirmed" | "completed" | "cancelled";
+export type ConsultationMode = "remote" | "in-person";
 
 export interface ConsultationBooking {
   id: string;
@@ -372,6 +374,7 @@ export interface ConsultationBooking {
   concern: string[];
   preferredDate: string;
   preferredTime: string;
+  mode: ConsultationMode;
   message?: string;
   status: ConsultationStatus;
   adminNote?: string;
@@ -385,6 +388,8 @@ export interface SiteConfig {
   announcementLink?: string;
   maintenanceMode: boolean;
   orderCounter: number;
+  // Branding
+  logoUrl?: string;
   // Contact & support
   supportPhone?: string;
   supportEmail?: string;
@@ -417,6 +422,14 @@ export interface ShippingRules {
   standardSla?: string;
   expressSla?: string;
   sameDaySla?: string;
+  /** GST percentage applied to order subtotal (e.g. 12 or 18). 0 = no GST. */
+  gstPercent: number;
+  /** If true, product prices already include GST (show breakdown only). */
+  gstIncluded: boolean;
+  /** If true, fetch live courier rates from Shiprocket instead of using flat rates. */
+  useShiprocketRates: boolean;
+  /** Warehouse / pickup pincode sent to Shiprocket for rate queries. */
+  pickupPincode?: string;
   createdAt?: Timestamp | Date;
   updatedAt?: Timestamp | Date;
 }
@@ -425,11 +438,11 @@ export interface PaymentSettings {
   whatsappEnabled: boolean;
   whatsappUpiId: string;
   whatsappBusinessNumber: string;
-  whatsappQrImageUrl?: string;
+  whatsappQrImageUrl?: string | null;
   razorpayEnabled: boolean;
   codEnabled: boolean;
   codFee: number;
-  codMinOrder?: number;
+  codMinOrder?: number | null;
   prepaidDiscountPercent?: number;
   createdAt?: Timestamp | Date;
   updatedAt?: Timestamp | Date;
@@ -534,17 +547,44 @@ export interface BrandValueItem {
   description: string;
 }
 
+export interface InstagramReelItem {
+  id: string;
+  caption: string;
+  reelUrl?: string;
+  thumbnailUrl?: string;
+  sortOrder: number;
+}
+
+export interface TrustBadgeItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface BrandStoryConfig {
+  tag: string;
+  headline: string;
+  body: string;
+}
+
 export interface HomepageSections {
   heroBanner: HeroBannerConfig;
   featuredProductIds: string[];
   newArrivalIds: string[];
   brandValues: BrandValueItem[];
+  instagramReels: InstagramReelItem[];
+  trustBadges: TrustBadgeItem[];
+  brandStory: BrandStoryConfig;
   sectionVisibility: {
     showBeforeAfter: boolean;
     showTestimonials: boolean;
     showBlog: boolean;
     showNewsletter: boolean;
     showBrandValues: boolean;
+    showInstagramReels: boolean;
+    showTrustBadges: boolean;
+    showBrandStory: boolean;
+    showConcernGrid: boolean;
   };
 }
 
@@ -585,6 +625,9 @@ export interface ConsultationConfig {
   availableTimeSlots: string[];
   blockedDates: string[]; // ISO YYYY-MM-DD
   isEnabled: boolean;
+  clinicName: string;
+  clinicAddress: string;
+  clinicMapUrl?: string;
 }
 
 // ─── Promo Banner ────────────────────────────────────────────────────────────

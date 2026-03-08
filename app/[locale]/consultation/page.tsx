@@ -12,26 +12,36 @@ export default async function ConsultationPage() {
   const config = await getConsultationConfig();
   const consultantName = config.consultantName;
   const consultantBio = config.consultantBio;
+  const clinicName = config.clinicName;
+  const clinicAddress = config.clinicAddress;
+  const clinicMapUrl = config.clinicMapUrl;
 
   return (
     <div className="bg-background min-h-screen">
       {/* Hero */}
-      <div className="bg-primary/5 py-14">
+      <div className="ayur-hero">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <p className="text-primary mb-2 text-sm font-semibold tracking-widest uppercase">
+          <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
             Complimentary
           </p>
-          <h1 className="font-heading text-foreground text-4xl font-bold">
+          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
             Free Skin &amp; Hair Consultation
           </h1>
-          <p className="text-muted-foreground mt-4 text-lg">
+          <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
             Get a personalised Ayurvedic skincare and hair care plan — completely free.
           </p>
+          <hr className="ayur-divider mt-8 w-32" />
         </div>
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
-        <ConsultationForm consultantName={consultantName} consultantBio={consultantBio} />
+        <ConsultationForm
+          consultantName={consultantName}
+          consultantBio={consultantBio}
+          clinicName={clinicName}
+          clinicAddress={clinicAddress}
+          clinicMapUrl={clinicMapUrl}
+        />
       </div>
     </div>
   );

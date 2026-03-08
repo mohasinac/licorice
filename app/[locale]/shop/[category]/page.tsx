@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CATEGORIES } from "@/constants/categories";
 import { getProducts } from "@/lib/db";
-import { sortProducts } from "@/components/product/ProductSort";
+import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { ProductSort } from "@/components/product/ProductSort";

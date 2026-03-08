@@ -2,7 +2,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getProducts } from "@/lib/db";
-import { sortProducts } from "@/components/product/ProductSort";
+import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductSort } from "@/components/product/ProductSort";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -28,15 +28,18 @@ export default async function CombosPage({ searchParams }: CombosPageProps) {
   return (
     <div className="bg-background min-h-screen">
       {/* Hero */}
-      <div className="bg-accent/10 py-14">
+      <div className="ayur-hero">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <p className="text-primary mb-1 text-sm font-semibold tracking-wide uppercase">
+          <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
             Bundle & Save
           </p>
-          <h1 className="font-heading text-foreground text-4xl font-bold">Combo Packs</h1>
-          <p className="text-muted-foreground mx-auto mt-3 max-w-lg text-lg">
+          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
+            Combo Packs
+          </h1>
+          <p className="text-muted-foreground mx-auto mt-4 max-w-lg text-lg leading-relaxed">
             Complete Ayurvedic rituals in one box — handpicked combinations at the best value.
           </p>
+          <hr className="ayur-divider mt-8 w-32" />
         </div>
       </div>
 

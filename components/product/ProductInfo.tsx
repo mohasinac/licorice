@@ -57,12 +57,12 @@ export function ProductInfo({ product }: ProductInfoProps) {
   return (
     <div className="flex flex-col gap-5">
       {/* Category tag */}
-      <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+      <span className="text-accent text-sm font-semibold tracking-widest uppercase">
         {product.category}
       </span>
 
       {/* Name */}
-      <h1 className="font-heading text-foreground text-3xl leading-tight font-bold lg:text-4xl">
+      <h1 className="font-heading text-foreground text-3xl leading-tight font-bold tracking-tight lg:text-4xl">
         {name}
       </h1>
 

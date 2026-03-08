@@ -3,7 +3,7 @@
 
 export const SEED_ADMIN_USER = {
   uid: "admin_licorice",
-  email: "admin@licoriceherbal.in",
+  email: "admin@licoricehealth.store",
   password: "Admin@Licorice123",
   displayName: "Licorice Admin",
   role: "admin" as const,

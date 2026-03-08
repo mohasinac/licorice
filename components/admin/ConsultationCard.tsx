@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, Clock } from "lucide-react";
+import { CheckCircle, XCircle, CircleCheckBig, Video, MapPin } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { ConsultationBooking } from "@/lib/types";
 
@@ -53,6 +53,20 @@ export function ConsultationCard({ consultation }: Props) {
           <span className="text-muted-foreground text-xs">Time</span>
           <p className="text-foreground">{consultation.preferredTime}</p>
         </div>
+        <div>
+          <span className="text-muted-foreground text-xs">Mode</span>
+          <p className="text-foreground flex items-center gap-1">
+            {consultation.mode === "in-person" ? (
+              <>
+                <MapPin className="h-3.5 w-3.5" /> In-Person
+              </>
+            ) : (
+              <>
+                <Video className="h-3.5 w-3.5" /> Remote
+              </>
+            )}
+          </p>
+        </div>
         {consultation.concern && consultation.concern.length > 0 && (
           <div className="sm:col-span-2">
             <span className="text-muted-foreground text-xs">Concerns</span>
@@ -92,7 +106,7 @@ export function ConsultationCard({ consultation }: Props) {
             disabled={loading}
             className="flex items-center gap-1 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50"
           >
-            <Clock className="h-3.5 w-3.5" /> Mark Complete
+            <CircleCheckBig className="h-3.5 w-3.5" /> Mark Complete
           </button>
         )}
         {!["completed", "cancelled"].includes(status) && (

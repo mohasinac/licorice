@@ -1,13 +1,11 @@
 // app/[locale]/(admin)/admin/support/page.tsx - Admin support ticket inbox
 import { Metadata } from "next";
-import { isFirebaseReady } from "@/lib/db";
 import { TicketInbox } from "@/components/admin/TicketInbox";
 import type { SupportTicket } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Support Inbox — Admin" };
 
 async function getAllTickets(): Promise<SupportTicket[]> {
-  if (!isFirebaseReady()) return [];
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb

@@ -1,6 +1,6 @@
 // app/[locale]/checkout/page.tsx
 import { Metadata } from "next";
-import { getPaymentSettings } from "@/lib/db";
+import { getPaymentSettings, getShippingRules } from "@/lib/db";
 import { CheckoutClient } from "./CheckoutClient";
 
 export const metadata: Metadata = {
@@ -9,6 +9,16 @@ export const metadata: Metadata = {
 };
 
 export default async function CheckoutPage() {
-  const paymentSettings = await getPaymentSettings();
-  return <CheckoutClient paymentSettings={paymentSettings} />;
+  const [paymentSettings, shippingRules] = await Promise.all([
+    getPaymentSettings(),
+    getShippingRules(),
+  ]);
+  return (
+    <CheckoutClient
+      paymentSettings={paymentSettings}
+      gstPercent={shippingRules.gstPercent ?? 0}
+      gstIncluded={shippingRules.gstIncluded ?? true}
+      useShiprocketRates={shippingRules.useShiprocketRates ?? false}
+    />
+  );
 }

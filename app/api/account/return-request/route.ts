@@ -5,7 +5,6 @@
 import { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getOrder, updateOrderStatus } from "@/lib/db";
-import { isFirebaseReady } from "@/lib/utils";
 import { RETURN_WINDOW_DAYS } from "@/constants/policies";
 
 export const runtime = "nodejs";
@@ -92,22 +91,20 @@ export async function POST(req: NextRequest): Promise<Response> {
       return new Response("Image too large (max 5 MB)", { status: 400 });
     }
 
-    if (isFirebaseReady()) {
-      try {
-        const { getStorage } = await import("firebase-admin/storage");
-        const ext = imageFile.type.split("/")[1] ?? "jpg";
-        const path = `return-proofs/${orderId}/${Date.now()}.${ext}`;
-        const bucket = getStorage().bucket();
-        const file = bucket.file(path);
-        const arrayBuffer = await imageFile.arrayBuffer();
-        await file.save(Buffer.from(arrayBuffer), {
-          metadata: { contentType: imageFile.type },
-        });
-        await file.makePublic();
-        returnImageUrls.push(`https://storage.googleapis.com/${bucket.name}/${path}`);
-      } catch (err) {
-        console.warn("[return-request] Image upload failed — continuing", err);
-      }
+    try {
+      const { getStorage } = await import("firebase-admin/storage");
+      const ext = imageFile.type.split("/")[1] ?? "jpg";
+      const path = `return-proofs/${orderId}/${Date.now()}.${ext}`;
+      const bucket = getStorage().bucket();
+      const file = bucket.file(path);
+      const arrayBuffer = await imageFile.arrayBuffer();
+      await file.save(Buffer.from(arrayBuffer), {
+        metadata: { contentType: imageFile.type },
+      });
+      await file.makePublic();
+      returnImageUrls.push(`https://storage.googleapis.com/${bucket.name}/${path}`);
+    } catch (err) {
+      console.warn("[return-request] Image upload failed — continuing", err);
     }
   }
 

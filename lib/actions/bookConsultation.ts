@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { isFirebaseReady } from "@/lib/utils";
 import type { ConsultationBooking } from "@/lib/types";
 
 const bookConsultationSchema = z.object({
@@ -15,6 +14,7 @@ const bookConsultationSchema = z.object({
   concern: z.array(z.string()).min(1, "Select at least one concern"),
   preferredDate: z.string().min(1, "Date is required"),
   preferredTime: z.string().min(1, "Time slot is required"),
+  mode: z.enum(["remote", "in-person"]),
   message: z.string().max(1000).optional(),
 });
 
@@ -31,11 +31,6 @@ export async function bookConsultation(input: unknown): Promise<BookConsultation
 
   const data = parsed.data;
 
-  if (!isFirebaseReady()) {
-    console.log("[consultation] Mock booking:", data);
-    return { success: true, bookingId: "mock-booking-id" };
-  }
-
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -47,6 +42,7 @@ export async function bookConsultation(input: unknown): Promise<BookConsultation
       concern: data.concern,
       preferredDate: data.preferredDate,
       preferredTime: data.preferredTime,
+      mode: data.mode,
       message: data.message,
       status: "pending",
       createdAt: FieldValue.serverTimestamp() as unknown as Date,
@@ -65,7 +61,7 @@ export async function bookConsultation(input: unknown): Promise<BookConsultation
           from: fromEmail,
           to: data.email,
           subject: "Consultation Booking Received — Licorice Herbals",
-          html: `<p>Hi ${data.name},</p><p>Thank you for booking a free consultation with Licorice Herbals. We've received your request for <strong>${data.preferredDate}</strong> at <strong>${data.preferredTime}</strong>.</p><p>We'll confirm your slot within 24 hours via email or phone.</p><p>Warm regards,<br/>Licorice Herbals Team</p>`,
+          html: `<p>Hi ${data.name},</p><p>Thank you for booking a free <strong>${data.mode === "in-person" ? "in-person" : "remote"}</strong> consultation with Licorice Herbals. We've received your request for <strong>${data.preferredDate}</strong> at <strong>${data.preferredTime}</strong>.</p><p>We'll confirm your slot within 24 hours via email or phone.</p><p>Warm regards,<br/>Licorice Herbals Team</p>`,
         });
       }
     } catch (emailErr) {

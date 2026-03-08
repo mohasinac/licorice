@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import type { Product } from "@/lib/types";
@@ -12,6 +13,7 @@ interface Props {
 
 export function AdminProductsTable({ products }: Props) {
   const router = useRouter();
+  const locale = useLocale();
 
   const columns: Column<Product>[] = [
     {
@@ -99,7 +101,7 @@ export function AdminProductsTable({ products }: Props) {
       data={products}
       keyExtractor={(p) => p.id}
       emptyMessage="No products yet. Create your first product."
-      onRowClick={(p) => router.push(`/admin/products/${p.id}`)}
+      onRowClick={(p) => router.push(`/${locale}/admin/products/${p.id}`)}
     />
   );
 }

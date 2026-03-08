@@ -15,7 +15,7 @@ export function AnnouncementBar({ text, link }: AnnouncementBarProps) {
   if (dismissed) return null;
 
   return (
-    <div className="relative flex items-center justify-center bg-[#2B1A6B] px-8 py-2 text-sm text-white">
+    <div className="from-primary to-secondary relative flex items-center justify-center bg-gradient-to-r px-8 py-2 text-sm text-white/90">
       {link ? (
         <a href={link} className="hover:underline">
           {text}

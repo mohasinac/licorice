@@ -8,14 +8,15 @@ import { Plus, Trash2, GripVertical } from "lucide-react";
 function useAdminToken(): string | null {
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
+    let unsub: (() => void) | undefined;
     import("@/lib/firebase/client").then(({ getClientAuth }) => {
       const auth = getClientAuth();
-      const unsub = auth.onAuthStateChanged(async (user) => {
+      unsub = auth.onAuthStateChanged(async (user) => {
         if (user) setToken(await user.getIdToken());
         else setToken(null);
       });
-      return unsub;
     });
+    return () => unsub?.();
   }, []);
   return token;
 }
@@ -31,7 +32,7 @@ export default function NavigationSettingsPage() {
 
   useEffect(() => {
     fetch("/api/admin/settings/navigation")
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
       .then((data) => {
         setNav(data);
         setLoading(false);

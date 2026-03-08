@@ -1,5 +1,6 @@
 // components/blog/BlogContent.tsx — Renders Tiptap HTML body with prose typography
-// Safe: Tiptap output is controlled, admin-only authored content
+
+import { sanitizeHtml } from "@/lib/utils";
 
 interface BlogContentProps {
   html: string;
@@ -21,7 +22,7 @@ export function BlogContent({ html }: BlogContentProps) {
         prose-li:marker:text-primary
         prose-pre:bg-foreground/5 prose-pre:rounded-xl prose-pre:text-sm
         prose-code:text-primary prose-code:font-normal prose-code:before:content-none prose-code:after:content-none"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
     />
   );
 }

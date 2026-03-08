@@ -1,7 +1,16 @@
 // app/[locale]/page.tsx
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { getProducts, getBlogs, getCategories, getApprovedReviews, getHomepageSections } from "@/lib/db";
+import {
+  getProducts,
+  getBlogs,
+  getCategories,
+  getConcerns,
+  getApprovedReviews,
+  getHomepageSections,
+} from "@/lib/db";
+import { getLocale } from "next-intl/server";
+import type { Locale } from "@/lib/types";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -10,6 +19,10 @@ import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
 import { BeforeAfterSlider } from "@/components/home/BeforeAfterSlider";
 import { BlogPreview } from "@/components/home/BlogPreview";
 import { NewsletterBanner } from "@/components/home/NewsletterBanner";
+import { InstagramReels } from "@/components/home/InstagramReels";
+import { TrustBadgesStrip } from "@/components/home/TrustBadgesStrip";
+import { ConcernGrid } from "@/components/home/ConcernGrid";
+import { BrandStory } from "@/components/home/BrandStory";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
@@ -20,15 +33,25 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [featuredProducts, newArrivals, categories, reviews, blogs, homepageSections] =
-    await Promise.all([
-      getProducts({ isFeatured: true, limit: 8 }),
-      getProducts({ limit: 8 }),
-      getCategories(),
-      getApprovedReviews(6),
-      getBlogs(undefined, 3),
-      getHomepageSections(),
-    ]);
+  const [
+    featuredProducts,
+    newArrivals,
+    categories,
+    concerns,
+    reviews,
+    blogs,
+    homepageSections,
+    locale,
+  ] = await Promise.all([
+    getProducts({ isFeatured: true, limit: 8 }),
+    getProducts({ limit: 8 }),
+    getCategories(),
+    getConcerns(),
+    getApprovedReviews(6),
+    getBlogs(undefined, 3),
+    getHomepageSections(),
+    getLocale() as Promise<Locale>,
+  ]);
 
   const vis = homepageSections.sectionVisibility;
 
@@ -38,10 +61,14 @@ export default async function HomePage() {
       <CategoryGrid categories={categories} />
       <ProductCarousel title="Bestsellers" products={featuredProducts} />
       <ProductCarousel title="New Arrivals" products={newArrivals} />
-      {vis.showBrandValues && <BrandValues values={homepageSections.brandValues} />}
+      {vis.showConcernGrid && <ConcernGrid concerns={concerns} locale={locale} />}
       {vis.showBeforeAfter && <BeforeAfterSlider />}
+      {vis.showBrandStory && <BrandStory config={homepageSections.brandStory} />}
+      {vis.showBrandValues && <BrandValues values={homepageSections.brandValues} />}
       {vis.showTestimonials && <TestimonialsCarousel reviews={reviews} />}
+      {vis.showInstagramReels && <InstagramReels reels={homepageSections.instagramReels} />}
       {vis.showBlog && <BlogPreview blogs={blogs} />}
+      {vis.showTrustBadges && <TrustBadgesStrip badges={homepageSections.trustBadges} />}
       {vis.showNewsletter && <NewsletterBanner />}
     </>
   );

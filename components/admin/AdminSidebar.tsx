@@ -5,27 +5,29 @@ import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import {
   LayoutDashboard,
-  ShoppingBag,
+  ClipboardList,
   Package,
   Star,
   FileText,
-  LifeBuoy,
+  Headset,
   Settings,
   BookOpen,
-  MessageSquare,
+  CalendarCheck,
   Building2,
   Mail,
   Tag,
   Megaphone,
   Quote,
-  Globe,
+  Compass,
   Home,
   Truck,
-  FileEdit,
+  ScrollText,
   Stethoscope,
   Layers,
-  Target,
+  HeartPulse,
   ChevronDown,
+  Ticket,
+  CreditCard,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -49,11 +51,12 @@ export function AdminSidebar() {
     {
       title: "Commerce",
       items: [
-        { label: "Orders", href: `${base}/orders`, icon: <ShoppingBag className="h-4 w-4" /> },
+        { label: "Orders", href: `${base}/orders`, icon: <ClipboardList className="h-4 w-4" /> },
         { label: "Products", href: `${base}/products`, icon: <Package className="h-4 w-4" /> },
         { label: "Inventory", href: `${base}/inventory`, icon: <Layers className="h-4 w-4" /> },
         { label: "Categories", href: `${base}/categories`, icon: <Tag className="h-4 w-4" /> },
-        { label: "Concerns", href: `${base}/concerns`, icon: <Target className="h-4 w-4" /> },
+        { label: "Concerns", href: `${base}/concerns`, icon: <HeartPulse className="h-4 w-4" /> },
+        { label: "Coupons", href: `${base}/coupons`, icon: <Ticket className="h-4 w-4" /> },
         { label: "Reviews", href: `${base}/reviews`, icon: <Star className="h-4 w-4" /> },
       ],
     },
@@ -77,7 +80,7 @@ export function AdminSidebar() {
     {
       title: "Support",
       items: [
-        { label: "Tickets", href: `${base}/support`, icon: <LifeBuoy className="h-4 w-4" /> },
+        { label: "Tickets", href: `${base}/support`, icon: <Headset className="h-4 w-4" /> },
         {
           label: "Consultations",
           href: `${base}/consultations`,
@@ -94,7 +97,7 @@ export function AdminSidebar() {
         {
           label: "Navigation",
           href: `${base}/settings/navigation`,
-          icon: <Globe className="h-4 w-4" />,
+          icon: <Compass className="h-4 w-4" />,
         },
         {
           label: "Homepage",
@@ -106,11 +109,20 @@ export function AdminSidebar() {
           href: `${base}/settings/shipping`,
           icon: <Truck className="h-4 w-4" />,
         },
-        { label: "Pages", href: `${base}/settings/pages`, icon: <FileEdit className="h-4 w-4" /> },
+        {
+          label: "Pages",
+          href: `${base}/settings/pages`,
+          icon: <ScrollText className="h-4 w-4" />,
+        },
+        {
+          label: "Payments",
+          href: `${base}/settings/payments`,
+          icon: <CreditCard className="h-4 w-4" />,
+        },
         {
           label: "Consultation",
           href: `${base}/settings/consultation`,
-          icon: <MessageSquare className="h-4 w-4" />,
+          icon: <CalendarCheck className="h-4 w-4" />,
         },
       ],
     },

@@ -54,7 +54,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/${locale}/products/${product.slug}`}
-      className="group border-border relative flex flex-col overflow-hidden rounded-2xl border bg-white transition-shadow hover:shadow-md"
+      className="ayur-card group border-border relative flex flex-col overflow-hidden rounded-2xl border bg-white"
     >
       {/* Image */}
       <div className="bg-surface relative aspect-square overflow-hidden">
@@ -105,11 +105,12 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="text-primary font-semibold">
               {formatPrice(defaultVariant?.price ?? 0)}
             </span>
-            {defaultVariant?.compareAtPrice && defaultVariant.compareAtPrice > defaultVariant.price && (
-              <span className="text-muted-foreground text-xs line-through">
-                {formatPrice(defaultVariant.compareAtPrice)}
-              </span>
-            )}
+            {defaultVariant?.compareAtPrice &&
+              defaultVariant.compareAtPrice > defaultVariant.price && (
+                <span className="text-muted-foreground text-xs line-through">
+                  {formatPrice(defaultVariant.compareAtPrice)}
+                </span>
+              )}
           </div>
           {product.rating > 0 && (
             <div className="flex items-center gap-1">

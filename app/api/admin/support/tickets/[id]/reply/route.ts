@@ -2,7 +2,9 @@
 // POST — admin replies to a ticket
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
+
+const HTML_ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function escapeHtml(s: string) { return s.replace(/[&<>"']/g, (c) => HTML_ESC[c]); }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,10 +28,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const message = b.message.trim().slice(0, 2000);
   const isInternalNote = b.isInternalNote === true;
   const newStatus = typeof b.status === "string" ? b.status : "waiting_customer";
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ success: true });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
@@ -72,7 +70,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             from: fromEmail,
             to: recipientEmail,
             subject: `Re: [${ticketData.ticketNumber}] ${ticketData.subject}`,
-            html: `<p>Hi,</p><p>Our support team has replied to your ticket <strong>${ticketData.ticketNumber}</strong>:</p><blockquote style="border-left:3px solid #ccc;padding-left:12px;color:#555">${message}</blockquote><p>Log in to your account to view the full conversation and reply.</p><p>Regards,<br/>Licorice Herbals Support</p>`,
+            html: `<p>Hi,</p><p>Our support team has replied to your ticket <strong>${escapeHtml(ticketData.ticketNumber ?? "")}</strong>:</p><blockquote style="border-left:3px solid #ccc;padding-left:12px;color:#555">${escapeHtml(message)}</blockquote><p>Log in to your account to view the full conversation and reply.</p><p>Regards,<br/>Licorice Herbals Support</p>`,
           });
         }
       } catch (emailErr) {

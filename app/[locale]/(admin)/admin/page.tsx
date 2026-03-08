@@ -15,7 +15,6 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
 import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { getOrders, getProducts, getApprovedReviews } from "@/lib/db";
-import { isFirebaseReady } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Admin Dashboard — Licorice Herbals" };
 
@@ -41,34 +40,6 @@ async function getDashboardStats() {
   const start30Days = new Date(now);
   start30Days.setDate(start30Days.getDate() - 29);
   start30Days.setHours(0, 0, 0, 0);
-
-  // In seed mode return placeholder stats
-  if (!isFirebaseReady()) {
-    // Build 30 zero-revenue points for the chart
-    const revenue30Days = Array.from({ length: 30 }, (_, i) => {
-      const d = new Date(start30Days);
-      d.setDate(d.getDate() + i);
-      return {
-        date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-        amount: 0,
-      };
-    });
-
-    return {
-      revenueToday: 0,
-      revenueThisMonth: 0,
-      ordersToday: 0,
-      pendingConfirmation: 0,
-      pendingWhatsApp: 0,
-      lowStockCount: 0,
-      openTickets: 0,
-      pendingReviews: 0,
-      recentOrders: [] as Awaited<ReturnType<typeof getOrders>>,
-      revenue30Days,
-      orderStatusToday: [] as { label: string; count: number; color: string }[],
-      topProducts30Days: [] as { name: string; revenue: number; units: number }[],
-    };
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
@@ -198,7 +169,10 @@ async function getDashboardStats() {
     const productsSnap = await adminDb.collection("products").where("isActive", "==", true).get();
     const lowStockCount = productsSnap.docs.filter((d) => {
       const data = d.data();
-      return !data.inStock;
+      return (
+        !data.inStock ||
+        (data.stock ?? 0) - (data.reservedStock ?? 0) <= (data.lowStockThreshold ?? 10)
+      );
     }).length;
 
     // Order status donut — today's orders

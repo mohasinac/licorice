@@ -4,17 +4,6 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
 }
 
 /**
- * Returns true when Firebase credentials are present and seed mode is off.
- * Safe to call from both client and server code.
- */
-export function isFirebaseReady(): boolean {
-  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") return false;
-  return !!(
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && process.env.NEXT_PUBLIC_FIREBASE_API_KEY
-  );
-}
-
-/**
  * Safely converts any timestamp-like value to a JS Date.
  * Handles: Date, Firestore admin Timestamp (.toDate()), serialised
  * Timestamp ({seconds} or {_seconds}), ISO string, and epoch ms number.
@@ -37,4 +26,18 @@ export function toSafeDate(val: unknown): Date | null {
     (val as Record<string, unknown>).seconds ?? (val as Record<string, unknown>)._seconds;
   if (typeof secs === "number") return new Date(secs * 1000);
   return null;
+}
+
+/**
+ * Sanitises HTML to prevent XSS when rendering with dangerouslySetInnerHTML.
+ * Strips scripts, event handlers, and dangerous tags while preserving safe
+ * formatting elements used in rich-text content.
+ */
+export function sanitizeHtml(dirty: string): string {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const DOMPurify = require("isomorphic-dompurify");
+  return DOMPurify.sanitize(dirty, {
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: ["target", "allow", "allowfullscreen", "frameborder"],
+  }) as string;
 }

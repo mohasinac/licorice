@@ -19,18 +19,31 @@ export default function AddressesPage() {
 
   useEffect(() => {
     if (!user) return;
-    import("@/lib/firebase/client")
-      .then(({ getClientAuth }) => getClientAuth().currentUser?.getIdToken())
-      .then(async (token) => {
+    const controller = new AbortController();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { getClientAuth } = await import("@/lib/firebase/client");
+        const token = await getClientAuth().currentUser?.getIdToken();
         const res = await fetch("/api/account/addresses", {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: controller.signal,
         });
         if (!res.ok) return;
         const data = await res.json();
-        setAddresses(data.addresses ?? []);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+        if (!cancelled) setAddresses(data.addresses ?? []);
+      } catch (err) {
+        if (!cancelled) console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [user]);
 
   async function handleSave(address: Address) {

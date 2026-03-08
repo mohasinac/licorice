@@ -11,7 +11,7 @@ export const SUPPORT_HOURS = "Mon–Sat, 9:30 AM – 6:30 PM IST";
 export const WHATSAPP_NUMBER = "919999999999"; // international format, no +
 
 export const SOCIAL_LINKS = {
-  instagram: "https://instagram.com/licoriceherbal",
+  instagram: "https://www.instagram.com/licoriceherbal/",
   facebook: "https://facebook.com/licoriceherbal",
   youtube: "https://youtube.com/@licoriceherbal",
 } as const;

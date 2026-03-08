@@ -46,7 +46,8 @@ export async function GET(req: NextRequest) {
     const couriers = checkData.data?.available_courier_companies ?? [];
     const serviceable = couriers.length > 0;
     const codAvailable = couriers.some((c) => c.cod === 1);
-    const minEta = Math.min(...couriers.map((c) => c.estimated_delivery_days ?? 99));
+    const etaDays = couriers.map((c) => c.estimated_delivery_days ?? 99);
+    const minEta = etaDays.length > 0 ? Math.min(...etaDays) : 99;
 
     return NextResponse.json({
       serviceable,

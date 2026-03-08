@@ -2,14 +2,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
-import { isFirebaseReady } from "@/lib/db";
 import { ConsultationCard } from "@/components/admin/ConsultationCard";
 import type { ConsultationBooking } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Consultations — Admin" };
 
 async function getConsultations(): Promise<ConsultationBooking[]> {
-  if (!isFirebaseReady()) return [];
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb

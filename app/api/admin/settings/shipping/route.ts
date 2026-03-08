@@ -29,10 +29,22 @@ export async function PATCH(req: NextRequest) {
   void createdAt; void updatedAt;
 
   // Basic validation: numeric fields must be non-negative
-  const numericFields = ["freeShippingThreshold", "standardRate", "codFee", "expressRate", "sameDayRate"];
+  const numericFields = ["freeShippingThreshold", "standardRate", "codFee", "expressRate", "sameDayRate", "gstPercent"];
   for (const field of numericFields) {
     if (field in safeData && (typeof safeData[field] !== "number" || (safeData[field] as number) < 0)) {
       return NextResponse.json({ error: `${field} must be a non-negative number` }, { status: 400 });
+    }
+  }
+
+  // Validate gstPercent range
+  if ("gstPercent" in safeData && typeof safeData.gstPercent === "number" && safeData.gstPercent > 100) {
+    return NextResponse.json({ error: "gstPercent must be between 0 and 100" }, { status: 400 });
+  }
+
+  // Validate pickupPincode format
+  if ("pickupPincode" in safeData && safeData.pickupPincode && typeof safeData.pickupPincode === "string") {
+    if (!/^\d{6}$/.test(safeData.pickupPincode)) {
+      return NextResponse.json({ error: "pickupPincode must be a 6-digit number" }, { status: 400 });
     }
   }
 

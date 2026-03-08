@@ -2,7 +2,6 @@
 // POST — customer replies to their own ticket
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,10 +21,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   const message = b.message.trim().slice(0, 2000);
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ success: true });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

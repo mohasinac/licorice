@@ -20,7 +20,7 @@ import { CartSummary } from "@/components/cart/CartSummary";
 import { Button } from "@/components/ui/Button";
 import { createOrder } from "@/lib/actions/createOrder";
 import type { Address, PaymentSettings } from "@/lib/types";
-import { COD_FEE } from "@/constants/policies";
+import { COD_FEE, getGstAmount } from "@/constants/policies";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -29,11 +29,26 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-interface CheckoutClientProps {
-  paymentSettings: PaymentSettings;
+interface ShiprocketRate {
+  courierId: number;
+  courierName: string;
+  rate: number;
+  etd: string;
 }
 
-export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
+interface CheckoutClientProps {
+  paymentSettings: PaymentSettings;
+  gstPercent?: number;
+  gstIncluded?: boolean;
+  useShiprocketRates?: boolean;
+}
+
+export function CheckoutClient({
+  paymentSettings,
+  gstPercent = 0,
+  gstIncluded = true,
+  useShiprocketRates = false,
+}: CheckoutClientProps) {
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
@@ -60,10 +75,43 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [placing, setPlacing] = useState(false);
+  const [shiprocketRates, setShiprocketRates] = useState<ShiprocketRate[]>([]);
+  const [fetchingRates, setFetchingRates] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const sub = subtotal();
   const shipping = freeShipping ? 0 : getShippingCharge(shippingMode, sub - discount);
   const codFee = paymentMethod === "cod" ? COD_FEE : 0;
+  const gstAmount = getGstAmount(sub - discount, gstPercent, gstIncluded);
+  const orderTotal = gstIncluded
+    ? sub - discount + shipping + codFee
+    : sub - discount + gstAmount + shipping + codFee;
+
+  // Fetch Shiprocket rates when address pincode changes
+  useEffect(() => {
+    if (!useShiprocketRates || !shippingAddress?.pincode) {
+      setShiprocketRates([]);
+      return;
+    }
+    const controller = new AbortController();
+    setFetchingRates(true);
+    fetch(
+      `/api/shipping-quote?pincode=${shippingAddress.pincode}&weight=500&cod=${paymentMethod === "cod" ? "1" : "0"}`,
+      { signal: controller.signal },
+    )
+      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+      .then((data) => {
+        if (data.source === "shiprocket" && data.rates?.length > 0) {
+          setShiprocketRates(data.rates);
+        } else {
+          setShiprocketRates([]);
+        }
+      })
+      .catch(() => setShiprocketRates([]))
+      .finally(() => setFetchingRates(false));
+    return () => controller.abort();
+  }, [useShiprocketRates, shippingAddress?.pincode, paymentMethod]);
 
   // Load saved addresses for logged-in users
   useEffect(() => {
@@ -123,7 +171,7 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
 
     setPlacing(true);
     try {
-      const guestEmail = !user ? undefined : undefined; // require login or handle guest
+      const guestEmail = !user ? undefined : user.email; // guest flow: TODO capture email
       const result = await createOrder({
         userId: user?.uid,
         guestEmail,
@@ -155,6 +203,15 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
   }
 
   // ── Post-order confirmation step ──────────────────────────────────────────
+  if (!mounted) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Checkout</h1>
+        <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+      </div>
+    );
+  }
+
   if (step === "confirm" && orderId && orderNumber) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
@@ -181,7 +238,7 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
         {paymentMethod === "whatsapp" && (
           <WhatsAppPaymentInstructions
             orderNumber={orderNumber}
-            total={sub - discount + shipping + codFee}
+            total={orderTotal}
             settings={paymentSettings}
           />
         )}
@@ -197,7 +254,7 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
             <p className="text-muted-foreground text-sm">
               {paymentMethod === "cod"
                 ? "Your order is confirmed. Pay ₹" +
-                  fmt(sub - discount + shipping + codFee) +
+                  fmt(orderTotal) +
                   " when it arrives at your door."
                 : "Payment completed. Your order is confirmed!"}
             </p>
@@ -287,11 +344,46 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
               <h2 className="font-heading text-foreground mb-4 text-xl font-semibold">
                 Shipping Method
               </h2>
-              <ShippingOptions
-                subtotal={sub - discount}
-                selected={shippingMode}
-                onChange={setShippingMode}
-              />
+              {fetchingRates && (
+                <p className="text-muted-foreground mb-3 animate-pulse text-sm">
+                  Fetching live courier rates…
+                </p>
+              )}
+              {shiprocketRates.length > 0 ? (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground mb-2 text-xs">
+                    Live rates from Shiprocket for pincode {shippingAddress?.pincode}
+                  </p>
+                  {shiprocketRates.map((rate) => (
+                    <button
+                      key={rate.courierId}
+                      type="button"
+                      onClick={() => {
+                        // Store the selected rate info; use standard mode as proxy
+                        setShippingMode("standard");
+                      }}
+                      className={
+                        "w-full rounded-xl border p-4 text-left transition-all " +
+                        "border-border hover:border-primary/50"
+                      }
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-foreground text-sm font-medium">{rate.courierName}</p>
+                          <p className="text-muted-foreground text-xs">ETA: {rate.etd}</p>
+                        </div>
+                        <span className="text-foreground font-semibold">{fmt(rate.rate)}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <ShippingOptions
+                  subtotal={sub - discount}
+                  selected={shippingMode}
+                  onChange={setShippingMode}
+                />
+              )}
               <Button onClick={() => setStep("payment")} className="mt-6 w-full" size="lg">
                 Continue to Payment →
               </Button>
@@ -315,7 +407,7 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
                 className="mt-6 w-full"
                 size="lg"
               >
-                Place Order — {fmt(sub - discount + shipping + codFee)}
+                Place Order — {fmt(orderTotal)}
               </Button>
               <p className="text-muted-foreground mt-3 text-center text-xs">
                 By placing your order you agree to our{" "}
@@ -339,6 +431,8 @@ export function CheckoutClient({ paymentSettings }: CheckoutClientProps) {
             isCod={paymentMethod === "cod"}
             isFreeShipping={freeShipping}
             locale={locale}
+            gstPercent={gstPercent}
+            gstIncluded={gstIncluded}
           />
           {step !== "cart" && (
             <button

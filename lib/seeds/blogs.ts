@@ -26,7 +26,8 @@ export const SEED_BLOGS: Blog[] = [
 <p>There's something deeply grounding about a 5-minute facial oil massage. The ritual itself reduces cortisol and boosts skin circulation.</p>
 <h2>7. The Numbers Don't Lie</h2>
 <p>In a 12-week independent study, participants using Kumkumadi oil showed 34% improvement in skin brightness and 28% reduction in hyperpigmentation scores.</p>`,
-    coverImage: "/images/blog/kumkumadi-oil-blog.jpg",
+    coverImage:
+      "https://images.pexels.com/photos/8490165/pexels-photo-8490165.jpeg?auto=compress&cs=tinysrgb&w=800",
     author: "Dr. Priya Sharma",
     category: "skincare",
     tags: ["kumkumadi", "face oil", "ayurveda", "brightening"],
@@ -65,7 +66,8 @@ export const SEED_BLOGS: Blog[] = [
 <li>Rinse with lukewarm water.</li>
 <li>Follow with your favourite serum and moisturiser.</li>
 </ol>`,
-    coverImage: "/images/blog/ubtan-guide-blog.jpg",
+    coverImage:
+      "https://images.pexels.com/photos/6978040/pexels-photo-6978040.jpeg?auto=compress&cs=tinysrgb&w=800",
     author: "Kavita Nair",
     category: "skincare",
     tags: ["ubtan", "face mask", "brightening", "natural beauty"],
@@ -106,7 +108,8 @@ export const SEED_BLOGS: Blog[] = [
 <p>Rich in proteins and nicotinic acid — strengthens the hair shaft and adds shine.</p>
 <h2>Inside Out: Diet for Hair Health</h2>
 <p>No topical treatment works to its full potential without adequate nutrition. Key nutrients for hair growth: Protein (keratin building block), Iron (carries oxygen to follicles), Zinc, Biotin, and Vitamin D.</p>`,
-    coverImage: "/images/blog/ayurvedic-hair-blog.jpg",
+    coverImage:
+      "https://images.pexels.com/photos/10427813/pexels-photo-10427813.jpeg?auto=compress&cs=tinysrgb&w=800",
     author: "Dr. Priya Sharma",
     category: "hair-care",
     tags: ["hair care", "ayurveda", "bhringraj", "hair fall"],

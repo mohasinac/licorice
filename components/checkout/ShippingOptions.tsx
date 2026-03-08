@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, Zap, Clock } from "lucide-react";
+import { Truck, Zap, Timer } from "lucide-react";
 import {
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_RATE,
@@ -46,7 +46,7 @@ const SHIPPING_OPTIONS: {
     id: "same_day",
     label: "Same Day Delivery",
     sla: "Same day",
-    icon: Clock,
+    icon: Timer,
     description: "Mumbai pincodes only",
     priceFn: () => 199,
     alwaysAvailable: false,

@@ -14,7 +14,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-heading text-foreground mb-2 text-3xl font-bold">
+      <h1 className="font-heading text-foreground mb-2 text-3xl font-bold tracking-tight">
         Hi{user ? `, ${user.displayName ?? user.email}` : "!"}
       </h1>
       <p className="text-muted-foreground mb-8 text-sm">
@@ -32,7 +32,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           <Link
             key={link.href}
             href={link.href}
-            className="bg-surface hover:border-primary rounded-2xl border border-transparent px-5 py-4 shadow-sm transition-colors"
+            className="ayur-card hover:border-primary/20 border-border rounded-2xl border bg-white px-5 py-4 shadow-sm"
           >
             <span className="text-foreground font-medium">{link.label} →</span>
           </Link>
@@ -42,7 +42,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
       {recentOrders.length > 0 && (
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-foreground text-lg font-semibold">Recent Orders</h2>
+            <h2 className="font-heading text-foreground text-lg font-semibold">Recent Orders</h2>
             <Link
               href={`/${locale}/account/orders`}
               className="text-primary text-sm hover:underline"

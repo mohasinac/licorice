@@ -6,7 +6,7 @@ import { ShoppingBag } from "lucide-react";
 import type { CartItem } from "@/lib/types";
 import type { ShippingMode } from "@/stores/useCheckoutStore";
 import { getShippingCharge } from "./ShippingOptions";
-import { COD_FEE } from "@/constants/policies";
+import { COD_FEE, getGstAmount, GST_PERCENT, GST_INCLUDED } from "@/constants/policies";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -24,6 +24,10 @@ interface OrderSummaryProps {
   isCod?: boolean;
   isFreeShipping?: boolean;
   locale: string;
+  gstPercent?: number;
+  gstIncluded?: boolean;
+  /** Override shipping charge (e.g. from Shiprocket quote) */
+  shiprocketShipping?: number;
 }
 
 export function OrderSummary({
@@ -35,10 +39,23 @@ export function OrderSummary({
   isCod = false,
   isFreeShipping = false,
   locale,
+  gstPercent = GST_PERCENT,
+  gstIncluded = GST_INCLUDED,
+  shiprocketShipping,
 }: OrderSummaryProps) {
-  const shipping = isFreeShipping ? 0 : getShippingCharge(shippingMode, subtotal - discount);
+  const shipping =
+    shiprocketShipping !== undefined
+      ? shiprocketShipping
+      : isFreeShipping
+        ? 0
+        : getShippingCharge(shippingMode, subtotal - discount);
   const codFee = isCod ? COD_FEE : 0;
-  const total = subtotal - discount + shipping + codFee;
+  const discountedSubtotal = subtotal - discount;
+  const gstAmount = getGstAmount(discountedSubtotal, gstPercent, gstIncluded);
+  // If GST is included, total stays the same; if not, add GST on top
+  const total = gstIncluded
+    ? discountedSubtotal + shipping + codFee
+    : discountedSubtotal + gstAmount + shipping + codFee;
 
   return (
     <div className="border-border rounded-xl border p-5">
@@ -84,6 +101,14 @@ export function OrderSummary({
           <div className="flex justify-between text-green-600">
             <span>Discount {couponCode && `(${couponCode})`}</span>
             <span>−{fmt(discount)}</span>
+          </div>
+        )}
+        {gstPercent > 0 && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">
+              GST ({gstPercent}%){gstIncluded ? " incl." : ""}
+            </span>
+            <span>{fmt(gstAmount)}</span>
           </div>
         )}
         <div className="flex justify-between">

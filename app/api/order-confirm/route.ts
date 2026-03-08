@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   // Send email via Resend (if configured)
   const resendKey = process.env.RESEND_API_KEY;
-  const customerEmail = order.guestEmail ?? "";
+  const customerEmail = (order.guestEmail ?? "").trim();
 
   if (resendKey && customerEmail) {
     try {
@@ -85,8 +85,11 @@ export async function POST(req: NextRequest) {
         }),
       });
     } catch (err) {
-      console.warn("[order-confirm] Resend email failed", err);
-      // Non-fatal — continue
+      console.error("[order-confirm] Resend email failed", err);
+      return NextResponse.json(
+        { error: "Failed to send confirmation email. Please retry." },
+        { status: 502 },
+      );
     }
   }
 

@@ -2,8 +2,6 @@
 // Fetch and cache a Shiprocket JWT in Firestore with a 24h TTL.
 // GET  → returns { token }  (from cache if valid, else refreshes)
 
-import { isFirebaseReady } from "@/lib/utils";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -38,8 +36,7 @@ export async function GET(): Promise<Response> {
   }
 
   // 1. Check Firestore cache
-  if (isFirebaseReady()) {
-    try {
+  try {
       const { adminDb } = await import("@/lib/firebase/admin");
       const doc = await adminDb.collection("settings").doc("shiprocketToken").get();
       if (doc.exists) {
@@ -50,7 +47,6 @@ export async function GET(): Promise<Response> {
       }
     } catch (err) {
       console.warn("[shiprocket/token] Firestore cache read failed", err);
-    }
   }
 
   // 2. Fetch fresh token from Shiprocket
@@ -69,8 +65,7 @@ export async function GET(): Promise<Response> {
   const token = data.token;
 
   // 3. Store in Firestore cache
-  if (isFirebaseReady()) {
-    try {
+  try {
       const { adminDb } = await import("@/lib/firebase/admin");
       const { FieldValue } = await import("firebase-admin/firestore");
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // +24h
@@ -81,7 +76,6 @@ export async function GET(): Promise<Response> {
       });
     } catch (err) {
       console.warn("[shiprocket/token] Firestore cache write failed", err);
-    }
   }
 
   return Response.json({ token });

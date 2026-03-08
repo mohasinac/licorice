@@ -2,7 +2,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getProducts } from "@/lib/db";
-import { sortProducts } from "@/components/product/ProductSort";
+import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { ProductSort } from "@/components/product/ProductSort";

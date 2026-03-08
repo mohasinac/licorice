@@ -14,6 +14,9 @@ export const colors = {
   border: "#DDD5F0",
   destructive: "#C0392B",
   success: "#2E7D32",
+  herb: "#3D6B4F",
+  earth: "#8B7355",
+  saffron: "#D4A55A",
 } as const;
 
 export const fonts = {

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   // Verify the order belongs to this user
   const order = await getOrder(orderId);
-  if (!order || (order.userId && order.userId !== user.uid)) {
+  if (!order || order.userId !== user.uid) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
   }
 

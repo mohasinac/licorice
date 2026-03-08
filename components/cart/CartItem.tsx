@@ -32,7 +32,8 @@ export function CartItem({ item }: CartItemProps) {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => updateQty(item.variantId, item.quantity - 1)}
-              className="border-border text-foreground hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md border transition-colors"
+              disabled={item.quantity <= 1}
+              className="border-border text-foreground hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md border transition-colors disabled:opacity-40"
               aria-label="Decrease quantity"
             >
               <Minus className="h-3 w-3" />

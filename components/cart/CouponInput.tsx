@@ -43,6 +43,7 @@ export function CouponInput({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code.trim().toUpperCase(), cartTotal, userId, cartItems }),
       });
+      if (!res.ok) throw new Error(res.statusText);
       const data: CouponResult = await res.json();
       if (data.valid && data.discountAmount !== undefined) {
         onApplied?.(code.trim().toUpperCase(), data.discountAmount);

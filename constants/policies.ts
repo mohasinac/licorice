@@ -4,6 +4,8 @@
 export const FREE_SHIPPING_THRESHOLD = 999; // ₹
 export const STANDARD_SHIPPING_RATE = 80; // ₹
 export const COD_FEE = 50; // ₹ added for Cash on Delivery
+export const GST_PERCENT = 12; // default GST % (cosmetics/skincare)
+export const GST_INCLUDED = true; // product prices include GST
 export const RETURN_WINDOW_DAYS = 3; // days from delivery
 export const PROCESSING_DAYS = "1-2"; // business days
 export const STANDARD_SLA = "5-7 business days";
@@ -32,4 +34,23 @@ export function getShippingCharge(mode: ShippingMode, subtotal: number): number 
     case "same_day":
       return 199;
   }
+}
+
+/**
+ * Calculate GST amount from subtotal.
+ * If GST is included in prices, extract the GST component.
+ * If GST is not included, compute the additional GST to add.
+ */
+export function getGstAmount(
+  subtotal: number,
+  gstPercent: number = GST_PERCENT,
+  gstIncluded: boolean = GST_INCLUDED,
+): number {
+  if (gstPercent <= 0) return 0;
+  if (gstIncluded) {
+    // GST is already in the price — extract the component for display
+    return Math.round((subtotal * gstPercent) / (100 + gstPercent));
+  }
+  // GST is extra — add on top
+  return Math.round((subtotal * gstPercent) / 100);
 }

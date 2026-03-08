@@ -2,7 +2,6 @@
 // PATCH — update ticket status
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,10 +25,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validStatuses = ["open", "in_progress", "waiting_customer", "resolved", "closed"];
   if (!validStatuses.includes(b.status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-  }
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ success: true });
   }
 
   try {

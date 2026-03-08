@@ -1,50 +1,76 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { ShoppingBag, Heart, Search, Menu, User, LogIn } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { ShoppingBag, Heart, Search, Menu, User, UserRoundPlus } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { useWishlistStore } from "@/stores/useWishlistStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileMenu } from "./MobileMenu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BRAND_NAME } from "@/constants/site";
 
 const NAV_ITEMS = [
+  { key: "home", href: "" },
   { key: "shop", href: "/shop" },
-  { key: "concerns", href: "/concerns" },
+  { key: "concerns", href: "/concern" },
   { key: "ingredients", href: "/ingredients" },
   { key: "consultation", href: "/consultation" },
   { key: "blog", href: "/blog" },
   { key: "about", href: "/about" },
 ] as const;
 
-export function Navbar() {
+export function Navbar({ logoUrl }: { logoUrl?: string }) {
   const locale = useLocale();
   const t = useTranslations("nav");
   const itemCount = useCartStore((s) => s.itemCount());
   const openCart = useCartStore((s) => s.openCart);
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
   const user = useAuthStore((s) => s.user);
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <>
-      <header className="border-border sticky top-0 z-40 border-b bg-white/95 backdrop-blur-sm">
+      <header className="border-border/40 sticky top-0 z-40 border-b bg-white/95 shadow-sm backdrop-blur-md">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2">
-            <span className="font-heading text-primary text-2xl font-bold">{BRAND_NAME}</span>
+          <Link href="/" className="flex items-center gap-2">
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={BRAND_NAME}
+                width={140}
+                height={40}
+                className="h-9 w-auto object-contain"
+                priority
+              />
+            ) : (
+              <span className="font-heading text-primary text-xl font-semibold tracking-wide">
+                {BRAND_NAME}
+              </span>
+            )}
           </Link>
 
           {/* Desktop navigation */}
-          <ul className="hidden items-center gap-6 md:flex">
+          <ul className="hidden items-center gap-6 lg:flex">
             {NAV_ITEMS.map(({ key, href }) => (
               <li key={key}>
                 <Link
-                  href={`/${locale}${href}`}
-                  className="text-foreground hover:text-primary text-sm font-medium transition-colors"
+                  href={href || "/"}
+                  className={`text-sm font-medium tracking-wide transition-colors ${
+                    (href ? pathname.startsWith(href) : pathname === "/")
+                      ? "text-primary"
+                      : "text-foreground/80 hover:text-primary"
+                  } ${
+                    key === "consultation"
+                      ? "border-primary/20 bg-primary/5 text-primary rounded-full border px-3 py-1"
+                      : ""
+                  }`}
                 >
                   {t(key as Parameters<typeof t>[0])}
                 </Link>
@@ -57,51 +83,51 @@ export function Navbar() {
             <LanguageSwitcher />
 
             <Link
-              href={`/${locale}/search`}
-              className="text-foreground hover:bg-surface hidden rounded-full p-2 transition-colors md:flex"
+              href="/search"
+              className="text-foreground/70 hover:text-primary hover:bg-primary/5 hidden rounded-full p-2 transition-colors lg:flex"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
             </Link>
 
             <Link
-              href={`/${locale}/wishlist`}
-              className="text-foreground hover:bg-surface relative hidden rounded-full p-2 transition-colors md:flex"
+              href="/account/wishlist"
+              className="text-foreground/70 hover:text-primary hover:bg-primary/5 relative hidden rounded-full p-2 transition-colors lg:flex"
               aria-label="Wishlist"
             >
               <Heart className="h-5 w-5" />
-              {wishlistCount > 0 && (
+              {mounted && wishlistCount > 0 && (
                 <span className="bg-primary absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
                   {wishlistCount > 9 ? "9+" : wishlistCount}
                 </span>
               )}
             </Link>
 
-            {user ? (
+            {mounted && (user ? (
               <Link
-                href={`/${locale}/account`}
-                className="text-foreground hover:bg-surface hidden rounded-full p-2 transition-colors md:flex"
+                href="/account"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 hidden rounded-full p-2 transition-colors lg:flex"
                 aria-label={t("account")}
               >
                 <User className="h-5 w-5" />
               </Link>
             ) : (
               <Link
-                href={`/${locale}/login`}
-                className="text-foreground hover:bg-surface hidden rounded-full p-2 transition-colors md:flex"
+                href="/login"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 hidden rounded-full p-2 transition-colors lg:flex"
                 aria-label={t("login")}
               >
-                <LogIn className="h-5 w-5" />
+                <UserRoundPlus className="h-5 w-5" />
               </Link>
-            )}
+            ))}
 
             <button
               onClick={openCart}
-              className="text-foreground hover:bg-surface relative rounded-full p-2 transition-colors"
+              className="text-foreground/70 hover:text-primary hover:bg-primary/5 relative rounded-full p-2 transition-colors"
               aria-label="Open cart"
             >
               <ShoppingBag className="h-5 w-5" />
-              {itemCount > 0 && (
+              {mounted && itemCount > 0 && (
                 <span className="bg-primary absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
@@ -110,7 +136,7 @@ export function Navbar() {
 
             {/* Mobile hamburger */}
             <button
-              className="text-foreground hover:bg-surface rounded-full p-2 transition-colors md:hidden"
+              className="text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-full p-2 transition-colors lg:hidden"
               aria-label="Open menu"
               onClick={() => setMobileOpen(true)}
             >
@@ -120,7 +146,12 @@ export function Navbar() {
         </nav>
       </header>
 
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} locale={locale} />
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        locale={locale}
+        logoUrl={logoUrl}
+      />
     </>
   );
 }

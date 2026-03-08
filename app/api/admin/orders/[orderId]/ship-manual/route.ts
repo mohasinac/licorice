@@ -4,7 +4,6 @@
 
 import { NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,10 +29,6 @@ export async function POST(
   const { courierName, awbCode, trackingUrl } = body;
   if (!courierName?.trim() || !awbCode?.trim()) {
     return new Response("courierName and awbCode required", { status: 400 });
-  }
-
-  if (!isFirebaseReady()) {
-    return Response.json({ ok: true, mock: true });
   }
 
   const { adminDb } = await import("@/lib/firebase/admin");

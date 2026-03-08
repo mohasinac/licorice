@@ -3,8 +3,7 @@
 import { z } from "zod";
 import type { CartItem, Address, PaymentMethod, OrderItem, Order } from "@/lib/types";
 import type { ShippingMode } from "@/stores/useCheckoutStore";
-import { getShippingCharge, COD_FEE } from "@/constants/policies";
-import { isFirebaseReady } from "@/lib/db";
+import { getShippingCharge, COD_FEE, getGstAmount } from "@/constants/policies";
 
 // ── Input schema ──────────────────────────────────────────────────────────────
 
@@ -77,7 +76,23 @@ export async function createOrder(input: unknown): Promise<CreateOrderResult> {
     ? 0
     : getShippingCharge(data.shippingMode as ShippingMode, discountedSubtotal);
   const codFee = data.paymentMethod === "cod" ? COD_FEE : 0;
-  const total = discountedSubtotal + shippingCharge + codFee;
+
+  // Fetch GST settings from DB (fall back to defaults)
+  let gstPercent = 12;
+  let gstIncluded = true;
+  try {
+    const { getShippingRules } = await import("@/lib/db");
+    const rules = await getShippingRules();
+    gstPercent = rules.gstPercent ?? 12;
+    gstIncluded = rules.gstIncluded ?? true;
+  } catch {
+    /* use defaults */
+  }
+
+  const gstAmount = getGstAmount(discountedSubtotal, gstPercent, gstIncluded);
+  const total = gstIncluded
+    ? discountedSubtotal + shippingCharge + codFee
+    : discountedSubtotal + gstAmount + shippingCharge + codFee;
 
   const orderItems: OrderItem[] = data.items.map((i) => ({
     productId: i.productId,
@@ -91,14 +106,6 @@ export async function createOrder(input: unknown): Promise<CreateOrderResult> {
     total: i.price * i.quantity,
   }));
 
-  // ── Seed mode ─────────────────────────────────────────────────────────────
-  if (!isFirebaseReady()) {
-    const orderNumber = generateFallbackOrderNumber();
-    const orderId = `order_${Date.now()}`;
-    return { success: true, orderId, orderNumber };
-  }
-
-  // ── Firestore mode ────────────────────────────────────────────────────────
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -136,6 +143,7 @@ export async function createOrder(input: unknown): Promise<CreateOrderResult> {
         couponCode: data.couponCode,
         shippingCharge,
         codFee,
+        gstAmount,
         total,
         paymentMethod: data.paymentMethod,
         paymentStatus,

@@ -1,17 +1,14 @@
 "use client";
 // app/[locale]/(auth)/register/page.tsx
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
 import toast from "react-hot-toast";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { BRAND_NAME } from "@/constants/site";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const locale = useLocale();
 
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,7 +31,7 @@ export default function RegisterPage() {
         await updateProfile(cred.user, { displayName: displayName.trim() });
       }
       toast.success("Account created! Welcome to Licorice Herbals.");
-      router.replace(`/${locale}`);
+      router.replace("/");
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code;
       if (code === "auth/email-already-in-use") {
@@ -58,7 +55,7 @@ export default function RegisterPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       toast.success("Account created with Google!");
-      router.replace(`/${locale}`);
+      router.replace("/");
     } catch {
       toast.error("Google sign-in failed. Please try again.");
     } finally {
@@ -144,7 +141,7 @@ export default function RegisterPage() {
 
         <p className="text-muted-foreground mt-6 text-center text-sm">
           Already have an account?{" "}
-          <Link href={`/${locale}/login`} className="text-primary font-medium hover:underline">
+          <Link href="/login" className="text-primary font-medium hover:underline">
             Sign in
           </Link>
         </p>

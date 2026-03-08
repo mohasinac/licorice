@@ -1,6 +1,6 @@
 import {
   Leaf,
-  Shield,
+  Rabbit,
   FlaskConical,
   Award,
   Star,
@@ -12,7 +12,7 @@ import type { BrandValueItem } from "@/lib/types";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Leaf,
-  Shield,
+  Rabbit,
   FlaskConical,
   Award,
   Star,
@@ -28,7 +28,7 @@ const DEFAULT_VALUES: BrandValueItem[] = [
       "Every ingredient is plant-derived, cold-pressed or steam-distilled — nothing synthetic.",
   },
   {
-    icon: "Shield",
+    icon: "Rabbit",
     title: "Cruelty-Free",
     description: "Never tested on animals. PETA-registered and Leaping Bunny certified.",
   },

@@ -50,13 +50,17 @@ export function ContactPageClient() {
   return (
     <div className="bg-background min-h-screen">
       {/* Hero */}
-      <div className="bg-primary/5 py-14">
+      <div className="ayur-hero">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h1 className="font-heading text-foreground text-4xl font-bold">Get in Touch</h1>
-          <p className="text-muted-foreground mt-3 text-lg">
+          <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
+            Reach Out
+          </p>
+          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">Get in Touch</h1>
+          <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
             We&apos;re here to help. Whether it&apos;s a product question or order support, we
             respond promptly.
           </p>
+          <hr className="ayur-divider mt-8 w-32" />
         </div>
       </div>
 
@@ -65,7 +69,7 @@ export function ContactPageClient() {
           {/* Contact info */}
           <div className="flex flex-col gap-6">
             <div className="flex items-start gap-4">
-              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl">
+              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
                 <MessageCircle className="text-primary h-5 w-5" />
               </div>
               <div>
@@ -82,7 +86,7 @@ export function ContactPageClient() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl">
+              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
                 <Mail className="text-primary h-5 w-5" />
               </div>
               <div>
@@ -97,7 +101,7 @@ export function ContactPageClient() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl">
+              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
                 <Clock className="text-primary h-5 w-5" />
               </div>
               <div>
@@ -106,7 +110,7 @@ export function ContactPageClient() {
               </div>
             </div>
 
-            <div className="border-border bg-muted rounded-2xl border p-5">
+            <div className="border-border bg-muted/50 ayur-card rounded-2xl border p-5">
               <p className="text-foreground text-sm font-semibold">📦 Order related issues?</p>
               <p className="text-muted-foreground mt-1 text-sm">
                 For faster help with orders, WhatsApp us with your order number. We typically

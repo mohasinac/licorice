@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, ExternalLink } from "lucide-react";
+import { Copy, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import type { PaymentSettings } from "@/lib/types";
@@ -97,7 +97,7 @@ export function WhatsAppPaymentInstructions({
 
       <Button asChild className="w-full" size="lg">
         <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-          <ExternalLink className="h-4 w-4" />
+          <MessageCircle className="h-4 w-4" />
           Open WhatsApp
         </a>
       </Button>

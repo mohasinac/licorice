@@ -1,6 +1,5 @@
 // app/api/newsletter/route.ts
 import { NextResponse, type NextRequest } from "next/server";
-import { isFirebaseReady } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -20,12 +19,6 @@ export async function POST(request: NextRequest) {
   }
 
   const sanitisedEmail = email.trim().toLowerCase().slice(0, 254);
-
-  if (!isFirebaseReady()) {
-    // Mock mode — log and return success
-    console.log("[newsletter] Mock subscribe:", sanitisedEmail);
-    return NextResponse.json({ success: true });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

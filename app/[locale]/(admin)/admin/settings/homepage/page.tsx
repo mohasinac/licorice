@@ -2,20 +2,21 @@
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import type { HomepageSections, BrandValueItem } from "@/lib/types";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import type { HomepageSections, BrandValueItem, InstagramReelItem } from "@/lib/types";
+import { Plus, Trash2, GripVertical, Instagram } from "lucide-react";
 
 function useAdminToken(): string | null {
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
+    let unsub: (() => void) | undefined;
     import("@/lib/firebase/client").then(({ getClientAuth }) => {
       const auth = getClientAuth();
-      const unsub = auth.onAuthStateChanged(async (user) => {
+      unsub = auth.onAuthStateChanged(async (user) => {
         if (user) setToken(await user.getIdToken());
         else setToken(null);
       });
-      return unsub;
     });
+    return () => unsub?.();
   }, []);
   return token;
 }
@@ -31,7 +32,7 @@ export default function HomepageSettingsPage() {
 
   useEffect(() => {
     fetch("/api/admin/settings/homepage")
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
       .then((d) => {
         setData(d);
         setLoading(false);
@@ -83,6 +84,30 @@ export default function HomepageSettingsPage() {
 
   const removeBrandValue = (idx: number) =>
     setData({ ...data, brandValues: data.brandValues.filter((_, i) => i !== idx) });
+
+  const updateReel = (idx: number, field: keyof InstagramReelItem, value: string) => {
+    const reels = [...data.instagramReels];
+    reels[idx] = { ...reels[idx], [field]: value };
+    setData({ ...data, instagramReels: reels });
+  };
+
+  const addReel = () =>
+    setData({
+      ...data,
+      instagramReels: [
+        ...data.instagramReels,
+        {
+          id: `r${Date.now()}`,
+          caption: "",
+          reelUrl: "",
+          thumbnailUrl: "",
+          sortOrder: data.instagramReels.length + 1,
+        },
+      ],
+    });
+
+  const removeReel = (idx: number) =>
+    setData({ ...data, instagramReels: data.instagramReels.filter((_, i) => i !== idx) });
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -288,6 +313,63 @@ export default function HomepageSettingsPage() {
           </div>
         </section>
 
+        {/* Instagram Reels */}
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
+            <div className="flex items-center gap-2">
+              <Instagram className="h-4 w-4 text-[var(--primary)]" />
+              <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">
+                Instagram Reels
+              </h3>
+            </div>
+            <button
+              onClick={addReel}
+              className="flex items-center gap-1 text-sm text-[var(--primary)] hover:underline"
+            >
+              <Plus className="h-4 w-4" /> Add Reel
+            </button>
+          </div>
+          <div className="space-y-4 px-6 py-5">
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Paste Instagram reel URLs (e.g. https://www.instagram.com/reel/ABC123/). They will be
+              embedded on the homepage.
+            </p>
+            {data.instagramReels.map((reel, idx) => (
+              <div
+                key={reel.id}
+                className="flex items-start gap-3 rounded-lg border border-[var(--border)] p-3"
+              >
+                <GripVertical className="mt-2 h-4 w-4 flex-shrink-0 text-[var(--muted-foreground)]" />
+                <div className="flex-1 space-y-2">
+                  <input
+                    className={inputCls}
+                    placeholder="Reel URL (https://www.instagram.com/reel/...)"
+                    value={reel.reelUrl ?? ""}
+                    onChange={(e) => updateReel(idx, "reelUrl", e.target.value)}
+                  />
+                  <input
+                    className={inputCls}
+                    placeholder="Caption (optional)"
+                    value={reel.caption}
+                    onChange={(e) => updateReel(idx, "caption", e.target.value)}
+                  />
+                </div>
+                <button
+                  onClick={() => removeReel(idx)}
+                  className="mt-2 text-[var(--destructive)] hover:opacity-70"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            {data.instagramReels.length === 0 && (
+              <p className="py-4 text-center text-sm text-[var(--muted-foreground)]">
+                No reels added yet. Click &ldquo;Add Reel&rdquo; to embed Instagram content.
+              </p>
+            )}
+          </div>
+        </section>
+
         {/* Section Visibility */}
         <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
           <div className="border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
@@ -303,6 +385,10 @@ export default function HomepageSettingsPage() {
                 ["showBlog", "Blog Preview"],
                 ["showNewsletter", "Newsletter Banner"],
                 ["showBrandValues", "Brand Values"],
+                ["showInstagramReels", "Instagram Reels"],
+                ["showTrustBadges", "Trust Badges"],
+                ["showBrandStory", "Brand Story"],
+                ["showConcernGrid", "Concern Grid"],
               ] as const
             ).map(([key, label]) => (
               <div

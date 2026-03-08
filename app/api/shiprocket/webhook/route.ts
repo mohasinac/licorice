@@ -23,7 +23,6 @@
 
 import { NextRequest } from "next/server";
 import { createHmac } from "crypto";
-import { isFirebaseReady } from "@/lib/utils";
 import { mapShiprocketStatus } from "@/lib/shiprocket";
 import type { OrderStatus } from "@/lib/types";
 
@@ -88,12 +87,6 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (!mapped) {
     // Unknown / uninteresting status — acknowledge receipt without processing
     return Response.json({ ok: true, skipped: true });
-  }
-
-  if (!isFirebaseReady()) {
-    // Dev/mock mode — log and return OK
-    console.info("[webhook/shiprocket] Mock mode — logged:", mapped.orderStatus, currentStatus);
-    return Response.json({ ok: true, mock: true });
   }
 
   try {

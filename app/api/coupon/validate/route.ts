@@ -56,12 +56,12 @@ export async function POST(req: NextRequest) {
   }
 
   // 4. Global usage limit
-  if (coupon.usageLimit !== undefined && coupon.usedCount >= coupon.usageLimit) {
+  if (coupon.usageLimit != null && coupon.usedCount >= coupon.usageLimit) {
     return NextResponse.json({ valid: false, error: "This coupon has reached its usage limit." });
   }
 
   // 5. Per-user usage limit (Firestore-based check)
-  if (userId && coupon.usageLimitPerUser !== undefined) {
+  if (userId && coupon.usageLimitPerUser != null) {
     try {
       const { adminDb } = await import("@/lib/firebase/admin");
       const usageSnap = await adminDb
@@ -72,8 +72,12 @@ export async function POST(req: NextRequest) {
       if (usageSnap.size >= coupon.usageLimitPerUser) {
         return NextResponse.json({ valid: false, error: "You have already used this coupon." });
       }
-    } catch {
-      // If Firebase is unavailable, skip per-user check in dev/mock mode
+    } catch (err) {
+      console.warn("[coupon/validate] Per-user usage check failed", err);
+      return NextResponse.json(
+        { valid: false, error: "Unable to verify coupon usage. Please try again." },
+        { status: 503 },
+      );
     }
   }
 

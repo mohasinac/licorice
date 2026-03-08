@@ -13,12 +13,12 @@ export default function AboutPage() {
   return (
     <div className="bg-background">
       {/* Hero */}
-      <div className="bg-primary/5 py-20">
+      <div className="ayur-hero py-20">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <p className="text-primary mb-2 text-sm font-semibold tracking-widest uppercase">
+          <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
             Our Story
           </p>
-          <h1 className="font-heading text-foreground text-5xl leading-tight font-bold">
+          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
             Rooted in Nature. <br />
             Proven by Ayurveda.
           </h1>
@@ -26,6 +26,7 @@ export default function AboutPage() {
             {BRAND_NAME} was founded with a single purpose — to bring the healing wisdom of Ayurveda
             into your daily ritual, without compromise.
           </p>
+          <hr className="ayur-divider mt-8 w-32" />
         </div>
       </div>
 
@@ -93,7 +94,7 @@ export default function AboutPage() {
                 desc: "Free consultations, transparent policies, and a support team that genuinely cares.",
               },
             ].map((card) => (
-              <div key={card.title} className="border-border rounded-2xl border p-6">
+              <div key={card.title} className="ayur-card border-border rounded-2xl border bg-white p-6">
                 <h3 className="font-heading text-foreground mb-2 text-lg font-semibold">
                   {card.title}
                 </h3>

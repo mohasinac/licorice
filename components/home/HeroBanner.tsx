@@ -3,8 +3,17 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { Leaf, Rabbit, FlaskConical, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { BotanicalOrnaments } from "./BotanicalOrnaments";
 import type { HeroBannerConfig } from "@/lib/types";
+
+const TRUST_BADGES = [
+  { icon: Leaf, label: "100% Natural" },
+  { icon: Rabbit, label: "Cruelty Free" },
+  { icon: FlaskConical, label: "Dermat Tested" },
+  { icon: Award, label: "GMP Certified" },
+] as const;
 
 interface HeroBannerProps {
   config?: HeroBannerConfig;
@@ -19,58 +28,114 @@ export function HeroBanner({ config }: HeroBannerProps) {
     "Licorice Herbals blends time-honoured botanical extracts with precision formulation for skin and hair that truly thrives.";
   const primaryCtaText = config?.primaryCtaText ?? "Explore Products";
   const primaryCtaHref = config?.primaryCtaHref ?? "/shop";
-  const secondaryCtaText = config?.secondaryCtaText ?? "Our Story";
-  const secondaryCtaHref = config?.secondaryCtaHref ?? "/about";
+  const secondaryCtaText = config?.secondaryCtaText ?? "Free Consultation";
+  const secondaryCtaHref = config?.secondaryCtaHref ?? "/consultation";
 
   return (
-    <section className="from-primary to-primary/80 relative flex min-h-[80vh] items-center overflow-hidden bg-gradient-to-br">
-      {/* Decorative circles */}
-      <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-white/5" />
-      <div className="pointer-events-none absolute -bottom-48 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-white/[0.03]" />
+    <section className="from-primary via-primary/90 to-secondary relative flex min-h-[85vh] items-center overflow-hidden bg-gradient-to-br">
+      {/* Mandala pattern — large subtle ring */}
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="h-[700px] w-[700px] animate-[spin_120s_linear_infinite] rounded-full border border-white/[0.04]" />
+      </div>
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="h-[500px] w-[500px] animate-[spin_90s_linear_infinite_reverse] rounded-full border border-dashed border-white/[0.06]" />
+      </div>
 
-      <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-24 text-center sm:px-6 lg:px-8">
+      {/* Butterflies & leaves on the dashed ring */}
+      <BotanicalOrnaments radius={250} />
+
+      {/* Floating botanical dots */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="bg-accent/20 pointer-events-none absolute rounded-full"
+          style={{
+            width: 4 + (i % 3) * 4,
+            height: 4 + (i % 3) * 4,
+            top: `${15 + i * 13}%`,
+            left: `${8 + i * 15}%`,
+          }}
+          animate={{ y: [0, -20, 0], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
+
+      {/* Corner flourish SVGs */}
+      <svg
+        className="pointer-events-none absolute top-8 left-8 h-24 w-24 text-white/[0.06]"
+        viewBox="0 0 100 100"
+        fill="none"
+      >
+        <path d="M0 100 C0 45 45 0 100 0" stroke="currentColor" strokeWidth="1" />
+        <path d="M0 70 C0 32 32 0 70 0" stroke="currentColor" strokeWidth="0.5" />
+      </svg>
+      <svg
+        className="pointer-events-none absolute right-8 bottom-8 h-24 w-24 rotate-180 text-white/[0.06]"
+        viewBox="0 0 100 100"
+        fill="none"
+      >
+        <path d="M0 100 C0 45 45 0 100 0" stroke="currentColor" strokeWidth="1" />
+        <path d="M0 70 C0 32 32 0 70 0" stroke="currentColor" strokeWidth="0.5" />
+      </svg>
+
+      <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-28 text-center sm:px-6 lg:px-8">
+        {/* Pill badge */}
         <motion.span
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="border-accent/40 bg-accent/10 text-accent inline-flex rounded-full border px-4 py-1 text-xs font-medium tracking-widest uppercase"
+          className="border-accent/30 bg-accent/10 text-accent inline-flex items-center gap-2 rounded-full border px-5 py-1.5 text-xs font-medium tracking-[0.2em] uppercase backdrop-blur-sm"
         >
+          <span className="bg-accent inline-block h-1.5 w-1.5 rounded-full" />
           Ancient Wisdom · Modern Care
+          <span className="bg-accent inline-block h-1.5 w-1.5 rounded-full" />
         </motion.span>
 
+        {/* Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-heading text-4xl font-bold text-white sm:text-5xl md:text-6xl lg:text-7xl"
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="font-heading text-4xl leading-[1.1] font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
         >
           {headline.includes("\n")
             ? headline.split("\n").map((line, i) => (
-                <span key={i}>
-                  {i > 0 && <br />}
-                  {line}
+                <span key={i} className="block">
+                  {i === 1 ? (
+                    <span className="from-accent to-accent/70 bg-gradient-to-r bg-clip-text text-transparent">
+                      {line}
+                    </span>
+                  ) : (
+                    line
+                  )}
                 </span>
               ))
             : headline}
         </motion.h1>
 
+        {/* Subheadline */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-xl text-base text-white/70 sm:text-lg"
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="max-w-2xl text-base leading-relaxed text-white/60 sm:text-lg"
         >
           {subheadline}
         </motion.p>
 
+        {/* CTAs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col gap-3 sm:flex-row"
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="flex flex-col gap-4 sm:flex-row"
         >
           <Link href={`/${locale}${primaryCtaHref}`}>
-            <Button size="lg" variant="secondary">
+            <Button
+              size="lg"
+              variant="secondary"
+              className="px-8 text-base shadow-lg shadow-white/10"
+            >
               {primaryCtaText}
             </Button>
           </Link>
@@ -78,28 +143,34 @@ export function HeroBanner({ config }: HeroBannerProps) {
             <Button
               size="lg"
               variant="outline"
-              className="border-white/40 text-white hover:bg-white/10 hover:text-white"
+              className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent px-8 text-base"
             >
               {secondaryCtaText}
             </Button>
           </Link>
         </motion.div>
 
-        {/* Trust badges */}
+        {/* Trust badges — pill style */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/50"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.55 }}
+          className="mt-4 flex flex-wrap items-center justify-center gap-4"
         >
-          {["100% Natural", "Cruelty Free", "Dermat Tested", "GMP Certified"].map((badge) => (
-            <span key={badge} className="flex items-center gap-1.5">
-              <span className="bg-accent h-1 w-1 rounded-full" />
-              {badge}
+          {TRUST_BADGES.map(({ icon: Icon, label }) => (
+            <span
+              key={label}
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/60 backdrop-blur-sm"
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
             </span>
           ))}
         </motion.div>
       </div>
+
+      {/* Bottom fade */}
+      <div className="from-background pointer-events-none absolute right-0 bottom-0 left-0 h-24 bg-gradient-to-t" />
     </section>
   );
 }

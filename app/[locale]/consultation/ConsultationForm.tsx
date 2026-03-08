@@ -6,8 +6,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { Calendar, Clock, CheckCircle2, Leaf } from "lucide-react";
+import { Calendar, Clock, CheckCircle2, Leaf, Video, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { sanitizeHtml } from "@/lib/utils";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { bookConsultation } from "@/lib/actions/bookConsultation";
@@ -31,6 +32,7 @@ const schema = z.object({
   concern: z.array(z.string()).min(1, "Select at least one concern"),
   preferredDate: z.string().min(1, "Date is required"),
   preferredTime: z.string().min(1, "Time slot is required"),
+  mode: z.enum(["remote", "in-person"]),
   message: z.string().max(1000).optional(),
 });
 
@@ -39,6 +41,9 @@ type FormData = z.infer<typeof schema>;
 interface Props {
   consultantName: string;
   consultantBio: string;
+  clinicName: string;
+  clinicAddress: string;
+  clinicMapUrl?: string;
 }
 
 // Get tomorrow's date in YYYY-MM-DD format (earliest bookable date)
@@ -48,7 +53,13 @@ function getTomorrowDate(): string {
   return d.toISOString().split("T")[0];
 }
 
-export function ConsultationForm({ consultantName, consultantBio }: Props) {
+export function ConsultationForm({
+  consultantName,
+  consultantBio,
+  clinicName,
+  clinicAddress,
+  clinicMapUrl,
+}: Props) {
   const [success, setSuccess] = useState(false);
 
   const {
@@ -59,10 +70,11 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { concern: [] },
+    defaultValues: { concern: [], mode: "remote" },
   });
 
   const selectedConcerns = watch("concern") ?? [];
+  const selectedMode = watch("mode");
 
   function toggleConcern(id: string) {
     const next = selectedConcerns.includes(id)
@@ -84,9 +96,11 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <CheckCircle2 className="mb-4 h-14 w-14 text-green-600" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle2 className="h-8 w-8 text-green-600" />
+        </div>
         <h2 className="font-heading text-foreground text-2xl font-bold">Booking Received!</h2>
-        <p className="text-muted-foreground mt-3 max-w-md text-sm">
+        <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
           Thank you for booking a free consultation with Licorice Herbals. We&apos;ll confirm your
           slot within 24 hours via email or phone.
         </p>
@@ -98,25 +112,25 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
     <div className="grid gap-12 lg:grid-cols-2">
       {/* Consultant bio */}
       <div className="flex flex-col gap-6">
-        <div className="bg-primary/5 rounded-2xl p-6">
+        <div className="ayur-card rounded-2xl border border-border bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-4">
-            <div className="bg-primary/20 flex h-16 w-16 items-center justify-center rounded-full">
+            <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full">
               <Leaf className="text-primary h-8 w-8" />
             </div>
             <div>
               <h3 className="text-foreground font-semibold">{consultantName}</h3>
-              <p className="text-primary text-sm">Ayurvedic Practitioner</p>
+              <p className="text-accent text-sm font-semibold">Ayurvedic Practitioner</p>
             </div>
           </div>
           <div
             className="text-muted-foreground text-sm leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: consultantBio }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(consultantBio) }}
           />
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100">
               <CheckCircle2 className="h-4 w-4 text-green-700" />
             </div>
             <div>
@@ -125,7 +139,7 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
               <Clock className="h-4 w-4 text-blue-700" />
             </div>
             <div>
@@ -136,7 +150,7 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100">
               <Calendar className="h-4 w-4 text-purple-700" />
             </div>
             <div>
@@ -149,6 +163,53 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
 
       {/* Booking form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        {/* Consultation mode toggle */}
+        <div>
+          <p className="text-foreground mb-2 text-sm font-medium">
+            Consultation Type <span className="text-destructive ml-0.5">*</span>
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setValue("mode", "remote", { shouldValidate: true })}
+              className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                selectedMode === "remote"
+                  ? "border-primary bg-primary/5 text-primary shadow-sm"
+                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
+              }`}
+            >
+              <Video className="h-4 w-4" /> Remote (Phone / Video)
+            </button>
+            <button
+              type="button"
+              onClick={() => setValue("mode", "in-person", { shouldValidate: true })}
+              className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                selectedMode === "in-person"
+                  ? "border-primary bg-primary/5 text-primary shadow-sm"
+                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
+              }`}
+            >
+              <MapPin className="h-4 w-4" /> In-Person
+            </button>
+          </div>
+          {selectedMode === "in-person" && (
+            <div className="mt-3 rounded-xl border border-primary/15 bg-primary/5 p-3">
+              <p className="text-foreground text-sm font-semibold">{clinicName}</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">{clinicAddress}</p>
+              {clinicMapUrl && (
+                <a
+                  href={clinicMapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary mt-1.5 inline-flex items-center gap-1 text-xs font-medium hover:underline"
+                >
+                  <MapPin className="h-3 w-3" /> View on Google Maps
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="Full Name"
@@ -183,10 +244,10 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
                 key={c.id}
                 type="button"
                 onClick={() => toggleConcern(c.id)}
-                className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                className={`rounded-full border px-3 py-1.5 text-sm transition-all duration-200 ${
                   selectedConcerns.includes(c.id)
-                    ? "border-primary bg-primary text-white"
-                    : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                    ? "border-primary bg-primary text-white shadow-sm"
+                    : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
                 }`}
               >
                 {c.label}
@@ -207,12 +268,12 @@ export function ConsultationForm({ consultantName, consultantBio }: Props) {
             {...register("preferredDate")}
           />
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-foreground">
               Preferred Time <span className="text-destructive">*</span>
             </label>
             <select
               {...register("preferredTime")}
-              className="border-border text-foreground w-full rounded-xl border px-3 py-2.5 text-sm focus:ring-2 focus:ring-purple-500/30 focus:outline-none"
+              className="border-border text-foreground w-full rounded-xl border bg-white px-4 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             >
               <option value="">Select time slot</option>
               {TIME_SLOTS.map((t) => (

@@ -131,7 +131,7 @@ export function TicketInbox({ tickets, locale = "en" }: Props) {
                       "—"}
                   </p>
                 </div>
-                <div className="text-muted-foreground flex flex-shrink-0 items-center gap-1 text-xs">
+                <div className="text-muted-foreground flex flex-shrink-0 items-center gap-1 text-xs" suppressHydrationWarning>
                   <Clock className="h-3 w-3" />
                   {formatDate(ticket.updatedAt ?? ticket.createdAt)}
                 </div>

@@ -55,9 +55,11 @@ export default async function TrackPage({ params, searchParams }: PageProps) {
     if (order) {
       // Verify email for guest/public access
       if (email) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedPhone = email.trim().replace(/\D/g, "");
         const emailMatches =
-          order.guestEmail?.toLowerCase() === email.toLowerCase() ||
-          order.shippingAddress?.phone === email; // allow phone too
+          order.guestEmail?.toLowerCase() === normalizedEmail ||
+          order.shippingAddress?.phone?.replace(/\D/g, "") === normalizedPhone;
         if (!emailMatches) {
           order = null; // hide order if email doesn&apos;t match
         }

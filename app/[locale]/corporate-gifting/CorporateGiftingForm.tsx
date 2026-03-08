@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { CheckCircle2, Gift, Package, Star, Users } from "lucide-react";
+import { CheckCircle2, Gift, Sparkles, Paintbrush, BadgePercent } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -30,13 +30,13 @@ type FormData = z.output<typeof schema>;
 
 const VALUE_PROPS = [
   {
-    icon: Package,
+    icon: Sparkles,
     title: "Premium Ayurvedic Products",
     desc: "Gift authentic, certified Ayurvedic skincare and wellness products your team will love.",
     color: "bg-purple-100 text-purple-700",
   },
   {
-    icon: Star,
+    icon: Paintbrush,
     title: "Custom Branding",
     desc: "Add your company's logo and message on the packaging for a truly personal touch.",
     color: "bg-amber-100 text-amber-700",
@@ -48,7 +48,7 @@ const VALUE_PROPS = [
     color: "bg-green-100 text-green-700",
   },
   {
-    icon: Users,
+    icon: BadgePercent,
     title: "Volume Discounts",
     desc: "Special pricing for orders of 50+ units. Dedicated account manager for large orders.",
     color: "bg-blue-100 text-blue-700",
@@ -80,9 +80,11 @@ export function CorporateGiftingForm() {
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <CheckCircle2 className="mb-4 h-14 w-14 text-green-600" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle2 className="h-8 w-8 text-green-600" />
+        </div>
         <h2 className="font-heading text-foreground text-2xl font-bold">Inquiry Received!</h2>
-        <p className="text-muted-foreground mt-3 max-w-md text-sm">
+        <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
           Thank you for your interest in Licorice Herbals corporate gifting. Our team will reach out
           with a customised quote within 1–2 business days.
         </p>
@@ -97,7 +99,7 @@ export function CorporateGiftingForm() {
         {VALUE_PROPS.map(({ icon: Icon, title, desc, color }) => (
           <div key={title} className="flex items-start gap-4">
             <div
-              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${color}`}
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${color}`}
             >
               <Icon className="h-5 w-5" />
             </div>

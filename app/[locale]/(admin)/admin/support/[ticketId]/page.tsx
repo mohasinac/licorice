@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { isFirebaseReady } from "@/lib/db";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { AdminTicketActions } from "./AdminTicketActions";
 import type { SupportTicket, TicketMessage } from "@/lib/types";
@@ -13,7 +12,6 @@ export const metadata: Metadata = { title: "Support Ticket — Admin" };
 async function getAdminTicket(
   ticketId: string,
 ): Promise<{ ticket: SupportTicket; messages: TicketMessage[] } | null> {
-  if (!isFirebaseReady()) return null;
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const ticketDoc = await adminDb.collection("supportTickets").doc(ticketId).get();
@@ -57,23 +55,6 @@ export default async function AdminTicketDetailPage({
 
   // In mock mode (no Firebase) show placeholder
   if (!result) {
-    if (!isFirebaseReady()) {
-      return (
-        <div className="mx-auto max-w-4xl px-4 py-8">
-          <Link
-            href={`/${locale}/admin/support`}
-            className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-1 text-sm"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back to Inbox
-          </Link>
-          <div className="bg-surface rounded-2xl p-8 text-center shadow-sm">
-            <p className="text-muted-foreground text-sm">
-              Connect Firebase to manage support tickets.
-            </p>
-          </div>
-        </div>
-      );
-    }
     notFound();
   }
 

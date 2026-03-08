@@ -1,17 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import toast from "react-hot-toast";
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
-  const [displayName, setDisplayName] = useState(user?.displayName ?? "");
+  const { user, loading } = useAuthStore();
+  const router = useRouter();
+  const locale = useLocale();
+  const [displayName, setDisplayName] = useState("");
   const [saving, setSaving] = useState(false);
 
-  if (!user) return null;
+  // Sync displayName when user loads (auth store hydrates async)
+  useEffect(() => {
+    if (user?.displayName) setDisplayName(user.displayName);
+  }, [user?.displayName]);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) router.replace(`/${locale}/login`);
+  }, [loading, user, router, locale]);
+
+  if (loading || !user) return null;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();

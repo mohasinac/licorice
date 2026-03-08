@@ -2,7 +2,7 @@
 // POST — create blog, PATCH — update blog (admin only)
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { saveBlog, deleteBlog, isFirebaseReady } from "@/lib/db";
+import { saveBlog, deleteBlog } from "@/lib/db";
 import type { BlogCategory, BlogStatus } from "@/lib/types";
 
 const VALID_CATEGORIES: BlogCategory[] = ["skincare", "hair-care", "diet-lifestyle", "ayurveda"];

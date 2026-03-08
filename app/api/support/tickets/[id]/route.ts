@@ -2,7 +2,6 @@
 // GET — fetch a single ticket + its messages (owner or admin)
 import { NextResponse } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 import { toSafeDate } from "@/lib/utils";
 import type { SupportTicket, TicketMessage } from "@/lib/types";
 
@@ -10,10 +9,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const user = await getServerUser();
   if (!user) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ ticket: null, messages: [] });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

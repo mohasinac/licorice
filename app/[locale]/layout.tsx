@@ -68,6 +68,7 @@ export default async function LocaleLayout({
   }
 
   const [messages, siteConfig] = await Promise.all([getMessages(), getSiteConfig()]);
+  const logoUrl = siteConfig?.logoUrl || "/logo.png";
 
   return (
     <html lang={locale} className={`${cormorant.variable} ${inter.variable}`}>
@@ -79,15 +80,15 @@ export default async function LocaleLayout({
       <body className="bg-background text-foreground min-h-screen antialiased">
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            {siteConfig.announcementText && (
+            {siteConfig?.announcementText && (
               <AnnouncementBar
                 text={siteConfig.announcementText}
                 link={siteConfig.announcementLink}
               />
             )}
-            <Navbar />
+            <Navbar logoUrl={logoUrl} />
             <main className="min-h-[calc(100vh-4rem)]">{children}</main>
-            <Footer />
+            <Footer logoUrl={logoUrl} />
             <CartDrawer />
             <Toaster
               position="bottom-right"

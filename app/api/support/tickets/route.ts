@@ -3,7 +3,6 @@
 // POST — create a new ticket (auth required)
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 import { toSafeDate } from "@/lib/utils";
 import type { SupportTicket } from "@/lib/types";
 
@@ -14,10 +13,6 @@ function generateTicketNumber(): string {
 export async function GET() {
   const user = await getServerUser();
   if (!user) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ tickets: [] });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
@@ -71,10 +66,6 @@ export async function POST(request: NextRequest) {
   const category = typeof b.category === "string" ? b.category : "other";
   const orderId = typeof b.orderId === "string" ? b.orderId : undefined;
   const ticketNumber = generateTicketNumber();
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ success: true, ticketNumber, ticketId: "mock-ticket-id" });
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

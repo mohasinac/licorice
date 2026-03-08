@@ -8,7 +8,8 @@ export const SEED_CONCERNS: Concern[] = [
     slug: "pimples-open-pores",
     description:
       "Ayurvedic formulations with neem, tulsi, and manjistha to clear breakouts and reduce open pores.",
-    imageUrl: "/images/concerns/acne.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/3762466/pexels-photo-3762466.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_pigmentation",
@@ -16,21 +17,24 @@ export const SEED_CONCERNS: Concern[] = [
     slug: "pigmentation-melasma",
     description:
       "Licorice, kojic acid, and saffron-powered blends to fade dark patches and even skin tone.",
-    imageUrl: "/images/concerns/pigmentation.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/3785147/pexels-photo-3785147.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_brightening",
     label: "Brightening",
     slug: "brightening",
     description: "Kumkumadi oil, Vitamin C, and turmeric for a luminous, lit-from-within glow.",
-    imageUrl: "/images/concerns/brightening.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/3762871/pexels-photo-3762871.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_anti_ageing",
     label: "Anti-Ageing",
     slug: "anti-ageing",
     description: "Ashwagandha, shatavari, and potent oils to firm skin and reduce fine lines.",
-    imageUrl: "/images/concerns/anti-ageing.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/3738363/pexels-photo-3738363.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_tanning",
@@ -38,14 +42,16 @@ export const SEED_CONCERNS: Concern[] = [
     slug: "tanning",
     description:
       "SPF-based and de-tan formulas to reverse sun damage and restore your natural skin tone.",
-    imageUrl: "/images/concerns/tanning.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/3373716/pexels-photo-3373716.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_dryness",
     label: "Dryness & Dull Skin",
     slug: "dryness",
     description: "Deep-moisturising butters, oils, and creams with shea, almond, and aloe vera.",
-    imageUrl: "/images/concerns/dryness.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/6847872/pexels-photo-6847872.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_hair_care",
@@ -53,13 +59,15 @@ export const SEED_CONCERNS: Concern[] = [
     slug: "hair-care",
     description:
       "Bhringraj, amla, and Kesh-care formulas to strengthen roots and reduce hair fall.",
-    imageUrl: "/images/concerns/hair-care.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/10427813/pexels-photo-10427813.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "concern_blemishes",
     label: "Blemishes & Dark Spots",
     slug: "blemishes-dark-spots",
     description: "Targeted serums and oils to fade post-acne marks and hyperpigmentation.",
-    imageUrl: "/images/concerns/blemishes.jpg",
+    imageUrl:
+      "https://images.pexels.com/photos/11464419/pexels-photo-11464419.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
 ];

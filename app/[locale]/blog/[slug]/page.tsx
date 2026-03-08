@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/Badge";
 import { BlogContent } from "@/components/blog/BlogContent";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { ProductCard } from "@/components/product/ProductCard";
-import { SEED_BLOGS } from "@/lib/seeds";
 
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]*>/g, "");
@@ -17,7 +16,8 @@ function estimateReadTime(html: string): number {
 }
 
 export async function generateStaticParams() {
-  return SEED_BLOGS.filter((b) => b.status === "published").map((b) => ({ slug: b.slug }));
+  const blogs = await getBlogs();
+  return blogs.filter((b) => b.status === "published").map((b) => ({ slug: b.slug }));
 }
 
 export async function generateMetadata({
@@ -48,7 +48,12 @@ export default async function BlogDetailPage({
   const blog = await getBlog(slug);
   if (!blog) notFound();
 
-  const publishDate = blog.publishedAt instanceof Date ? blog.publishedAt : new Date();
+  const publishDate =
+    blog.publishedAt instanceof Date
+      ? blog.publishedAt
+      : typeof blog.publishedAt?.toDate === "function"
+        ? blog.publishedAt.toDate()
+        : new Date();
   const readTime = estimateReadTime(blog.body);
 
   // Fetch related posts (exclude current)
@@ -96,7 +101,7 @@ export default async function BlogDetailPage({
             sizes="100vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-primary/10">
+          <div className="bg-primary/10 flex h-full items-center justify-center">
             <p className="text-muted-foreground">No cover image</p>
           </div>
         )}
@@ -115,7 +120,7 @@ export default async function BlogDetailPage({
         {/* Header */}
         <header className="mt-6">
           <Badge variant="info">{blog.category}</Badge>
-          <h1 className="font-heading text-foreground mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+          <h1 className="font-heading text-foreground mt-3 text-3xl leading-tight font-bold sm:text-4xl">
             {blog.title}
           </h1>
           <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-4 text-sm">
@@ -151,7 +156,7 @@ export default async function BlogDetailPage({
             {blog.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-xs font-medium"
               >
                 #{tag}
               </span>
@@ -161,7 +166,7 @@ export default async function BlogDetailPage({
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-16 border-t border-border pt-12">
+          <section className="border-border mt-16 border-t pt-12">
             <h2 className="font-heading text-foreground mb-6 text-xl font-bold">
               Products Mentioned
             </h2>

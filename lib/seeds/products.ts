@@ -45,7 +45,10 @@ export const SEED_PRODUCTS: Product[] = [
           "Most users notice a visible glow within 2 weeks with consistent nightly use. Pigmentation reduction typically shows in 4–6 weeks.",
       },
     ],
-    images: ["/images/products/kumkumadi-oil-1.jpg", "/images/products/kumkumadi-oil-2.jpg"],
+    images: [
+      "https://images.pexels.com/photos/8490165/pexels-photo-8490165.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/7795850/pexels-photo-7795850.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "face",
     concerns: ["brightening", "anti-ageing", "pigmentation"],
     variants: [
@@ -121,7 +124,9 @@ export const SEED_PRODUCTS: Product[] = [
           "2–3 times a week for best results. Daily use may be too drying for sensitive skin.",
       },
     ],
-    images: ["/images/products/brightening-ubtan-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/7615621/pexels-photo-7615621.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "powder",
     concerns: ["brightening", "tanning", "pigmentation"],
     variants: [
@@ -195,7 +200,9 @@ export const SEED_PRODUCTS: Product[] = [
         answer: "2–3 times a week is ideal. Overnight oiling once a week gives the best results.",
       },
     ],
-    images: ["/images/products/hair-repair-oil-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/7148534/pexels-photo-7148534.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "hair",
     concerns: ["hair-care"],
     variants: [
@@ -270,7 +277,9 @@ export const SEED_PRODUCTS: Product[] = [
           "Yes, the formula is pH-balanced and free of sulphates and parabens. Patch test recommended for very sensitive skin.",
       },
     ],
-    images: ["/images/products/neem-face-wash-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/2587175/pexels-photo-2587175.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "face",
     concerns: ["acne"],
     variants: [
@@ -334,7 +343,10 @@ export const SEED_PRODUCTS: Product[] = [
           "Yes, daily morning use is recommended. Start with alternate days if you have sensitive skin.",
       },
     ],
-    images: ["/images/products/vitamin-c-serum-1.jpg", "/images/products/vitamin-c-serum-2.jpg"],
+    images: [
+      "https://images.pexels.com/photos/28255125/pexels-photo-28255125.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/27768697/pexels-photo-27768697.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "face",
     concerns: ["brightening", "pigmentation"],
     variants: [
@@ -399,7 +411,9 @@ export const SEED_PRODUCTS: Product[] = [
       "Use morning and night.",
     ],
     faqs: [],
-    images: ["/images/products/under-eye-elixir-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/8140898/pexels-photo-8140898.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "face",
     concerns: ["anti-ageing", "dryness"],
     variants: [
@@ -454,7 +468,9 @@ export const SEED_PRODUCTS: Product[] = [
       "Reapply every 2–3 hours in direct sun.",
     ],
     faqs: [],
-    images: ["/images/products/sunscreen-spf50-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/12851388/pexels-photo-12851388.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "face",
     concerns: ["tanning"],
     variants: [
@@ -508,7 +524,9 @@ export const SEED_PRODUCTS: Product[] = [
       "Focus on dry areas like elbows and knees.",
     ],
     faqs: [],
-    images: ["/images/products/body-butter-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/6847872/pexels-photo-6847872.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "body",
     concerns: ["dryness"],
     variants: [
@@ -568,7 +586,9 @@ export const SEED_PRODUCTS: Product[] = [
       "Night: Apply Kumkumadi Face Oil as the last step of your evening routine.",
     ],
     faqs: [],
-    images: ["/images/products/glow-bundle-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/4735904/pexels-photo-4735904.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "combo",
     concerns: ["brightening", "anti-ageing"],
     comboItems: ["prod_kumkumadi_oil", "prod_vitamin_c_serum"],
@@ -642,7 +662,9 @@ export const SEED_PRODUCTS: Product[] = [
           "Most users notice a reduction in hair fall within 30 days. Visible new growth typically occurs at 60–90 days.",
       },
     ],
-    images: ["/images/products/keshli-tablets-1.jpg"],
+    images: [
+      "https://images.pexels.com/photos/17380335/pexels-photo-17380335.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     category: "supplements",
     concerns: ["hair-care"],
     variants: [

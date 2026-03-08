@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 import { TicketThread } from "@/components/support/TicketThread";
 import type { SupportTicket, TicketMessage } from "@/lib/types";
 
@@ -14,29 +13,6 @@ async function getTicketWithMessages(
   ticketId: string,
   userId: string,
 ): Promise<{ ticket: SupportTicket; messages: TicketMessage[] } | null> {
-  if (!isFirebaseReady()) {
-    return {
-      ticket: {
-        id: ticketId,
-        ticketNumber: "TKT-MOCK",
-        userId,
-        subject: "Mock Ticket (Firebase not connected)",
-        category: "other",
-        priority: "medium",
-        status: "open",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      messages: [
-        {
-          senderType: "customer",
-          senderId: userId,
-          body: "This is a mock message. Connect Firebase to see real tickets.",
-          createdAt: new Date(),
-        },
-      ],
-    };
-  }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const ticketDoc = await adminDb.collection("supportTickets").doc(ticketId).get();

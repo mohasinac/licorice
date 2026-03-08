@@ -38,17 +38,18 @@ export default async function BlogListPage({
   return (
     <div className="bg-background min-h-screen">
       {/* Hero */}
-      <div className="bg-primary/5 py-14">
+      <div className="ayur-hero">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <p className="text-primary mb-2 text-sm font-semibold tracking-widest uppercase">
+          <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
             The Journal
           </p>
-          <h1 className="font-heading text-foreground text-4xl font-bold">
+          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
             Licorice Herbals Blog
           </h1>
-          <p className="text-muted-foreground mt-4 text-lg">
+          <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
             Ayurvedic wisdom, skincare science, and wellness tips for modern living.
           </p>
+          <hr className="ayur-divider mt-8 w-32" />
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Banknote, CreditCard } from "lucide-react";
+import { Smartphone, Banknote, CreditCard } from "lucide-react";
 import type { PaymentMethod } from "@/lib/types";
 import type { PaymentSettings } from "@/lib/types";
 import { COD_FEE } from "@/constants/policies";
@@ -23,7 +23,7 @@ const OPTIONS: {
     id: "whatsapp",
     label: "Pay via WhatsApp / UPI",
     sublabel: "Pay via UPI or bank transfer, send screenshot on WhatsApp.",
-    icon: MessageCircle,
+    icon: Smartphone,
     settingKey: "whatsappEnabled",
   },
   {

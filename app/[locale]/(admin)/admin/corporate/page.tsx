@@ -2,14 +2,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Briefcase } from "lucide-react";
-import { isFirebaseReady } from "@/lib/db";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { CorporateInquiry } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Corporate Inquiries — Admin" };
 
 async function getCorporateInquiries(): Promise<CorporateInquiry[]> {
-  if (!isFirebaseReady()) return [];
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb
@@ -136,7 +134,6 @@ function CorporateStatusSelect({ inquiry }: { inquiry: CorporateInquiry }) {
       action={async (formData: FormData) => {
         "use server";
         const status = formData.get("status") as string;
-        if (!isFirebaseReady()) return;
         try {
           const { adminDb } = await import("@/lib/firebase/admin");
           await adminDb.collection("corporateInquiries").doc(inquiry.id).update({ status });

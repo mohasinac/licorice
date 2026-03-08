@@ -104,7 +104,8 @@ export function CartDrawer() {
                         <div className="border-border flex items-center gap-1 rounded-lg border">
                           <button
                             onClick={() => updateQty(item.variantId, item.quantity - 1)}
-                            className="text-foreground hover:text-primary px-2 py-1"
+                            disabled={item.quantity <= 1}
+                            className="text-foreground hover:text-primary px-2 py-1 disabled:opacity-40"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-3 w-3" />

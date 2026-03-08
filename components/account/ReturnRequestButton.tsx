@@ -3,7 +3,7 @@
 // Shows a "Request Return" button on the order detail page when within
 // the 3-day return window. Clicking opens a form modal.
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { RotateCcw, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -31,9 +31,20 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
   const [note, setNote] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const previewUrls = useRef<string[]>([]);
+
+  useEffect(() => setMounted(true), []);
+
+  // Revoke old preview URLs whenever images change
+  useEffect(() => {
+    previewUrls.current.forEach((u) => URL.revokeObjectURL(u));
+    previewUrls.current = images.map((f) => URL.createObjectURL(f));
+    return () => previewUrls.current.forEach((u) => URL.revokeObjectURL(u));
+  }, [images]);
 
   // Only show if within return window
-  if (!deliveredAt) return null;
+  if (!deliveredAt || !mounted) return null;
   const deliveredDate = new Date(deliveredAt);
   const daysSinceDelivery = Math.floor(
     (Date.now() - deliveredDate.getTime()) / (1000 * 60 * 60 * 24),
@@ -160,7 +171,7 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
                   <div key={i} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={URL.createObjectURL(img)}
+                      src={previewUrls.current[i]}
                       alt={`Preview ${i + 1}`}
                       className="h-16 w-16 rounded-lg object-cover"
                     />

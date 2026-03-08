@@ -1,16 +1,18 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { X, ShoppingBag, Heart, Search, User, LogIn } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { X, ShoppingBag, Heart, Search, User, UserRoundPlus } from "lucide-react";
 import { BRAND_NAME } from "@/constants/site";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const NAV_ITEMS = [
+  { key: "home", href: "" },
   { key: "shop", href: "/shop" },
-  { key: "concerns", href: "/concerns" },
+  { key: "concerns", href: "/concern" },
   { key: "ingredients", href: "/ingredients" },
   { key: "consultation", href: "/consultation" },
   { key: "blog", href: "/blog" },
@@ -21,10 +23,12 @@ interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
   locale: string;
+  logoUrl?: string;
 }
 
-export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
+export function MobileMenu({ open, onClose, logoUrl }: MobileMenuProps) {
   const t = useTranslations("nav");
+  const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
 
   return (
@@ -38,7 +42,19 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
           <Dialog.Title className="sr-only">Navigation menu</Dialog.Title>
           {/* Header */}
           <div className="border-border flex h-16 items-center justify-between border-b px-6">
-            <span className="font-heading text-primary text-xl font-bold">{BRAND_NAME}</span>
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={BRAND_NAME}
+                width={120}
+                height={34}
+                className="h-8 w-auto object-contain"
+              />
+            ) : (
+              <span className="font-heading text-primary text-lg font-semibold tracking-wide">
+                {BRAND_NAME}
+              </span>
+            )}
             <Dialog.Close asChild>
               <button
                 className="text-foreground hover:bg-surface rounded-full p-2 transition-colors"
@@ -54,9 +70,13 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
             {NAV_ITEMS.map(({ key, href }) => (
               <Link
                 key={key}
-                href={`/${locale}${href}`}
+                href={href || "/"}
                 onClick={onClose}
-                className="text-foreground hover:bg-surface hover:text-primary rounded-lg px-4 py-3 text-sm font-medium transition-colors"
+                className={`rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                  (href ? pathname.startsWith(href) : pathname === "/")
+                    ? "bg-primary/5 text-primary"
+                    : "text-foreground hover:bg-surface hover:text-primary"
+                }`}
               >
                 {t(key as Parameters<typeof t>[0])}
               </Link>
@@ -69,7 +89,7 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
               <LanguageSwitcher />
               <div className="flex gap-2">
                 <Link
-                  href={`/${locale}/search`}
+                  href="/search"
                   onClick={onClose}
                   aria-label="Search"
                   className="hover:bg-surface rounded-full p-2"
@@ -77,7 +97,7 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
                   <Search className="h-5 w-5" />
                 </Link>
                 <Link
-                  href={`/${locale}/wishlist`}
+                  href="/account/wishlist"
                   onClick={onClose}
                   aria-label="Wishlist"
                   className="hover:bg-surface rounded-full p-2"
@@ -86,7 +106,7 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
                 </Link>
                 {user ? (
                   <Link
-                    href={`/${locale}/account`}
+                    href="/account"
                     onClick={onClose}
                     aria-label={t("account")}
                     className="hover:bg-surface rounded-full p-2"
@@ -95,12 +115,12 @@ export function MobileMenu({ open, onClose, locale }: MobileMenuProps) {
                   </Link>
                 ) : (
                   <Link
-                    href={`/${locale}/login`}
+                    href="/login"
                     onClick={onClose}
                     aria-label={t("login")}
                     className="hover:bg-surface rounded-full p-2"
                   >
-                    <LogIn className="h-5 w-5" />
+                    <UserRoundPlus className="h-5 w-5" />
                   </Link>
                 )}
               </div>

@@ -4,12 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
-import type {
-  SiteConfig,
-  ShippingRules,
-  PaymentSettings,
-  InventorySettings,
-} from "@/lib/types";
+import type { SiteConfig, ShippingRules, PaymentSettings, InventorySettings } from "@/lib/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -18,14 +13,15 @@ type Tab = "general" | "shipping" | "payment" | "inventory";
 function useAdminToken(): string | null {
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
+    let unsub: (() => void) | undefined;
     import("@/lib/firebase/client").then(({ getClientAuth }) => {
       const auth = getClientAuth();
-      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      unsub = auth.onAuthStateChanged(async (user) => {
         if (user) setToken(await user.getIdToken());
         else setToken(null);
       });
-      return unsubscribe;
     });
+    return () => unsub?.();
   }, []);
   return token;
 }
@@ -64,10 +60,10 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-[var(--border)] last:border-0">
+    <div className="flex items-center justify-between border-b border-[var(--border)] py-3 last:border-0">
       <div>
         <p className="text-sm font-medium text-[var(--foreground)]">{label}</p>
-        {sublabel && <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{sublabel}</p>}
+        {sublabel && <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{sublabel}</p>}
       </div>
       <button
         type="button"
@@ -75,7 +71,7 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={
-          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 " +
+          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:outline-none " +
           (checked ? "bg-[var(--primary)]" : "bg-[var(--border)]")
         }
       >
@@ -133,32 +129,26 @@ function Section({
   saving: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] bg-[var(--muted)]">
-        <h3 className="text-base font-semibold text-[var(--foreground)] font-heading">{title}</h3>
+    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--muted)] px-6 py-4">
+        <h3 className="font-heading text-base font-semibold text-[var(--foreground)]">{title}</h3>
         <button
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="rounded-lg bg-[var(--primary)] px-4 py-1.5 text-sm font-medium text-white hover:bg-[var(--secondary)] disabled:opacity-60 transition-colors"
+          className="rounded-lg bg-[var(--primary)] px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[var(--secondary)] disabled:opacity-60"
         >
           {saving ? "Saving…" : "Save Changes"}
         </button>
       </div>
-      <div className="px-6 py-5 space-y-4">{children}</div>
+      <div className="space-y-4 px-6 py-5">{children}</div>
     </div>
   );
 }
 
 // ── Tab: General ─────────────────────────────────────────────────────────────
 
-function GeneralTab({
-  initial,
-  token,
-}: {
-  initial: SiteConfig;
-  token: string | null;
-}) {
+function GeneralTab({ initial, token }: { initial: SiteConfig; token: string | null }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState<string | null>(null);
 
@@ -167,7 +157,11 @@ function GeneralTab({
 
   const save = async (section: string, payload: Partial<SiteConfig>) => {
     setSaving(section);
-    const err = await patchSettings("/api/admin/settings/site", payload as Record<string, unknown>, token);
+    const err = await patchSettings(
+      "/api/admin/settings/site",
+      payload as Record<string, unknown>,
+      token,
+    );
     setSaving(null);
     if (err) toast.error(err);
     else toast.success("Saved!");
@@ -175,6 +169,39 @@ function GeneralTab({
 
   return (
     <div className="space-y-6">
+      {/* Brand Logo */}
+      <Section
+        title="Brand Logo"
+        saving={saving === "logo"}
+        onSave={() => save("logo", { logoUrl: form.logoUrl })}
+      >
+        <Field
+          label="Logo Image"
+          sublabel="Shown in navbar, footer, mobile menu. Falls back to /logo.png if empty."
+        >
+          <div className="flex items-center gap-4">
+            {form.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.logoUrl}
+                alt="Current logo"
+                className="h-12 w-auto rounded-lg border border-[var(--border)] bg-white object-contain p-1"
+              />
+            ) : (
+              <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--muted)] text-xs text-[var(--muted-foreground)]">
+                No logo set
+              </div>
+            )}
+            <input
+              className={inputCls}
+              value={form.logoUrl ?? ""}
+              onChange={(e) => set("logoUrl", e.target.value)}
+              placeholder="https://firebasestorage.googleapis.com/… or /logo.png"
+            />
+          </div>
+        </Field>
+      </Section>
+
       {/* Announcement Bar */}
       <Section
         title="Announcement Bar"
@@ -222,7 +249,7 @@ function GeneralTab({
           })
         }
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Support Phone">
             <input
               className={inputCls}
@@ -355,13 +382,7 @@ function GeneralTab({
 
 // ── Tab: Shipping ─────────────────────────────────────────────────────────────
 
-function ShippingTab({
-  initial,
-  token,
-}: {
-  initial: ShippingRules;
-  token: string | null;
-}) {
+function ShippingTab({ initial, token }: { initial: ShippingRules; token: string | null }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
 
@@ -371,8 +392,13 @@ function ShippingTab({
   const save = async () => {
     setSaving(true);
     const { createdAt, updatedAt, ...payload } = form;
-    void createdAt; void updatedAt;
-    const err = await patchSettings("/api/admin/settings/shipping", payload as Record<string, unknown>, token);
+    void createdAt;
+    void updatedAt;
+    const err = await patchSettings(
+      "/api/admin/settings/shipping",
+      payload as Record<string, unknown>,
+      token,
+    );
     setSaving(false);
     if (err) toast.error(err);
     else toast.success("Shipping rules saved!");
@@ -382,7 +408,7 @@ function ShippingTab({
     <div className="space-y-6">
       <Section title="Shipping Rules" saving={saving} onSave={save}>
         {/* Free Shipping & Standard */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Free Shipping Threshold" sublabel="₹">
             <input
               type="number"
@@ -451,7 +477,7 @@ function ShippingTab({
             onChange={(v) => set("expressEnabled", v)}
           />
           {form.expressEnabled && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Express Rate" sublabel="₹">
                 <input
                   type="number"
@@ -483,7 +509,7 @@ function ShippingTab({
             onChange={(v) => set("sameDayEnabled", v)}
           />
           {form.sameDayEnabled && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Same-Day Rate" sublabel="₹">
                 <input
                   type="number"
@@ -521,6 +547,54 @@ function ShippingTab({
             </div>
           )}
         </div>
+
+        {/* GST */}
+        <div className="border-t border-[var(--border)] pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-[var(--foreground)]">GST Settings</h4>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="GST Percentage" sublabel="% (0 to disable)">
+              <input
+                type="number"
+                min={0}
+                max={100}
+                className={inputCls}
+                value={form.gstPercent ?? 0}
+                onChange={(e) => set("gstPercent", Number(e.target.value))}
+              />
+            </Field>
+          </div>
+          <div className="mt-3">
+            <Toggle
+              label="GST Included in Prices"
+              sublabel="If on, product MRP already includes GST (breakdown shown to customers)"
+              checked={form.gstIncluded ?? true}
+              onChange={(v) => set("gstIncluded", v)}
+            />
+          </div>
+        </div>
+
+        {/* Shiprocket Live Rates */}
+        <div className="border-t border-[var(--border)] pt-4">
+          <Toggle
+            label="Use Shiprocket Live Rates"
+            sublabel="Fetch real courier rates from Shiprocket based on delivery pincode"
+            checked={form.useShiprocketRates ?? false}
+            onChange={(v) => set("useShiprocketRates", v)}
+          />
+          {form.useShiprocketRates && (
+            <div className="mt-3">
+              <Field label="Pickup Pincode" sublabel="Warehouse pincode for rate calculation">
+                <input
+                  className={inputCls}
+                  value={form.pickupPincode ?? ""}
+                  onChange={(e) => set("pickupPincode", e.target.value)}
+                  placeholder="400001"
+                  maxLength={6}
+                />
+              </Field>
+            </div>
+          )}
+        </div>
       </Section>
     </div>
   );
@@ -528,13 +602,7 @@ function ShippingTab({
 
 // ── Tab: Payment ──────────────────────────────────────────────────────────────
 
-function PaymentTab({
-  initial,
-  token,
-}: {
-  initial: PaymentSettings;
-  token: string | null;
-}) {
+function PaymentTab({ initial, token }: { initial: PaymentSettings; token: string | null }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
 
@@ -544,8 +612,13 @@ function PaymentTab({
   const save = async () => {
     setSaving(true);
     const { createdAt, updatedAt, ...payload } = form;
-    void createdAt; void updatedAt;
-    const err = await patchSettings("/api/admin/settings/payment", payload as Record<string, unknown>, token);
+    void createdAt;
+    void updatedAt;
+    const err = await patchSettings(
+      "/api/admin/settings/payment",
+      payload as Record<string, unknown>,
+      token,
+    );
     setSaving(false);
     if (err) toast.error(err);
     else toast.success("Payment settings saved!");
@@ -563,8 +636,11 @@ function PaymentTab({
             onChange={(v) => set("whatsappEnabled", v)}
           />
           {form.whatsappEnabled && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 pl-4 border-l-2 border-[var(--primary)]">
-              <Field label="WhatsApp Business Number" sublabel="international format (e.g. 919999999999)">
+            <div className="mt-4 grid grid-cols-1 gap-4 border-l-2 border-[var(--primary)] pl-4 sm:grid-cols-2">
+              <Field
+                label="WhatsApp Business Number"
+                sublabel="international format (e.g. 919999999999)"
+              >
                 <input
                   className={inputCls}
                   value={form.whatsappBusinessNumber}
@@ -603,7 +679,7 @@ function PaymentTab({
             onChange={(v) => set("codEnabled", v)}
           />
           {form.codEnabled && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 pl-4 border-l-2 border-[var(--primary)]">
+            <div className="mt-4 grid grid-cols-1 gap-4 border-l-2 border-[var(--primary)] pl-4 sm:grid-cols-2">
               <Field label="COD Fee" sublabel="₹ added to order total">
                 <input
                   type="number"
@@ -619,9 +695,7 @@ function PaymentTab({
                   min={0}
                   className={inputCls}
                   value={form.codMinOrder ?? 0}
-                  onChange={(e) =>
-                    set("codMinOrder", Number(e.target.value) || undefined)
-                  }
+                  onChange={(e) => set("codMinOrder", Number(e.target.value) || undefined)}
                 />
               </Field>
             </div>
@@ -640,9 +714,7 @@ function PaymentTab({
               max={50}
               className={inputCls}
               value={form.prepaidDiscountPercent ?? 0}
-              onChange={(e) =>
-                set("prepaidDiscountPercent", Number(e.target.value) || undefined)
-              }
+              onChange={(e) => set("prepaidDiscountPercent", Number(e.target.value) || undefined)}
             />
           </Field>
         </div>
@@ -653,13 +725,7 @@ function PaymentTab({
 
 // ── Tab: Inventory ────────────────────────────────────────────────────────────
 
-function InventoryTab({
-  initial,
-  token,
-}: {
-  initial: InventorySettings;
-  token: string | null;
-}) {
+function InventoryTab({ initial, token }: { initial: InventorySettings; token: string | null }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
 
@@ -669,8 +735,13 @@ function InventoryTab({
   const save = async () => {
     setSaving(true);
     const { createdAt, updatedAt, ...payload } = form;
-    void createdAt; void updatedAt;
-    const err = await patchSettings("/api/admin/settings/inventory", payload as Record<string, unknown>, token);
+    void createdAt;
+    void updatedAt;
+    const err = await patchSettings(
+      "/api/admin/settings/inventory",
+      payload as Record<string, unknown>,
+      token,
+    );
     setSaving(false);
     if (err) toast.error(err);
     else toast.success("Inventory settings saved!");
@@ -683,7 +754,7 @@ function InventoryTab({
           These defaults apply when adding new products. Existing inventory records are not
           affected.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             label="Low Stock Threshold"
             sublabel="units — product shows warning badge below this"
@@ -696,10 +767,7 @@ function InventoryTab({
               onChange={(e) => set("defaultLowStockThreshold", Number(e.target.value))}
             />
           </Field>
-          <Field
-            label="Reorder Point"
-            sublabel="units — admin alert triggered below this"
-          >
+          <Field label="Reorder Point" sublabel="units — admin alert triggered below this">
             <input
               type="number"
               min={1}
@@ -765,11 +833,12 @@ export default function AdminSettingsPage() {
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
+    const guard = (r: Response) => { if (!r.ok) throw new Error(r.statusText); return r.json(); };
     const [site, shipping, payment, inventory] = await Promise.all([
-      fetch("/api/admin/settings/site").then((r) => r.json()),
-      fetch("/api/admin/settings/shipping").then((r) => r.json()),
-      fetch("/api/admin/settings/payment").then((r) => r.json()),
-      fetch("/api/admin/settings/inventory").then((r) => r.json()),
+      fetch("/api/admin/settings/site").then(guard),
+      fetch("/api/admin/settings/shipping").then(guard),
+      fetch("/api/admin/settings/payment").then(guard),
+      fetch("/api/admin/settings/inventory").then(guard),
     ]);
     setSiteConfig(site as SiteConfig);
     setShippingRules(shipping as ShippingRules);
@@ -786,7 +855,7 @@ export default function AdminSettingsPage() {
     <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
       <div className="border-b border-[var(--border)] bg-white px-6 py-5">
-        <h1 className="text-2xl font-bold text-[var(--foreground)] font-heading">Settings</h1>
+        <h1 className="font-heading text-2xl font-bold text-[var(--foreground)]">Settings</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           Manage site configuration, shipping, payments, and inventory defaults.
         </p>
@@ -801,7 +870,7 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={
-                "px-4 py-3 text-sm font-medium border-b-2 transition-colors " +
+                "border-b-2 px-4 py-3 text-sm font-medium transition-colors " +
                 (activeTab === tab.id
                   ? "border-[var(--primary)] text-[var(--primary)]"
                   : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]")
@@ -818,10 +887,7 @@ export default function AdminSettingsPage() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-40 rounded-xl bg-[var(--muted)] animate-pulse"
-              />
+              <div key={i} className="h-40 animate-pulse rounded-xl bg-[var(--muted)]" />
             ))}
           </div>
         ) : (

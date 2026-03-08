@@ -22,9 +22,11 @@ export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
 
   async function check() {
     if (!/^\d{6}$/.test(pincode)) return;
+    setResult(null);
     setLoading(true);
     try {
       const res = await fetch(`/api/pincode-check?pincode=${pincode}`);
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: ServiceabilityResult = await res.json();
       setResult(data);
       onResult?.(data);

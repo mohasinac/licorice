@@ -20,7 +20,7 @@ export async function BlogCard({ blog }: BlogCardProps) {
   return (
     <Link
       href={`/${locale}/blog/${blog.slug}`}
-      className="group border-border flex flex-col overflow-hidden rounded-2xl border bg-white transition-shadow hover:shadow-md"
+      className="ayur-card group border-border flex flex-col overflow-hidden rounded-2xl border bg-white"
     >
       {/* Thumbnail */}
       <div className="bg-surface relative aspect-video overflow-hidden">

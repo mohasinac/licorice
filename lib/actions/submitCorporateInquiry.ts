@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { isFirebaseReady } from "@/lib/utils";
 import type { CorporateInquiry } from "@/lib/types";
 
 const corporateInquirySchema = z.object({
@@ -34,11 +33,6 @@ export async function submitCorporateInquiry(input: unknown): Promise<CorporateI
   }
 
   const data = parsed.data;
-
-  if (!isFirebaseReady()) {
-    console.log("[corporate] Mock inquiry:", data);
-    return { success: true, inquiryId: "mock-inquiry-id" };
-  }
 
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 import { TicketCard } from "@/components/support/TicketCard";
 import type { SupportTicket } from "@/lib/types";
 import { PlusCircle, MessageCircle } from "lucide-react";
@@ -11,7 +10,6 @@ import { PlusCircle, MessageCircle } from "lucide-react";
 export const metadata: Metadata = { title: "My Support Tickets" };
 
 async function getUserTickets(userId: string): Promise<SupportTicket[]> {
-  if (!isFirebaseReady()) return [];
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb

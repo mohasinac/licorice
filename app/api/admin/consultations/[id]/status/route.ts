@@ -2,7 +2,9 @@
 // PATCH — update consultation status (admin only)
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
+
+const HTML_ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function escapeHtml(s: string) { return s.replace(/[&<>"']/g, (c) => HTML_ESC[c]); }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,10 +24,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
   if (typeof b.status !== "string" || !validStatuses.includes(b.status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-  }
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ success: true });
   }
 
   try {
@@ -64,7 +62,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             from: fromEmail,
             to: data.email,
             subject: "Your Consultation is Confirmed — Licorice Herbals",
-            html: `<p>Hi ${data.name ?? "there"},</p><p>Your free consultation has been confirmed for <strong>${data.preferredDate}</strong> at <strong>${data.preferredTime}</strong>.</p><p>Our expert will reach out to you at the scheduled time. Please keep your phone handy.</p><p>Warm regards,<br/>Licorice Herbals Team</p>`,
+            html: `<p>Hi ${escapeHtml(data.name ?? "there")},</p><p>Your free consultation has been confirmed for <strong>${escapeHtml(data.preferredDate ?? "the scheduled date")}</strong> at <strong>${escapeHtml(data.preferredTime ?? "the scheduled time")}</strong>.</p><p>Our expert will reach out to you at the scheduled time. Please keep your phone handy.</p><p>Warm regards,<br/>Licorice Herbals Team</p>`,
           });
         }
       } catch (emailErr) {

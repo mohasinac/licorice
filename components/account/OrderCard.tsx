@@ -15,13 +15,11 @@ function formatDate(val: unknown): string {
 
 export function OrderCard({ order, locale = "en" }: Props) {
   return (
-    <div className="bg-surface rounded-2xl p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="ayur-card border-border rounded-2xl border bg-white p-5 shadow-sm">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-foreground font-semibold">{order.orderNumber}</p>
-          <p className="text-muted-foreground text-sm">
-            {formatDate(order.createdAt)}
-          </p>
+          <p className="text-muted-foreground text-sm">{formatDate(order.createdAt)}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusBadge status={order.orderStatus} type="order" />

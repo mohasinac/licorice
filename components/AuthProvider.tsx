@@ -2,19 +2,12 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { isFirebaseReady } from "@/lib/utils";
 import type { AppUser } from "@/lib/types";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setLoading } = useAuthStore();
 
   useEffect(() => {
-    if (!isFirebaseReady()) {
-      // Seed mode — no authenticated user by default
-      setLoading(false);
-      return;
-    }
-
     let unsubscribe: (() => void) | undefined;
 
     (async () => {
@@ -41,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       } catch (err) {
         console.warn("[AuthProvider] Firebase auth setup failed:", err);
-        setLoading(false);
+        setUser(null);
       }
     })();
 

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CONCERNS } from "@/constants/categories";
 import { getProducts } from "@/lib/db";
-import { sortProducts } from "@/components/product/ProductSort";
+import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductSort } from "@/components/product/ProductSort";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -45,7 +45,7 @@ export default async function ConcernPage({ params, searchParams }: ConcernPageP
   // Also filter by actual concern tag
   const filtered = products.filter((p) =>
     p.concerns.some(
-      (c) => c === con.slug || c === con.id.replace("concern_", "") || concern.includes(c),
+      (c) => c === con.slug || c === con.id.replace("concern_", "") || c.includes(concern),
     ),
   );
   const sorted = sortProducts(filtered.length > 0 ? filtered : products, sort);

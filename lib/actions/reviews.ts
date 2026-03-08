@@ -1,8 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { isFirebaseReady } from "@/lib/utils";
-import { SEED_REVIEWS } from "@/lib/seeds";
 import type { Timestamp } from "firebase-admin/firestore";
 import type { Review, ReviewFlagReason } from "@/lib/types";
 
@@ -12,10 +10,6 @@ export async function checkReviewEligibility(
   userId: string,
   productId: string,
 ): Promise<{ eligible: boolean; orderId?: string; alreadyReviewed: boolean }> {
-  if (!isFirebaseReady()) {
-    // In seed mode always allow review submission (dev / demo)
-    return { eligible: true, alreadyReviewed: false };
-  }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     // Check for an existing review by this user for this product
@@ -76,11 +70,6 @@ export async function submitReview(input: unknown): Promise<SubmitReviewResult> 
   }
   const data = parsed.data;
 
-  if (!isFirebaseReady()) {
-    // Mock mode — return a fake success
-    return { success: true, reviewId: `rev_mock_${Date.now()}` };
-  }
-
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -131,9 +120,6 @@ export async function approveReview(
   reviewId: string,
   adminUserId: string,
 ): Promise<ModerateReviewResult> {
-  if (!isFirebaseReady()) {
-    return { success: true }; // mock mode
-  }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -186,7 +172,6 @@ export async function rejectReview(
   if (!rejectionReason.trim()) {
     return { success: false, error: "Rejection reason is required." };
   }
-  if (!isFirebaseReady()) return { success: true };
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -210,7 +195,6 @@ export async function addAdminReply(
   reply: string,
 ): Promise<ModerateReviewResult> {
   if (!reply.trim()) return { success: false, error: "Reply cannot be empty." };
-  if (!isFirebaseReady()) return { success: true };
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -241,25 +225,21 @@ export async function flagReview(input: unknown): Promise<FlagReviewResult> {
   const parsed = flagSchema.safeParse(input);
   if (!parsed.success) return { success: false, error: "Invalid flag data." };
   const data = parsed.data;
-  if (!isFirebaseReady()) return { success: true };
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
 
-    // Prevent duplicate flags from same user on same review
-    const existing = await adminDb
-      .collection("reviewFlags")
-      .where("reviewId", "==", data.reviewId)
-      .where("reportedBy", "==", data.reportedBy)
-      .limit(1)
-      .get();
-    if (!existing.empty) {
+    // Use a deterministic document ID to prevent duplicates atomically
+    const flagDocId = `${data.reviewId}_${data.reportedBy}`;
+    const flagRef = adminDb.collection("reviewFlags").doc(flagDocId);
+
+    const existingDoc = await flagRef.get();
+    if (existingDoc.exists) {
       return { success: false, error: "You have already reported this review." };
     }
 
-    const flagRef = adminDb.collection("reviewFlags").doc();
     await flagRef.set({
-      id: flagRef.id,
+      id: flagDocId,
       reviewId: data.reviewId,
       reportedBy: data.reportedBy,
       reason: data.reason as ReviewFlagReason,
@@ -285,10 +265,6 @@ export async function flagReview(input: unknown): Promise<FlagReviewResult> {
 export async function markReviewHelpful(
   reviewId: string,
 ): Promise<{ success: boolean; helpfulCount?: number }> {
-  if (!isFirebaseReady()) {
-    const r = SEED_REVIEWS.find((r) => r.id === reviewId);
-    return { success: true, helpfulCount: (r?.helpfulCount ?? 0) + 1 };
-  }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");

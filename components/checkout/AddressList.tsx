@@ -28,7 +28,10 @@ export function AddressList({ addresses, selectedAddress, onSelect, onAddNew }: 
     <div className="space-y-4">
       {addresses.map((addr, i) => {
         const isSelected =
-          selectedAddress?.line1 === addr.line1 && selectedAddress?.pincode === addr.pincode;
+          selectedAddress?.name === addr.name &&
+          selectedAddress?.line1 === addr.line1 &&
+          selectedAddress?.pincode === addr.pincode &&
+          selectedAddress?.phone === addr.phone;
         return (
           <button
             key={i}

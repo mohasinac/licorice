@@ -1,13 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
-import { BRAND_NAME, SUPPORT_EMAIL, SOCIAL_LINKS } from "@/constants/site";
+import {
+  BRAND_NAME,
+  SUPPORT_EMAIL,
+  SUPPORT_PHONE,
+  SUPPORT_HOURS,
+  SOCIAL_LINKS,
+  WHATSAPP_NUMBER,
+} from "@/constants/site";
 import { Instagram, Facebook, Youtube, Github } from "lucide-react";
 
 const POLICY_LINKS = [
   { key: "privacy", href: "/privacy-policy" },
   { key: "terms", href: "/terms" },
   { key: "shipping", href: "/shipping-policy" },
-  { key: "returns", href: "/return-policy" },
+  { key: "returns", href: "/refund-policy" },
 ] as const;
 
 const SHOP_LINKS = [
@@ -17,18 +25,40 @@ const SHOP_LINKS = [
   { key: "combos", href: "/shop?type=combo" },
 ] as const;
 
-export async function Footer() {
+const USEFUL_LINKS = [
+  { label: "Free Consultation", href: "/consultation" },
+  { label: "Blog", href: "/blog" },
+  { label: "About Us", href: "/about" },
+  { label: "Corporate Gifting", href: "/corporate-gifting" },
+  { label: "Track your order", href: "/track" },
+] as const;
+
+export async function Footer({ logoUrl }: { logoUrl?: string }) {
   const locale = await getLocale();
 
   return (
-    <footer className="border-border bg-primary border-t text-white/80">
+    <footer className="from-primary via-primary to-primary/95 border-t border-white/5 bg-gradient-to-b text-white/70">
+      {/* Main footer content */}
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand column */}
-          <div className="flex flex-col gap-4">
-            <span className="font-heading text-2xl font-bold text-white">{BRAND_NAME}</span>
-            <p className="text-sm leading-relaxed">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+          {/* Brand column — wider */}
+          <div className="flex flex-col gap-5 lg:col-span-2">
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={BRAND_NAME}
+                width={160}
+                height={44}
+                className="h-10 w-auto object-contain brightness-0 invert"
+              />
+            ) : (
+              <span className="font-heading text-xl font-semibold tracking-wide text-white">
+                {BRAND_NAME}
+              </span>
+            )}
+            <p className="max-w-sm text-sm leading-relaxed">
               Pure Ayurvedic skincare & haircare rooted in ancient wisdom, crafted for modern life.
+              Experience the transformative power of Honest Ayurveda.
             </p>
             <div className="flex gap-3">
               {SOCIAL_LINKS.instagram && (
@@ -37,9 +67,9 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="hover:text-accent transition-colors"
+                  className="hover:border-accent/40 hover:bg-accent/10 hover:text-accent flex h-9 w-9 items-center justify-center rounded-full border border-white/10 transition-all"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram className="h-4 w-4" />
                 </a>
               )}
               {SOCIAL_LINKS.facebook && (
@@ -48,9 +78,9 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="hover:text-accent transition-colors"
+                  className="hover:border-accent/40 hover:bg-accent/10 hover:text-accent flex h-9 w-9 items-center justify-center rounded-full border border-white/10 transition-all"
                 >
-                  <Facebook className="h-5 w-5" />
+                  <Facebook className="h-4 w-4" />
                 </a>
               )}
               {SOCIAL_LINKS.youtube && (
@@ -59,9 +89,9 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
-                  className="hover:text-accent transition-colors"
+                  className="hover:border-accent/40 hover:bg-accent/10 hover:text-accent flex h-9 w-9 items-center justify-center rounded-full border border-white/10 transition-all"
                 >
-                  <Youtube className="h-5 w-5" />
+                  <Youtube className="h-4 w-4" />
                 </a>
               )}
             </div>
@@ -69,8 +99,10 @@ export async function Footer() {
 
           {/* Shop links */}
           <div>
-            <h3 className="font-heading mb-4 text-lg font-semibold text-white">Shop</h3>
-            <ul className="flex flex-col gap-2 text-sm">
+            <h3 className="font-heading mb-4 text-sm font-semibold tracking-widest text-white uppercase">
+              Shop
+            </h3>
+            <ul className="flex flex-col gap-2.5 text-sm">
               {SHOP_LINKS.map(({ key, href }) => (
                 <li key={key}>
                   <Link
@@ -84,10 +116,56 @@ export async function Footer() {
             </ul>
           </div>
 
-          {/* Policies */}
+          {/* Useful links */}
           <div>
-            <h3 className="font-heading mb-4 text-lg font-semibold text-white">Policies</h3>
-            <ul className="flex flex-col gap-2 text-sm">
+            <h3 className="font-heading mb-4 text-sm font-semibold tracking-widest text-white uppercase">
+              Quick Links
+            </h3>
+            <ul className="flex flex-col gap-2.5 text-sm">
+              {USEFUL_LINKS.map(({ label, href }) => (
+                <li key={href}>
+                  <Link href={`/${locale}${href}`} className="hover:text-accent transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="font-heading mb-4 text-sm font-semibold tracking-widest text-white uppercase">
+              Contact Us
+            </h3>
+            <ul className="flex flex-col gap-2.5 text-sm">
+              <li>
+                <a
+                  href={`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=Hi`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent transition-colors"
+                >
+                  Call/WhatsApp — {SUPPORT_PHONE}
+                </a>
+              </li>
+              <li className="text-xs text-white/50">{SUPPORT_HOURS}</li>
+              <li>
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-accent transition-colors">
+                  {SUPPORT_EMAIL}
+                </a>
+              </li>
+              <li className="mt-2">
+                <Link href={`/${locale}/contact`} className="hover:text-accent transition-colors">
+                  Contact Form
+                </Link>
+              </li>
+            </ul>
+
+            {/* Policies beneath contact on this column */}
+            <h3 className="font-heading mt-8 mb-4 text-sm font-semibold tracking-widest text-white uppercase">
+              Policies
+            </h3>
+            <ul className="flex flex-col gap-2.5 text-sm">
               {POLICY_LINKS.map(({ key, href }) => (
                 <li key={key}>
                   <Link
@@ -100,31 +178,10 @@ export async function Footer() {
               ))}
             </ul>
           </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="font-heading mb-4 text-lg font-semibold text-white">Contact</h3>
-            <ul className="flex flex-col gap-2 text-sm">
-              <li>
-                <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-accent transition-colors">
-                  {SUPPORT_EMAIL}
-                </a>
-              </li>
-              <li>
-                <Link href={`/${locale}/contact`} className="hover:text-accent transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/faq`} className="hover:text-accent transition-colors">
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
+        {/* Bottom bar */}
+        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row">
           <span>
             © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
           </span>
@@ -132,7 +189,7 @@ export async function Footer() {
             href="https://github.com/mohasinac"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-white/40 transition-colors hover:text-white/80"
+            className="flex items-center gap-1.5 transition-colors hover:text-white/70"
           >
             <Github className="h-3.5 w-3.5" />
             Built by mohasinac

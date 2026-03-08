@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { MessageCircle } from "lucide-react";
+import { Ticket } from "lucide-react";
 import type { SupportTicket } from "@/lib/types";
 import { toSafeDate } from "@/lib/utils";
 
@@ -41,7 +41,7 @@ export function TicketCard({ ticket, locale = "en", unread = false }: Props) {
       className="bg-surface hover:border-primary/30 flex items-start gap-4 rounded-2xl border border-transparent p-5 shadow-sm transition-all hover:shadow-md"
     >
       <div className="bg-primary/10 mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl">
-        <MessageCircle className="text-primary h-4 w-4" />
+        <Ticket className="text-primary h-4 w-4" />
       </div>
 
       <div className="min-w-0 flex-1">
@@ -56,7 +56,7 @@ export function TicketCard({ ticket, locale = "en", unread = false }: Props) {
           {unread && <span className="h-2 w-2 rounded-full bg-blue-500" aria-label="Unread" />}
         </div>
         <p className="text-foreground line-clamp-1 text-sm font-medium">{ticket.subject}</p>
-        <p className="text-muted-foreground mt-0.5 text-xs">
+        <p className="text-muted-foreground mt-0.5 text-xs" suppressHydrationWarning>
           {formatRelativeDate(ticket.updatedAt ?? ticket.createdAt)}
         </p>
       </div>

@@ -3,6 +3,15 @@ import { getLocale } from "next-intl/server";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Category, Locale } from "@/lib/types";
 
+const CATEGORY_ICONS: Record<string, string> = {
+  face: "🧴",
+  body: "🧖",
+  hair: "💆",
+  powder: "🌾",
+  combo: "🎁",
+  supplements: "💊",
+};
+
 interface CategoryGridProps {
   categories: Category[];
 }
@@ -11,26 +20,31 @@ export async function CategoryGrid({ categories }: CategoryGridProps) {
   const locale = (await getLocale()) as Locale;
 
   return (
-    <section className="py-16">
+    <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           title="Shop by Category"
           subtitle="Curated collections for every concern"
-          className="mb-10"
+          className="mb-12"
         />
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+
+        {/* Scrollable row on mobile, grid on desktop */}
+        <div className="scrollbar-hide -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-6">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               href={`/${locale}/shop?category=${cat.slug}`}
-              className="group border-border hover:border-primary flex flex-col items-center gap-3 rounded-2xl border bg-white p-6 text-center transition-all hover:shadow-md"
+              className="group from-primary/5 to-secondary/5 relative flex min-w-[140px] flex-col items-center gap-4 rounded-2xl border border-transparent bg-gradient-to-br p-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 sm:min-w-0"
             >
-              <span className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full text-2xl">
-                🌿
+              {/* Glow ring on hover */}
+              <span className="bg-primary/8 group-hover:bg-primary/15 flex h-16 w-16 items-center justify-center rounded-full text-3xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/10">
+                {CATEGORY_ICONS[cat.slug] ?? "🌿"}
               </span>
-              <span className="text-foreground group-hover:text-primary text-sm font-medium transition-colors">
+              <span className="text-foreground group-hover:text-primary text-sm font-semibold tracking-wide transition-colors">
                 {cat.label}
               </span>
+              {/* Decorative bottom line */}
+              <span className="bg-accent h-0.5 w-0 rounded-full transition-all duration-300 group-hover:w-8" />
             </Link>
           ))}
         </div>

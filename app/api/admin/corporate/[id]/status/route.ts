@@ -2,7 +2,6 @@
 // PATCH — update corporate inquiry status (admin only)
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerUser } from "@/lib/auth";
-import { isFirebaseReady } from "@/lib/db";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,10 +21,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validStatuses = ["new", "in_progress", "won", "lost"];
   if (typeof b.status !== "string" || !validStatuses.includes(b.status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-  }
-
-  if (!isFirebaseReady()) {
-    return NextResponse.json({ success: true });
   }
 
   try {

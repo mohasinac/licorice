@@ -1,9 +1,8 @@
 import * as React from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductCard } from "@/components/product/ProductCard";
-import { getProducts } from "@/lib/db";
+import { getProductById } from "@/lib/db";
 import type { Product } from "@/lib/types";
-import { SEED_PRODUCTS } from "@/lib/seeds";
 
 interface RelatedProductsProps {
   relatedIds: string[];
@@ -11,11 +10,11 @@ interface RelatedProductsProps {
 }
 
 export async function RelatedProducts({ relatedIds, currentProductId }: RelatedProductsProps) {
-  // Resolve related products from mock/db
-  const related = relatedIds
-    .filter((id) => id !== currentProductId)
-    .map((id) => SEED_PRODUCTS.find((p) => p.id === id))
-    .filter(Boolean) as Product[];
+  const related = (
+    await Promise.all(
+      relatedIds.filter((id) => id !== currentProductId).map((id) => getProductById(id)),
+    )
+  ).filter(Boolean) as Product[];
 
   if (related.length === 0) return null;
 

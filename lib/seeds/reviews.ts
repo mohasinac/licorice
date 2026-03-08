@@ -14,7 +14,9 @@ export const SEED_REVIEWS: Review[] = [
     rating: 5,
     title: "Life-changing face oil!",
     body: "I have been using this Kumkumadi oil for 6 weeks and the results are incredible. My skin glows like never before and my pigmentation has visibly faded. The texture is luxurious and absorbs quickly. 100% worth every rupee!",
-    images: [],
+    images: [
+      "https://images.pexels.com/photos/7795850/pexels-photo-7795850.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     status: "approved",
     moderatedBy: "admin",
     moderatedAt: now,
@@ -50,7 +52,9 @@ export const SEED_REVIEWS: Review[] = [
     rating: 5,
     title: "Tan gone in 2 weeks!",
     body: "I came back from a Goa trip with terrible tan lines and started using this ubtan 3 times a week. Within 2 weeks the tan was mostly gone. The texture when mixed with rose water is amazing — almost like a spa treatment at home.",
-    images: [],
+    images: [
+      "https://images.pexels.com/photos/7615621/pexels-photo-7615621.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     status: "approved",
     moderatedBy: "admin",
     moderatedAt: now,
@@ -86,7 +90,9 @@ export const SEED_REVIEWS: Review[] = [
     rating: 5,
     title: "Best Vitamin C serum under ₹1000!",
     body: "I've tried many vitamin C serums but this one from Licorice Herbals is the best. No burning sensation, no oxidation smell, and it actually works. My dark spots from old acne have faded significantly in 6 weeks!",
-    images: [],
+    images: [
+      "https://images.pexels.com/photos/28255125/pexels-photo-28255125.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     status: "approved",
     moderatedBy: "admin",
     moderatedAt: now,
@@ -122,7 +128,9 @@ export const SEED_REVIEWS: Review[] = [
     rating: 5,
     title: "My hair fall has reduced drastically!",
     body: "I was losing clumps of hair daily due to stress. Started Keshli tablets 2 months ago and the difference is remarkable. My shower drain no longer fills up with hair. I also see new baby hairs growing at my temples. Highly recommend for anyone struggling with hair fall.",
-    images: [],
+    images: [
+      "https://images.pexels.com/photos/17380335/pexels-photo-17380335.jpeg?auto=compress&cs=tinysrgb&w=800",
+    ],
     status: "approved",
     moderatedBy: "admin",
     moderatedAt: now,

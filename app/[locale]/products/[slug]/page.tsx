@@ -1,8 +1,9 @@
 import * as React from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProduct, getProducts, getProductReviews } from "@/lib/db";
+import { getProduct, getProducts, getProductReviews, getProductById } from "@/lib/db";
 import { getLocalizedValue } from "@/lib/i18n";
+import { sanitizeHtml } from "@/lib/utils";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ProductImages } from "@/components/product/ProductImages";
 import { ProductInfo } from "@/components/product/ProductInfo";
@@ -62,6 +63,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Fetch approved reviews for this product
   const reviews = await getProductReviews(product.id);
+
+  // Resolve upsell products
+  const upsellProducts = (
+    await Promise.all(product.upsellProducts.map((id) => getProductById(id)))
+  ).filter(Boolean) as import("@/lib/types").Product[];
 
   // JSON-LD structured data
   const jsonLd = {
@@ -123,9 +129,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
 
           {/* Buy More Save More */}
-          {product.upsellProducts.length > 0 && (
+          {upsellProducts.length > 0 && (
             <div className="mt-10">
-              <BuyMoreSaveMore upsellProductIds={product.upsellProducts} currentProduct={product} />
+              <BuyMoreSaveMore upsellProducts={upsellProducts} currentProduct={product} />
             </div>
           )}
 
@@ -140,7 +146,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div
               className="prose prose-slate max-w-none text-sm leading-relaxed"
               dangerouslySetInnerHTML={{
-                __html: getLocalizedValue(product.description, locale),
+                __html: sanitizeHtml(getLocalizedValue(product.description, locale)),
               }}
             />
           </div>
@@ -166,10 +172,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Write a review */}
             <div className="bg-muted/50 mt-10 rounded-2xl p-6">
               <SectionHeading title="Write a Review" className="mb-5" />
-              <AddReviewForm
-                productId={product.id}
-                isVerifiedPurchase={false}
-              />
+              <AddReviewForm productId={product.id} isVerifiedPurchase={false} />
             </div>
           </div>
 

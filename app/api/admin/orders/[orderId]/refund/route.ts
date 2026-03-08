@@ -25,8 +25,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ord
 
   const order = await getOrder(orderId);
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
-  if (amount > order.total)
-    return NextResponse.json({ error: "Refund exceeds order total" }, { status: 400 });
+
+  const previouslyRefunded = (order as { refundAmount?: number }).refundAmount ?? 0;
+  if (amount + previouslyRefunded > order.total)
+    return NextResponse.json(
+      { error: `Refund exceeds order total. Already refunded \u20B9${previouslyRefunded}.` },
+      { status: 400 },
+    );
 
   // For Razorpay: initiate refund via Razorpay API
   if (order.paymentMethod === "razorpay" && order.paymentId) {

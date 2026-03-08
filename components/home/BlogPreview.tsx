@@ -12,9 +12,9 @@ export async function BlogPreview({ blogs }: BlogPreviewProps) {
   const locale = await getLocale();
 
   return (
-    <section className="py-16">
+    <section className="bg-muted/30 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex items-end justify-between gap-4">
+        <div className="mb-12 flex items-end justify-between gap-4">
           <SectionHeading
             title="From the Licorice Journal"
             subtitle="Ayurvedic wisdom for modern living"
@@ -22,7 +22,7 @@ export async function BlogPreview({ blogs }: BlogPreviewProps) {
           />
           <Link
             href={`/${locale}/blog`}
-            className="text-primary hidden shrink-0 text-sm font-medium hover:underline md:block"
+            className="bg-primary/5 text-primary hover:bg-primary/10 hidden shrink-0 rounded-full px-5 py-2 text-sm font-medium transition-colors md:block"
           >
             View all posts →
           </Link>
@@ -34,10 +34,10 @@ export async function BlogPreview({ blogs }: BlogPreviewProps) {
           ))}
         </div>
 
-        <div className="mt-8 text-center md:hidden">
+        <div className="mt-10 text-center md:hidden">
           <Link
             href={`/${locale}/blog`}
-            className="text-primary text-sm font-medium hover:underline"
+            className="bg-primary/5 text-primary hover:bg-primary/10 inline-block rounded-full px-5 py-2 text-sm font-medium transition-colors"
           >
             View all posts →
           </Link>
