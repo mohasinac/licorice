@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { X, ShoppingBag, Heart, Search, User, UserRoundPlus } from "lucide-react";
+import { X, ShoppingBag, Heart, Search, User, UserRoundPlus, Shield, LogOut } from "lucide-react";
 import { BRAND_NAME } from "@/constants/site";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -36,7 +36,7 @@ export function MobileMenu({ open, onClose, logoUrl }: MobileMenuProps) {
       <Dialog.Portal>
         <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content
-          className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left fixed top-0 bottom-0 left-0 z-50 flex w-80 flex-col bg-white shadow-xl"
+          className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left fixed top-0 bottom-0 left-0 z-50 flex w-80 flex-col bg-card shadow-xl"
           aria-describedby={undefined}
         >
           <Dialog.Title className="sr-only">Navigation menu</Dialog.Title>
@@ -104,15 +104,39 @@ export function MobileMenu({ open, onClose, logoUrl }: MobileMenuProps) {
                 >
                   <Heart className="h-5 w-5" />
                 </Link>
-                {user ? (
+                {user?.role === "admin" && (
                   <Link
-                    href="/account"
+                    href="/admin"
                     onClick={onClose}
-                    aria-label={t("account")}
+                    aria-label={t("admin")}
                     className="hover:bg-surface rounded-full p-2"
                   >
-                    <User className="h-5 w-5" />
+                    <Shield className="h-5 w-5" />
                   </Link>
+                )}
+                {user ? (
+                  <>
+                    <Link
+                      href="/account"
+                      onClick={onClose}
+                      aria-label={t("account")}
+                      className="hover:bg-surface rounded-full p-2"
+                    >
+                      <User className="h-5 w-5" />
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        const { getClientAuth } = await import("@/lib/firebase/client");
+                        const { signOut } = await import("firebase/auth");
+                        await signOut(getClientAuth());
+                        onClose();
+                      }}
+                      aria-label={t("logout")}
+                      className="hover:bg-surface rounded-full p-2"
+                    >
+                      <LogOut className="h-5 w-5" />
+                    </button>
+                  </>
                 ) : (
                   <Link
                     href="/login"

@@ -26,7 +26,7 @@ export function CartDrawer() {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content
-          className="fixed top-0 right-0 bottom-0 z-50 flex w-full max-w-sm flex-col bg-white shadow-xl"
+          className="fixed top-0 right-0 bottom-0 z-50 flex w-full max-w-sm flex-col bg-card shadow-xl"
           aria-describedby={undefined}
         >
           <Dialog.Title className="sr-only">Shopping cart</Dialog.Title>

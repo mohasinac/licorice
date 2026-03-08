@@ -46,7 +46,7 @@ export function BeforeAfterCard({ item }: Props) {
   }, [dragging, updatePosition]);
 
   return (
-    <div className="border-border overflow-hidden rounded-2xl border bg-white shadow-sm">
+    <div className="border-border overflow-hidden rounded-2xl border bg-card shadow-sm">
       <div
         ref={containerRef}
         className="relative aspect-[4/3] cursor-col-resize overflow-hidden select-none"

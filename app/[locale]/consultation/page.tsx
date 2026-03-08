@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getConsultationConfig } from "@/lib/db";
+import { getConsultationConfig, getConcerns } from "@/lib/db";
 import { ConsultationForm } from "./ConsultationForm";
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ConsultationPage() {
-  const config = await getConsultationConfig();
+  const [config, concerns] = await Promise.all([getConsultationConfig(), getConcerns()]);
   const consultantName = config.consultantName;
   const consultantBio = config.consultantBio;
   const clinicName = config.clinicName;
@@ -41,6 +41,7 @@ export default async function ConsultationPage() {
           clinicName={clinicName}
           clinicAddress={clinicAddress}
           clinicMapUrl={clinicMapUrl}
+          concerns={concerns}
         />
       </div>
     </div>

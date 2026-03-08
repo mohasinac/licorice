@@ -8,6 +8,66 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+#### Admin Analytics Page
+
+- `app/[locale]/(admin)/admin/analytics/page.tsx` — server-rendered analytics page with economic and website growth charts; queries Firestore for paid orders, all orders, users, products, and reviews over a configurable rolling window
+- `components/admin/AnalyticsCharts.tsx` — SVG chart components (no chart library): line/area charts for revenue, orders, AOV, customers, products, reviews; donut chart for payment method breakdown; horizontal bars for category revenue; **Most Popular Products** bar chart (top 10 by units sold); **Low Inventory Alert** table (up to 15 items, color-coded status badges)
+- `components/admin/AnalyticsRangePicker.tsx` — client-side time range selector (3m / 6m / 12m / 24m) using URL search params; all charts and stats re-fetch server-side on range change
+- Added "Analytics" link with `BarChart3` icon to `AdminSidebar.tsx` under Overview group
+
+#### Admin Product CRUD
+
+- `app/api/admin/products/route.ts` — POST create product API
+- `app/api/admin/products/[id]/route.ts` — PATCH update, DELETE product APIs
+- `lib/db.ts` — added `getAllProducts()`, `saveProduct()`, `deleteProduct()` functions
+- `components/admin/ProductForm.tsx` — dynamic category/concern fetching, auto-slug generation, Firebase auth token for API calls, router navigation on save
+
+#### Admin Categories & Concerns Client Refactor
+
+- `app/[locale]/(admin)/admin/categories/CategoriesClient.tsx` — extracted client-side CRUD into separate component
+- `app/[locale]/(admin)/admin/concerns/ConcernsClient.tsx` — extracted client-side CRUD into separate component
+
+#### Dark Theme
+
+- `next-themes` dependency added for theme persistence
+- `components/ThemeProvider.tsx` — next-themes provider wrapper
+- `components/layout/ThemeToggle.tsx` — Sun/Moon toggle button in Navbar
+- `app/globals.css` — full dark theme colour palette (`.dark` class CSS variables)
+- `@custom-variant dark` directive for Tailwind dark mode support
+
+#### Promo Banners (Public)
+
+- `components/product/PromoBannerStrip.tsx` — product-page promotional banner strip
+- `app/api/promo-banners/route.ts` — public GET API for active promo banners
+- `lib/db.ts` — `getActivePromoBanners()` now supports scoped filtering (global / product-specific) with expiry date checking
+
+#### Navbar & Layout Enhancements
+
+- Admin shield icon link in Navbar for admin users
+- Logout button in Navbar for authenticated users
+- `ThemeToggle` integrated into Navbar and MobileMenu
+- `app/layout.tsx` — wrapped with `ThemeProvider`
+- `components/layout/Navbar.tsx` — `bg-white/95` → `bg-background/95` for dark mode support
+- `components/layout/MobileMenu.tsx` — added theme toggle, admin link, logout to mobile menu
+
+#### PWA Assets
+
+- `public/favicon.ico`, `public/apple-icon.png`, `public/icon0.svg`, `public/icon1.png`
+- `public/web-app-manifest-192x192.png`, `public/web-app-manifest-512x512.png`
+- `public/manifest.json` — updated with new icon paths
+
+### Changed
+
+- `constants/theme.ts` — `mutedForeground` → `#574A85`, `border` → `#C4B5DE` (higher contrast)
+- `components/ui/StatusBadge.tsx` — updated status colour mappings
+- Multiple admin settings pages — minor form field and layout refinements
+- `app/[locale]/products/[slug]/page.tsx`, `shop/page.tsx`, `shop/[category]/page.tsx` — promo banner integration
+- `app/[locale]/concern/page.tsx`, `concern/[concern]/page.tsx`, `consultation/page.tsx` — layout adjustments
+- `messages/en.json`, `messages/hi.json`, `messages/mr.json` — updated translation keys
+- `components/AuthProvider.tsx` — minor auth state handling update
+
 ---
 
 ## [Phase 4] — Shipping & Tracking · Branch: `phase-4-shipping-tracking`

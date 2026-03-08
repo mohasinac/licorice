@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
 
 const emptyTestimonial = (): Omit<Testimonial, "id"> => ({
   customerName: "",

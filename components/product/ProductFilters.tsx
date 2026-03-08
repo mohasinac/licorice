@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
-import { CATEGORIES, CONCERNS } from "@/constants/categories";
+import type { Category, Concern } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 
 const CERTIFICATIONS = [
@@ -16,9 +16,11 @@ const CERTIFICATIONS = [
 interface ProductFiltersProps {
   /** pre-selected category (for category pages) */
   lockedCategory?: string;
+  categories?: Category[];
+  concerns?: Concern[];
 }
 
-export function ProductFilters({ lockedCategory }: ProductFiltersProps) {
+export function ProductFilters({ lockedCategory, categories = [], concerns = [] }: ProductFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -66,7 +68,7 @@ export function ProductFilters({ lockedCategory }: ProductFiltersProps) {
       {/* Category */}
       {!lockedCategory && (
         <FilterSection title="Category">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <CheckboxItem
               key={cat.id}
               id={`cat-${cat.id}`}
@@ -80,7 +82,7 @@ export function ProductFilters({ lockedCategory }: ProductFiltersProps) {
 
       {/* Concern */}
       <FilterSection title="Skin Concern">
-        {CONCERNS.map((con) => (
+        {concerns.map((con) => (
           <CheckboxItem
             key={con.id}
             id={`con-${con.id}`}

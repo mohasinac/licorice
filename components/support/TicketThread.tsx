@@ -112,7 +112,7 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
                   isInternal
-                    ? "border border-gray-300 bg-gray-50 text-gray-600"
+                    ? "border border-border bg-muted text-muted-foreground"
                     : isAdmin
                       ? "bg-muted text-foreground"
                       : "bg-primary text-white"

@@ -13,6 +13,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { AuthProvider } from "@/components/AuthProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -71,13 +72,16 @@ export default async function LocaleLayout({
   const logoUrl = siteConfig?.logoUrl || "/logo.png";
 
   return (
-    <html lang={locale} className={`${cormorant.variable} ${inter.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${cormorant.variable} ${inter.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2B1A6B" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" href="/icon0.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
       <body className="bg-background text-foreground min-h-screen antialiased">
+        <ThemeProvider>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             {siteConfig?.announcementText && (
@@ -102,6 +106,7 @@ export default async function LocaleLayout({
             />
           </AuthProvider>
         </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

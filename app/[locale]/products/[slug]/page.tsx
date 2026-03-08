@@ -1,7 +1,7 @@
 import * as React from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProduct, getProducts, getProductReviews, getProductById } from "@/lib/db";
+import { getProduct, getProducts, getProductReviews, getProductById, getActivePromoBanners } from "@/lib/db";
 import { getLocalizedValue } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/utils";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -13,6 +13,7 @@ import { BuyMoreSaveMore } from "@/components/product/BuyMoreSaveMore";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { ReviewsList } from "@/components/product/ReviewsList";
 import { AddReviewForm } from "@/components/product/AddReviewForm";
+import { PromoBannerStrip } from "@/components/product/PromoBannerStrip";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export async function generateStaticParams() {
@@ -63,6 +64,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Fetch approved reviews for this product
   const reviews = await getProductReviews(product.id);
+
+  // Fetch promo banners relevant to this product
+  const promoBanners = await getActivePromoBanners(product.id);
 
   // Resolve upsell products
   const upsellProducts = (
@@ -120,6 +124,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ProductImages images={product.images} productName={name} />
             <ProductInfo product={product} />
           </div>
+
+          {/* Promo banners */}
+          {promoBanners.length > 0 && (
+            <div className="mt-6">
+              <PromoBannerStrip banners={promoBanners} />
+            </div>
+          )}
 
           {/* Certifications */}
           {product.certifications.length > 0 && (

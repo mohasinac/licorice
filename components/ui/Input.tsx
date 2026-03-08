@@ -31,10 +31,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={[
-              "text-foreground w-full rounded-xl border bg-white px-4 py-2.5 text-sm",
+              "text-foreground w-full rounded-xl border bg-card px-4 py-2.5 text-sm shadow-sm",
               "placeholder:text-muted-foreground transition-all duration-200 outline-none",
               "focus:border-primary focus:ring-primary/20 focus:ring-2",
-              error ? "border-red-500" : "border-border",
+              error ? "border-destructive" : "border-border",
               leftIcon ? "pl-10" : "",
               rightIcon ? "pr-10" : "",
               className,

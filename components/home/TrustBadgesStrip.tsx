@@ -28,7 +28,7 @@ interface TrustBadgesStripProps {
 
 export function TrustBadgesStrip({ badges }: TrustBadgesStripProps) {
   return (
-    <section className="border-border/50 border-y bg-white py-12">
+    <section className="border-border/50 border-y bg-card py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-6">
           {badges.map(({ icon, title, description }) => {

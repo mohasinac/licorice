@@ -144,7 +144,7 @@ export function BrandValues({ values }: BrandValuesProps) {
             return (
               <div
                 key={title}
-                className="group border-accent/40 hover:shadow-accent/10 relative flex flex-col items-center gap-5 rounded-xl border-2 bg-white px-6 py-10 text-center shadow-sm transition-shadow duration-300 hover:shadow-lg"
+                className="group border-accent/40 hover:shadow-accent/10 relative flex flex-col items-center gap-5 rounded-xl border-2 bg-card px-6 py-10 text-center shadow-sm transition-shadow duration-300 hover:shadow-lg"
               >
                 {/* Corner flourishes */}
                 <CornerFlourish className="text-accent/30 absolute top-2 left-2" />

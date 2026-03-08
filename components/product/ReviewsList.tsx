@@ -196,7 +196,7 @@ export function ReviewsList({
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="border-border text-foreground rounded-lg border bg-white px-3 py-1.5 text-sm"
+          className="border-border text-foreground rounded-lg border bg-card px-3 py-1.5 text-sm"
         >
           <option value="recent">Most Recent</option>
           <option value="helpful">Most Helpful</option>

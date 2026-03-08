@@ -23,7 +23,7 @@ export function ProductBadges({ certifications }: ProductBadgesProps) {
       {certifications.map((cert) => (
         <div
           key={cert}
-          className="border-border flex items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-xs font-medium"
+          className="border-border flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-medium"
         >
           <CheckCircle2 className="text-primary h-3.5 w-3.5 flex-shrink-0" />
           <span className="text-foreground">{CERTIFICATION_LABELS[cert] ?? cert}</span>

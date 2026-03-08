@@ -2,8 +2,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CATEGORIES } from "@/constants/categories";
-import { getProducts } from "@/lib/db";
+import { getProducts, getCategories, getConcerns } from "@/lib/db";
 import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
@@ -11,7 +10,8 @@ import { ProductSort } from "@/components/product/ProductSort";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export async function generateStaticParams() {
-  return CATEGORIES.map((cat) => ({ category: cat.slug }));
+  const categories = await getCategories();
+  return categories.map((cat) => ({ category: cat.slug }));
 }
 
 export async function generateMetadata({
@@ -20,7 +20,8 @@ export async function generateMetadata({
   params: Promise<{ locale: string; category: string }>;
 }): Promise<Metadata> {
   const { category } = await params;
-  const cat = CATEGORIES.find((c) => c.slug === category);
+  const categories = await getCategories();
+  const cat = categories.find((c) => c.slug === category);
   if (!cat) return {};
   return {
     title: `${cat.label} — Ayurvedic ${cat.label}`,
@@ -37,7 +38,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { category } = await params;
   const sp = await searchParams;
 
-  const cat = CATEGORIES.find((c) => c.slug === category);
+  const [categories, allConcerns] = await Promise.all([getCategories(), getConcerns()]);
+  const cat = categories.find((c) => c.slug === category);
   if (!cat) notFound();
 
   const concerns = Array.isArray(sp.concern) ? sp.concern : sp.concern ? [sp.concern] : [];
@@ -66,7 +68,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         <div className="flex gap-8">
           <aside className="hidden w-56 flex-shrink-0 lg:block">
             <Suspense fallback={null}>
-              <ProductFilters lockedCategory={category} />
+              <ProductFilters lockedCategory={category} categories={categories} concerns={allConcerns} />
             </Suspense>
           </aside>
 

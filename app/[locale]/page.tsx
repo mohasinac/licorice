@@ -8,6 +8,7 @@ import {
   getConcerns,
   getApprovedReviews,
   getHomepageSections,
+  getActivePromoBanners,
 } from "@/lib/db";
 import { getLocale } from "next-intl/server";
 import type { Locale } from "@/lib/types";
@@ -23,6 +24,7 @@ import { InstagramReels } from "@/components/home/InstagramReels";
 import { TrustBadgesStrip } from "@/components/home/TrustBadgesStrip";
 import { ConcernGrid } from "@/components/home/ConcernGrid";
 import { BrandStory } from "@/components/home/BrandStory";
+import { PromoBannerStrip } from "@/components/product/PromoBannerStrip";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
@@ -42,6 +44,7 @@ export default async function HomePage() {
     blogs,
     homepageSections,
     locale,
+    promoBanners,
   ] = await Promise.all([
     getProducts({ isFeatured: true, limit: 8 }),
     getProducts({ limit: 8 }),
@@ -51,6 +54,7 @@ export default async function HomePage() {
     getBlogs(undefined, 3),
     getHomepageSections(),
     getLocale() as Promise<Locale>,
+    getActivePromoBanners(),
   ]);
 
   const vis = homepageSections.sectionVisibility;
@@ -58,6 +62,11 @@ export default async function HomePage() {
   return (
     <>
       <HeroBanner config={homepageSections.heroBanner} />
+      {promoBanners.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <PromoBannerStrip banners={promoBanners} />
+        </section>
+      )}
       <CategoryGrid categories={categories} />
       <ProductCarousel title="Bestsellers" products={featuredProducts} />
       <ProductCarousel title="New Arrivals" products={newArrivals} />

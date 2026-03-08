@@ -34,7 +34,7 @@ export function LanguageSwitcher() {
         <Select.Content
           position="popper"
           sideOffset={4}
-          className="border-border z-50 overflow-hidden rounded-lg border bg-white shadow-lg"
+          className="border-border z-50 overflow-hidden rounded-lg border bg-card shadow-lg"
         >
           <Select.Viewport className="p-1">
             {locales.map((loc) => (

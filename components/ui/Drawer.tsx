@@ -38,7 +38,7 @@ export function Drawer({
       <Dialog.Portal>
         <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content
-          className={["fixed z-50 flex flex-col bg-white shadow-xl", sideClasses[side], className]
+          className={["fixed z-50 flex flex-col bg-card shadow-xl", sideClasses[side], className]
             .filter(Boolean)
             .join(" ")}
           aria-describedby={description ? undefined : undefined}

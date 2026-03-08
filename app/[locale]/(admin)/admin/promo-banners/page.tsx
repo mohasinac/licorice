@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import type { PromoBanner } from "@/lib/types";
-import { Trash2, Plus, Megaphone } from "lucide-react";
+import { Trash2, Plus, Megaphone, Eye } from "lucide-react";
+import { PromoBannerStrip } from "@/components/product/PromoBannerStrip";
 
 function useAdminToken(): string | null {
   const [token, setToken] = useState<string | null>(null);
@@ -22,7 +23,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
 
 const emptyBanner = (): Omit<PromoBanner, "id" | "createdAt"> => ({
   text: "",
@@ -117,6 +118,24 @@ export default function PromoBannersPage() {
                 <label className="mb-1 block text-sm font-medium">Sort Order</label>
                 <input className={inputCls} type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} />
               </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Background Color</label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={form.bgColor || "#eff6ff"} onChange={(e) => setForm({ ...form, bgColor: e.target.value })} className="h-9 w-10 cursor-pointer rounded border border-gray-300" />
+                  <input className={inputCls} value={form.bgColor || ""} placeholder="e.g. #ecfdf5" onChange={(e) => setForm({ ...form, bgColor: e.target.value || undefined })} />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Text Color</label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={form.textColor || "#1e40af"} onChange={(e) => setForm({ ...form, textColor: e.target.value })} className="h-9 w-10 cursor-pointer rounded border border-gray-300" />
+                  <input className={inputCls} value={form.textColor || ""} placeholder="e.g. #065f46" onChange={(e) => setForm({ ...form, textColor: e.target.value || undefined })} />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Expires At</label>
+                <input className={inputCls} type="datetime-local" value={form.expiresAt ? new Date(form.expiresAt as string | number).toISOString().slice(0, 16) : ""} onChange={(e) => setForm({ ...form, expiresAt: e.target.value ? new Date(e.target.value) : undefined })} />
+              </div>
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Active</label>
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
@@ -128,6 +147,12 @@ export default function PromoBannersPage() {
                 </div>
               )}
             </div>
+            {form.text && (
+              <div className="mt-4">
+                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-500"><Eye className="h-3.5 w-3.5" /> Preview</label>
+                <PromoBannerStrip banners={[{ id: "preview", text: form.text, type: form.type, scope: form.scope, isActive: true, sortOrder: 0, createdAt: new Date(), badgeLabel: form.badgeLabel, couponCode: form.couponCode, bgColor: form.bgColor, textColor: form.textColor } as PromoBanner]} />
+              </div>
+            )}
             <div className="mt-4 flex gap-3">
               <button onClick={save} className="rounded-lg bg-[var(--primary)] px-5 py-2 text-sm font-medium text-white hover:bg-[var(--secondary)]">Save</button>
               <button onClick={() => setEditing(false)} className="rounded-lg border border-[var(--border)] px-5 py-2 text-sm font-medium hover:bg-[var(--muted)]">Cancel</button>

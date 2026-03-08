@@ -3,6 +3,7 @@
 import { Link, usePathname } from "@/i18n/navigation";
 import {
   LayoutDashboard,
+  BarChart3,
   ClipboardList,
   Package,
   Star,
@@ -43,6 +44,7 @@ export function AdminSidebar() {
       title: "Overview",
       items: [
         { label: "Dashboard", href: `${base}`, icon: <LayoutDashboard className="h-4 w-4" /> },
+        { label: "Analytics", href: `${base}/analytics`, icon: <BarChart3 className="h-4 w-4" /> },
       ],
     },
     {
@@ -131,8 +133,8 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="flex h-full w-60 flex-col border-r border-[var(--border)] bg-white">
-      <div className="flex h-16 items-center border-b border-[var(--border)] px-4">
+    <aside className="flex h-full w-60 flex-col border-r border-border bg-card">
+      <div className="flex h-16 items-center border-b border-border px-4">
         <Link href="/" className="font-heading text-primary text-lg font-bold">
           Licoricé Admin
         </Link>
@@ -159,7 +161,7 @@ function SidebarGroup({
     <div className="mb-2">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between px-2 py-1.5 text-[10px] font-semibold tracking-wider text-[var(--muted-foreground)] uppercase"
+        className="flex w-full items-center justify-between px-2 py-1.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase"
       >
         {group.title}
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? "" : "-rotate-90"}`} />
@@ -172,8 +174,8 @@ function SidebarGroup({
                 href={item.href}
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                   isActive(item.href)
-                    ? "bg-[var(--primary)] font-medium text-white"
-                    : "text-[var(--foreground)] hover:bg-[var(--muted)]"
+                    ? "bg-primary font-medium text-primary-foreground"
+                    : "text-foreground hover:bg-muted"
                 }`}
               >
                 {item.icon}

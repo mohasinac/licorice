@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   /* ── Brand Colours ─────────────────────────────────────────────────────── */
   --color-primary: #2b1a6b;
@@ -11,9 +13,9 @@
   --color-background: #fafaf7;
   --color-foreground: #1a0f3c;
   --color-muted: #f3f0f8;
-  --color-muted-foreground: #6e5f9c;
-  --color-border: #ddd5f0;
-  --color-input: #ddd5f0;
+  --color-muted-foreground: #574a85;
+  --color-border: #c4b5de;
+  --color-input: #c4b5de;
   --color-ring: #2b1a6b;
   --color-destructive: #c0392b;
   --color-destructive-foreground: #ffffff;
@@ -45,6 +47,36 @@
   /* ── Animations ─────────────────────────────────────────────────────────── */
   --animate-shimmer: shimmer 1.5s infinite linear;
   --animate-fade-in-up: fadeInUp 0.5s ease forwards;
+}
+
+/* ── Dark Theme ───────────────────────────────────────────────────────────── */
+.dark {
+  --color-primary: #9f8ad8;
+  --color-primary-foreground: #0f0a1e;
+  --color-secondary: #b49dd4;
+  --color-secondary-foreground: #0f0a1e;
+  --color-accent: #c9b99a;
+  --color-accent-foreground: #1a0f3c;
+  --color-background: #0f0a1e;
+  --color-foreground: #e8e4f0;
+  --color-muted: #1c1433;
+  --color-muted-foreground: #a99bc4;
+  --color-border: #2e2450;
+  --color-input: #2e2450;
+  --color-ring: #9f8ad8;
+  --color-destructive: #e74c3c;
+  --color-destructive-foreground: #ffffff;
+  --color-success: #4caf50;
+  --color-success-foreground: #ffffff;
+  --color-surface: #1c1433;
+  --color-card: #17102d;
+  --color-card-foreground: #e8e4f0;
+  --color-popover: #17102d;
+  --color-popover-foreground: #e8e4f0;
+  --color-herb: #5ea578;
+  --color-herb-foreground: #0f0a1e;
+  --color-earth: #b09575;
+  --color-saffron: #e4b86a;
 }
 
 @keyframes shimmer {

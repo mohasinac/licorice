@@ -30,6 +30,7 @@ const USEFUL_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Corporate Gifting", href: "/corporate-gifting" },
   { label: "Track your order", href: "/track" },
+  { label: "Media Kit", href: "/media-kit" },
 ] as const;
 
 export async function Footer({ logoUrl }: { logoUrl?: string }) {

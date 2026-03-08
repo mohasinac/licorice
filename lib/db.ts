@@ -111,6 +111,44 @@ export async function getProductById(id: string): Promise<Product | null> {
   return stripTimestamps(doc.data() as Product);
 }
 
+// ── Products (admin write) ────────────────────────────────────────────────────
+
+export async function getAllProducts(): Promise<Product[]> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const snap = await adminDb.collection("products").orderBy("sortOrder", "asc").get();
+  return snap.docs.map((d) => stripTimestamps({ id: d.id, ...d.data() } as Product));
+}
+
+export async function saveProduct(
+  product: Omit<Product, "id" | "createdAt" | "updatedAt" | "rating" | "reviewCount"> & {
+    id?: string;
+  },
+): Promise<string> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+
+  const ref = product.id
+    ? adminDb.collection("products").doc(product.id)
+    : adminDb.collection("products").doc();
+
+  const { id: _, ...data } = product as Record<string, unknown>;
+  await ref.set(
+    {
+      ...data,
+      id: ref.id,
+      updatedAt: FieldValue.serverTimestamp(),
+      ...(product.id ? {} : { createdAt: FieldValue.serverTimestamp(), rating: 0, reviewCount: 0 }),
+    },
+    { merge: true },
+  );
+  return ref.id;
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  await adminDb.collection("products").doc(id).delete();
+}
+
 // ── Categories & Concerns ─────────────────────────────────────────────────────
 
 export async function getCategories(): Promise<Category[]> {
@@ -742,16 +780,30 @@ export async function updateConsultationConfig(data: Partial<ConsultationConfig>
 
 // ── Promo Banners ─────────────────────────────────────────────────────────────
 
-export async function getActivePromoBanners(): Promise<PromoBanner[]> {
+export async function getActivePromoBanners(productId?: string): Promise<PromoBanner[]> {
   const { adminDb } = await import("@/lib/firebase/admin");
   const snap = await adminDb
     .collection("promoBanners")
     .where("isActive", "==", true)
     .orderBy("sortOrder", "asc")
     .get();
-  return snap.docs.map((d) =>
-    stripTimestamps({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }),
-  );
+  const now = new Date();
+  return snap.docs
+    .map((d) =>
+      stripTimestamps({ id: d.id, ...(d.data() as Omit<PromoBanner, "id">) }),
+    )
+    .filter((b) => {
+      // Filter expired banners
+      if (b.expiresAt) {
+        const exp = typeof b.expiresAt === "string" ? new Date(b.expiresAt) : b.expiresAt instanceof Date ? b.expiresAt : new Date((b.expiresAt as { seconds: number }).seconds * 1000);
+        if (exp < now) return false;
+      }
+      // Filter by scope
+      if (productId) {
+        return b.scope === "global" || (b.scope === "product" && b.productIds?.includes(productId));
+      }
+      return b.scope === "global";
+    });
 }
 
 export async function getAllPromoBanners(): Promise<PromoBanner[]> {

@@ -43,12 +43,12 @@ const TICKET_STATUS_VARIANTS: Record<string, StatusVariant> = {
 };
 
 const variantClasses: Record<StatusVariant, string> = {
-  green: "bg-green-100 text-green-800",
-  amber: "bg-amber-100 text-amber-800",
-  red: "bg-red-100 text-red-800",
-  purple: "bg-purple-100 text-purple-800",
-  blue: "bg-blue-100 text-blue-800",
-  gray: "bg-gray-100 text-gray-600",
+  green: "bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-400",
+  amber: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400",
+  red: "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-400",
+  purple: "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-400",
+  blue: "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400",
+  gray: "bg-gray-100 text-gray-600 dark:bg-gray-800/40 dark:text-gray-400",
 };
 
 interface StatusBadgeProps {

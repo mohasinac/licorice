@@ -5,14 +5,15 @@ import { useForm, useFieldArray, Controller, type Resolver } from "react-hook-fo
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { VariantManager } from "@/components/admin/VariantManager";
-import { CATEGORIES, CONCERNS } from "@/constants/categories";
-import type { Product } from "@/lib/types";
+import type { Product, Category, Concern } from "@/lib/types";
 
 const variantSchema = z.object({
   id: z.string().min(1),
@@ -53,7 +54,6 @@ interface ProductFormProps {
   mode?: "create" | "edit";
 }
 
-const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({ value: c.slug, label: c.label }));
 const CERT_OPTIONS = [
   { id: "cruelty-free", label: "Cruelty Free" },
   { id: "vegan", label: "Vegan" },
@@ -63,7 +63,48 @@ const CERT_OPTIONS = [
   { id: "dermatologist-tested", label: "Dermatologist Tested" },
 ];
 
+function useDynamicOptions() {
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [concerns, setConcerns] = React.useState<Concern[]>([]);
+
+  React.useEffect(() => {
+    fetch("/api/admin/categories")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setCategories(data); })
+      .catch(() => {});
+    fetch("/api/admin/concerns")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setConcerns(data); })
+      .catch(() => {});
+  }, []);
+
+  return { categories, concerns };
+}
+
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+async function getAuthToken(): Promise<string | null> {
+  try {
+    const { getClientAuth } = await import("@/lib/firebase/client");
+    const auth = getClientAuth();
+    const user = auth.currentUser;
+    if (!user) return null;
+    return user.getIdToken();
+  } catch {
+    return null;
+  }
+}
+
 export function ProductForm({ product, onSave, mode = "create" }: ProductFormProps) {
+  const router = useRouter();
+  const locale = useLocale();
+  const { categories, concerns } = useDynamicOptions();
+  const categoryOptions = categories.map((c) => ({ value: c.slug, label: c.label }));
   const {
     register,
     control,
@@ -118,10 +159,70 @@ export function ProductForm({ product, onSave, mode = "create" }: ProductFormPro
 
   async function onSubmit(data: FormData) {
     try {
-      await onSave?.(data);
+      if (onSave) {
+        await onSave(data);
+      } else {
+        const token = await getAuthToken();
+        if (!token) {
+          toast.error("Not authenticated");
+          return;
+        }
+
+        const payload = {
+          name: data.name,
+          slug: product?.slug || slugify(data.name),
+          tagline: data.tagline || "",
+          shortDescription: data.shortDescription,
+          description: data.description || "",
+          category: data.category,
+          concerns: data.concerns,
+          certifications: data.certifications,
+          benefits: data.benefits.map((b) => b.value).filter(Boolean),
+          howToUse: data.howToUse.map((s) => s.value).filter(Boolean),
+          tags: data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+          variants: data.variants,
+          isFeatured: data.isFeatured,
+          isCombo: data.isCombo,
+          isActive: data.isActive,
+          sortOrder: data.sortOrder,
+          ingredients: product?.ingredients ?? [],
+          faqs: product?.faqs ?? [],
+          images: product?.images ?? [],
+          relatedProducts: product?.relatedProducts ?? [],
+          upsellProducts: product?.upsellProducts ?? [],
+          inStock: data.variants.some((v) => v.stock > 0),
+        };
+
+        const url =
+          mode === "edit" && product?.id
+            ? `/api/admin/products/${product.id}`
+            : "/api/admin/products";
+        const method = mode === "edit" ? "PATCH" : "POST";
+
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to save");
+        }
+
+        if (mode === "create") {
+          const result = await res.json();
+          router.push(`/${locale}/admin/products/${result.id}`);
+        } else {
+          router.refresh();
+        }
+      }
       toast.success(mode === "create" ? "Product created!" : "Product updated!");
-    } catch {
-      toast.error("Failed to save product.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save product.");
     }
   }
 
@@ -167,7 +268,7 @@ export function ProductForm({ product, onSave, mode = "create" }: ProductFormPro
             name="category"
             render={({ field }) => (
               <Select
-                options={CATEGORY_OPTIONS}
+                options={categoryOptions}
                 value={field.value}
                 onValueChange={field.onChange}
                 label="Category"
@@ -179,7 +280,7 @@ export function ProductForm({ product, onSave, mode = "create" }: ProductFormPro
           <div className="sm:col-span-2">
             <p className="text-foreground mb-2 text-sm font-medium">Skin Concerns</p>
             <div className="flex flex-wrap gap-2">
-              {CONCERNS.map((con) => (
+              {concerns.map((con) => (
                 <label
                   key={con.id}
                   className="border-border flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs"
@@ -239,7 +340,7 @@ export function ProductForm({ product, onSave, mode = "create" }: ProductFormPro
           {benefits.fields.map((field, i) => (
             <div key={field.id} className="flex items-center gap-2">
               <input
-                className="border-border focus:border-primary flex-1 rounded-lg border px-4 py-2 text-sm focus:outline-none"
+                className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 flex-1 rounded-lg border bg-card px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:outline-none"
                 placeholder={`Benefit ${i + 1}`}
                 {...register(`benefits.${i}.value`)}
               />
@@ -273,7 +374,7 @@ export function ProductForm({ product, onSave, mode = "create" }: ProductFormPro
             <div key={field.id} className="flex items-center gap-2">
               <span className="text-muted-foreground w-5 flex-shrink-0 text-sm">{i + 1}.</span>
               <input
-                className="border-border focus:border-primary flex-1 rounded-lg border px-4 py-2 text-sm focus:outline-none"
+                className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 flex-1 rounded-lg border bg-card px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:outline-none"
                 placeholder={`Step ${i + 1}`}
                 {...register(`howToUse.${i}.value`)}
               />

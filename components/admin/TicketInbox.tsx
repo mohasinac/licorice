@@ -76,7 +76,7 @@ export function TicketInbox({ tickets, locale = "en" }: Props) {
             {tabCounts[key] > 0 && (
               <span
                 className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${
-                  activeTab === key ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-600"
+                  activeTab === key ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                 }`}
               >
                 {tabCounts[key]}

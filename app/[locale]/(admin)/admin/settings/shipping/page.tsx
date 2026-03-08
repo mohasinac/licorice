@@ -22,7 +22,7 @@ function useAdminToken(): string | null {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500";
 
 export default function ShippingSettingsPage() {
   const token = useAdminToken();
@@ -144,14 +144,14 @@ export default function ShippingSettingsPage() {
                 aria-checked={data.codEnabled ?? false}
                 onClick={() => set("codEnabled", !data.codEnabled)}
                 className={
-                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors " +
-                  (data.codEnabled ? "bg-[var(--primary)]" : "bg-[var(--border)]")
+                  "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
+                  (data.codEnabled ? "bg-violet-600" : "bg-gray-300")
                 }
               >
                 <span
                   className={
-                    "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform " +
-                    (data.codEnabled ? "translate-x-6" : "translate-x-1")
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    (data.codEnabled ? "translate-x-6" : "translate-x-0.5")
                   }
                 />
               </button>
@@ -238,14 +238,14 @@ export default function ShippingSettingsPage() {
                 aria-checked={data.gstIncluded ?? true}
                 onClick={() => set("gstIncluded", !(data.gstIncluded ?? true))}
                 className={
-                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors " +
-                  ((data.gstIncluded ?? true) ? "bg-[var(--primary)]" : "bg-[var(--border)]")
+                  "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
+                  ((data.gstIncluded ?? true) ? "bg-violet-600" : "bg-gray-300")
                 }
               >
                 <span
                   className={
-                    "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform " +
-                    ((data.gstIncluded ?? true) ? "translate-x-6" : "translate-x-1")
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    ((data.gstIncluded ?? true) ? "translate-x-6" : "translate-x-0.5")
                   }
                 />
               </button>
@@ -273,14 +273,14 @@ export default function ShippingSettingsPage() {
                 aria-checked={data.useShiprocketRates ?? false}
                 onClick={() => set("useShiprocketRates", !data.useShiprocketRates)}
                 className={
-                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors " +
-                  (data.useShiprocketRates ? "bg-[var(--primary)]" : "bg-[var(--border)]")
+                  "relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 " +
+                  (data.useShiprocketRates ? "bg-violet-600" : "bg-gray-300")
                 }
               >
                 <span
                   className={
-                    "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform " +
-                    (data.useShiprocketRates ? "translate-x-6" : "translate-x-1")
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-200 " +
+                    (data.useShiprocketRates ? "translate-x-6" : "translate-x-0.5")
                   }
                 />
               </button>

@@ -45,7 +45,7 @@ export function ConcernGrid({ concerns, locale }: ConcernGridProps) {
             <Link
               key={concern.id}
               href={`/concern/${concern.slug}`}
-              className="ayur-card group hover:border-primary/10 relative overflow-hidden rounded-2xl border border-transparent bg-white p-6"
+              className="ayur-card group hover:border-primary/10 relative overflow-hidden rounded-2xl border border-transparent bg-card p-6"
             >
               {/* Background gradient on hover */}
               <div className="from-primary/5 to-secondary/5 pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

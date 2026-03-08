@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONCERNS } from "@/constants/categories";
+import { getConcerns } from "@/lib/db";
 import { BRAND_NAME } from "@/constants/site";
 
 export const metadata: Metadata = {
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function ConcernsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  const concerns = await getConcerns();
 
   return (
     <div className="bg-background min-h-screen">
@@ -34,7 +35,7 @@ export default async function ConcernsPage({ params }: { params: Promise<{ local
       {/* Concern cards */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {CONCERNS.map((concern) => (
+          {concerns.map((concern) => (
             <Link
               key={concern.id}
               href={`/${locale}/concern/${concern.slug}`}

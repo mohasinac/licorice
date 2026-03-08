@@ -32,7 +32,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={inputId}
           rows={4}
           className={[
-            "border-border bg-white text-foreground placeholder:text-muted-foreground w-full rounded-xl border px-4 py-3 text-sm",
+            "border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-xl border px-4 py-3 text-sm shadow-sm",
             "focus:border-primary focus:ring-primary/20 focus:ring-2 focus:outline-none transition-all duration-200",
             "disabled:cursor-not-allowed disabled:opacity-50",
             error ? "border-destructive focus:ring-destructive" : "",

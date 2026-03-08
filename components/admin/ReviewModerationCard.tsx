@@ -80,7 +80,7 @@ export function ReviewModerationCard({
   }
 
   return (
-    <div className="border-border rounded-2xl border bg-white p-5">
+    <div className="border-border rounded-2xl border bg-card p-5">
       {/* Header */}
       <div className="mb-3 flex items-start justify-between gap-4">
         <div className="flex-1">

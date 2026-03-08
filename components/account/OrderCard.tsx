@@ -15,7 +15,7 @@ function formatDate(val: unknown): string {
 
 export function OrderCard({ order, locale = "en" }: Props) {
   return (
-    <div className="ayur-card border-border rounded-2xl border bg-white p-5 shadow-sm">
+    <div className="ayur-card border-border rounded-2xl border bg-card p-5 shadow-sm">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-foreground font-semibold">{order.orderNumber}</p>

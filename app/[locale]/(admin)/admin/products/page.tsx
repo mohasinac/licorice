@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { getProducts } from "@/lib/db";
+import { getAllProducts } from "@/lib/db";
 import { AdminProductsTable } from "./AdminProductsTable";
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminProductsPage() {
-  const products = await getProducts();
+  const products = await getAllProducts();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">

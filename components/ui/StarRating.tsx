@@ -46,7 +46,7 @@ export function StarRating({
             <Star
               className={[
                 sizeMap[size],
-                filled ? "fill-yellow-400 text-yellow-400" : "fill-transparent text-gray-300",
+                filled ? "fill-yellow-400 text-yellow-400" : "fill-transparent text-border",
               ].join(" ")}
             />
           </button>

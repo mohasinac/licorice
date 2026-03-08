@@ -35,7 +35,7 @@ export function TestimonialsCarousel({ reviews }: TestimonialsCarouselProps) {
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="ayur-card group border-border/50 relative min-w-0 flex-[0_0_calc(100%-16px)] rounded-2xl border bg-white p-8 shadow-sm sm:flex-[0_0_calc(50%-12px)] lg:flex-[0_0_calc(33.333%-16px)]"
+                className="ayur-card group border-border/50 relative min-w-0 flex-[0_0_calc(100%-16px)] rounded-2xl border bg-card p-8 shadow-sm sm:flex-[0_0_calc(50%-12px)] lg:flex-[0_0_calc(33.333%-16px)]"
               >
                 {/* Large quote icon */}
                 <Quote className="text-primary/10 mb-4 h-8 w-8" />

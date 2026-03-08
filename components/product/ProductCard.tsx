@@ -54,7 +54,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="ayur-card group border-border relative flex flex-col overflow-hidden rounded-2xl border bg-white"
+      className="ayur-card group border-border relative flex flex-col overflow-hidden rounded-2xl border bg-card"
     >
       {/* Image */}
       <div className="bg-surface relative aspect-square overflow-hidden">

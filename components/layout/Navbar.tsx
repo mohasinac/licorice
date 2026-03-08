@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { ShoppingBag, Heart, Search, Menu, User, UserRoundPlus } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, User, UserRoundPlus, Shield, LogOut } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { useWishlistStore } from "@/stores/useWishlistStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
 import { MobileMenu } from "./MobileMenu";
 import { useEffect, useState } from "react";
 import { BRAND_NAME } from "@/constants/site";
@@ -36,7 +37,7 @@ export function Navbar({ logoUrl }: { logoUrl?: string }) {
 
   return (
     <>
-      <header className="border-border/40 sticky top-0 z-40 border-b bg-white/95 shadow-sm backdrop-blur-md">
+        <header className="border-border/40 sticky top-0 z-40 border-b bg-background/95 shadow-sm backdrop-blur-md">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -80,6 +81,7 @@ export function Navbar({ logoUrl }: { logoUrl?: string }) {
 
           {/* Right icons */}
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitcher />
 
             <Link
@@ -103,6 +105,16 @@ export function Navbar({ logoUrl }: { logoUrl?: string }) {
               )}
             </Link>
 
+            {mounted && user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 hidden rounded-full p-2 transition-colors lg:flex"
+                aria-label={t("admin")}
+              >
+                <Shield className="h-5 w-5" />
+              </Link>
+            )}
+
             {mounted && (user ? (
               <Link
                 href="/account"
@@ -120,6 +132,20 @@ export function Navbar({ logoUrl }: { logoUrl?: string }) {
                 <UserRoundPlus className="h-5 w-5" />
               </Link>
             ))}
+
+            {mounted && user && (
+              <button
+                onClick={async () => {
+                  const { getClientAuth } = await import("@/lib/firebase/client");
+                  const { signOut } = await import("firebase/auth");
+                  await signOut(getClientAuth());
+                }}
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 hidden rounded-full p-2 transition-colors lg:flex"
+                aria-label={t("logout")}
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            )}
 
             <button
               onClick={openCart}

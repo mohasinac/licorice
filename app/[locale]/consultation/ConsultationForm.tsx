@@ -12,7 +12,7 @@ import { sanitizeHtml } from "@/lib/utils";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { bookConsultation } from "@/lib/actions/bookConsultation";
-import { CONCERNS } from "@/constants/categories";
+import type { Concern } from "@/lib/types";
 
 const TIME_SLOTS = [
   "9:30 AM – 10:00 AM",
@@ -44,6 +44,7 @@ interface Props {
   clinicName: string;
   clinicAddress: string;
   clinicMapUrl?: string;
+  concerns: Concern[];
 }
 
 // Get tomorrow's date in YYYY-MM-DD format (earliest bookable date)
@@ -59,6 +60,7 @@ export function ConsultationForm({
   clinicName,
   clinicAddress,
   clinicMapUrl,
+  concerns,
 }: Props) {
   const [success, setSuccess] = useState(false);
 
@@ -239,7 +241,7 @@ export function ConsultationForm({
             Skin / Hair Concerns <span className="text-destructive ml-0.5">*</span>
           </p>
           <div className="flex flex-wrap gap-2">
-            {CONCERNS.map((c) => (
+            {concerns.map((c) => (
               <button
                 key={c.id}
                 type="button"

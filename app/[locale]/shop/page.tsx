@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getProducts } from "@/lib/db";
+import { getProducts, getCategories, getConcerns } from "@/lib/db";
 import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
@@ -32,9 +32,11 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
   const sort = sp.sort ?? "featured";
 
   // Fetch products — category filter if exactly one selected
-  const products = await getProducts(
-    categories.length === 1 ? { category: categories[0] } : undefined,
-  );
+  const [allCategories, allConcerns, products] = await Promise.all([
+    getCategories(),
+    getConcerns(),
+    getProducts(categories.length === 1 ? { category: categories[0] } : undefined),
+  ]);
 
   // Further filter by multiple categories or concerns (mock/client side)
   const filtered = products.filter((p) => {
@@ -58,7 +60,7 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
           {/* Sidebar filters — desktop */}
           <aside className="hidden w-56 flex-shrink-0 lg:block">
             <Suspense fallback={null}>
-              <ProductFilters />
+              <ProductFilters categories={allCategories} concerns={allConcerns} />
             </Suspense>
           </aside>
 
