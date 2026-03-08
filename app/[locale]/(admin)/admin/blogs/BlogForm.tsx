@@ -80,7 +80,10 @@ export function BlogForm({ blog, locale }: BlogFormProps) {
       metaDescription: blog?.metaDescription ?? "",
       status: blog?.status ?? "draft",
       publishedAt: blog?.publishedAt
-        ? (blog.publishedAt instanceof Date ? blog.publishedAt : new Date())
+        ? (blog.publishedAt instanceof Date
+            ? blog.publishedAt
+            : new Date(blog.publishedAt as unknown as string)
+          )
             .toISOString()
             .split("T")[0]
         : "",

@@ -85,12 +85,13 @@ export default async function AdminBlogsPage({
             </thead>
             <tbody>
               {blogs.map((blog) => {
-                const pubDate =
-                  blog.publishedAt instanceof Date
-                    ? blog.publishedAt
+                const pubDate = blog.publishedAt
+                    ? blog.publishedAt instanceof Date
+                      ? blog.publishedAt
+                      : new Date(blog.publishedAt as unknown as string)
                     : blog.createdAt instanceof Date
                       ? blog.createdAt
-                      : new Date();
+                      : new Date(blog.createdAt as unknown as string);
                 return (
                   <tr key={blog.id} className="hover:bg-background border-b last:border-0">
                     <td className="px-4 py-3">

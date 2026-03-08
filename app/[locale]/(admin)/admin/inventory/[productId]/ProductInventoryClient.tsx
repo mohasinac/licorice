@@ -156,7 +156,9 @@ export function ProductInventoryClient({ product, inventory, movements }: Props)
                       </td>
                       <td className="text-muted-foreground px-4 py-2.5 text-xs">{m.note ?? "—"}</td>
                       <td className="text-muted-foreground px-4 py-2.5 text-right text-xs">
-                        {m.createdAt instanceof Date ? m.createdAt.toLocaleDateString() : "—"}
+                        {m.createdAt
+                          ? (m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt as unknown as string)).toLocaleDateString("en-IN")
+                          : "—"}
                       </td>
                     </tr>
                   );

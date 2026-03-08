@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProduct, getInventory, getStockMovements } from "@/lib/db";
+import { getProductById, getInventory, getStockMovements } from "@/lib/db";
 import { ProductInventoryClient } from "./ProductInventoryClient";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params;
-  const product = await getProduct(productId);
+  const product = await getProductById(productId);
   const name = product ? product.name : productId;
 
   return { title: `${name} Inventory — Admin` };
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductInventoryPage({ params }: Props) {
   const { productId } = await params;
   const [product, inventory, movements] = await Promise.all([
-    getProduct(productId),
+    getProductById(productId),
     getInventory(productId),
     getStockMovements(productId),
   ]);

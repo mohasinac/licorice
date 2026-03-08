@@ -50,12 +50,13 @@ export default async function BlogDetailPage({
   const blog = await getBlog(slug);
   if (!blog) notFound();
 
-  const publishDate =
-    blog.publishedAt instanceof Date
+  const publishDate = blog.publishedAt
+    ? blog.publishedAt instanceof Date
       ? blog.publishedAt
-      : typeof blog.publishedAt?.toDate === "function"
-        ? blog.publishedAt.toDate()
-        : new Date();
+      : typeof (blog.publishedAt as { toDate?: () => Date }).toDate === "function"
+        ? (blog.publishedAt as { toDate: () => Date }).toDate()
+        : new Date(blog.publishedAt as unknown as string)
+    : new Date();
   const readTime = estimateReadTime(blog.body);
 
   // Fetch related posts (exclude current)

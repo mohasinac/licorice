@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProduct } from "@/lib/db";
+import { getProductById } from "@/lib/db";
 import { ProductForm } from "@/components/admin/ProductForm";
 
 interface Props {
@@ -9,14 +9,14 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = await getProduct(id);
+  const product = await getProductById(id);
   const name = product ? (typeof product.name === "string" ? product.name : id) : id;
   return { title: `Edit ${name} — Admin` };
 }
 
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const product = await getProductById(id);
   if (!product) notFound();
 
   return (

@@ -48,7 +48,9 @@ export async function POST(req: NextRequest) {
   if (typeof data.value !== "number" || data.value < 0) {
     return NextResponse.json({ error: "value must be a non-negative number" }, { status: 400 });
   }
-  if (!data.applicableTo || !VALID_APPLICABLE.includes(data.applicableTo as string)) {
+  if (!data.applicableTo) {
+    data.applicableTo = "all";
+  } else if (!VALID_APPLICABLE.includes(data.applicableTo as string)) {
     return NextResponse.json({ error: "Invalid applicableTo value" }, { status: 400 });
   }
 

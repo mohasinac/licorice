@@ -11,9 +11,11 @@ import type { Timestamp } from "firebase-admin/firestore";
 
 export const metadata: Metadata = { title: "Order Detail — Admin" };
 
-function formatDate(val: Timestamp | Date | undefined): string {
+function formatDate(val: Timestamp | Date | string | undefined): string {
   if (!val) return "—";
-  const d = val instanceof Date ? val : (val as unknown as { toDate: () => Date }).toDate?.();
+  if (val instanceof Date) return val.toLocaleString("en-IN");
+  if (typeof val === "string") return new Date(val).toLocaleString("en-IN");
+  const d = (val as unknown as { toDate?: () => Date }).toDate?.();
   return d ? d.toLocaleString("en-IN") : "—";
 }
 
