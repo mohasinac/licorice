@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { BRAND_NAME } from "@/constants/site";
 
 export const metadata: Metadata = {
@@ -97,21 +98,21 @@ const INGREDIENTS = [
 
 const CATEGORIES = [...new Set(INGREDIENTS.map((i) => i.category))];
 
-export default function IngredientsPage() {
+export default async function IngredientsPage() {
+  const t = await getTranslations("ingredientsPage");
   return (
     <div className="bg-background min-h-screen">
       {/* Hero */}
       <div className="ayur-hero">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
-            Nature&apos;s Finest
+            {t("subtitle")}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
-            Our Ingredients
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mx-auto mt-4 max-w-lg text-lg leading-relaxed">
-            Every {BRAND_NAME} product starts with time-tested Ayurvedic ingredients — ethically
-            sourced, transparently listed, and proven by tradition.
+            {t("description")}
           </p>
           <hr className="ayur-divider mt-8 w-32" />
         </div>

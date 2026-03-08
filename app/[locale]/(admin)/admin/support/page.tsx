@@ -13,7 +13,16 @@ async function getAllTickets(): Promise<SupportTicket[]> {
       .orderBy("updatedAt", "desc")
       .limit(200)
       .get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<SupportTicket, "id">) }));
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...(data as Omit<SupportTicket, "id">),
+        createdAt: data.createdAt?.toDate?.() ?? new Date(),
+        updatedAt: data.updatedAt?.toDate?.() ?? new Date(),
+        resolvedAt: data.resolvedAt?.toDate?.() ?? null,
+      };
+    });
   } catch {
     return [];
   }

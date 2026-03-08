@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { ShoppingBag, Heart, Search, Menu, User, UserRoundPlus, Shield, LogOut } from "lucide-react";
+import { ShoppingBag, Heart, Menu, User, UserRoundPlus, Shield, LogOut } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { useWishlistStore } from "@/stores/useWishlistStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { MobileMenu } from "./MobileMenu";
+import { SearchDialog } from "./SearchDialog";
 import { useEffect, useState } from "react";
 import { BRAND_NAME } from "@/constants/site";
 
@@ -84,13 +85,7 @@ export function Navbar({ logoUrl }: { logoUrl?: string }) {
             <ThemeToggle />
             <LanguageSwitcher />
 
-            <Link
-              href="/search"
-              className="text-foreground/70 hover:text-primary hover:bg-primary/5 hidden rounded-full p-2 transition-colors lg:flex"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </Link>
+            <SearchDialog />
 
             <Link
               href="/account/wishlist"

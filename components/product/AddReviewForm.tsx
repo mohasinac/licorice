@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { StarRating } from "@/components/ui/StarRating";
 import { Button } from "@/components/ui/Button";
 import { submitReview } from "@/lib/actions/reviews";
@@ -31,6 +32,7 @@ export function AddReviewForm({
   isVerifiedPurchase,
   onSuccess,
 }: AddReviewFormProps) {
+  const t = useTranslations("product");
   const user = useAuthStore((s) => s.user);
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -64,7 +66,7 @@ export function AddReviewForm({
     });
     setSubmitting(false);
     if (result.success) {
-      toast.success("Review submitted! It will appear after moderation.");
+      toast.success(t("reviewSubmitted"));
       reset();
       onSuccess?.();
     } else {
@@ -76,10 +78,7 @@ export function AddReviewForm({
     return (
       <div className="bg-muted rounded-xl p-5 text-center">
         <p className="text-foreground/70 text-sm">
-          <a href="#login" className="text-primary font-medium underline">
-            Sign in
-          </a>{" "}
-          to write a review.
+          {t("signInToReview")}
         </p>
       </div>
     );
@@ -89,7 +88,7 @@ export function AddReviewForm({
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
       <div>
         <label className="text-foreground mb-2 block text-sm font-medium">
-          Your Rating <span className="text-destructive">*</span>
+          {t("ratingLabel")} <span className="text-destructive">*</span>
         </label>
         <StarRating
           value={rating}
@@ -104,24 +103,24 @@ export function AddReviewForm({
 
       <div>
         <label className="text-foreground mb-1 block text-sm font-medium">
-          Review Title (optional)
+          {t("reviewTitleLabel")}
         </label>
         <input
           {...register("title")}
           type="text"
-          placeholder="Summarise your experience"
+          placeholder={t("reviewTitlePlaceholder")}
           className="border-border focus:ring-primary w-full rounded-xl border px-4 py-2.5 text-sm focus:ring-2 focus:outline-none"
         />
       </div>
 
       <div>
         <label className="text-foreground mb-1 block text-sm font-medium">
-          Your Review <span className="text-destructive">*</span>
+          {t("reviewBodyLabel")} <span className="text-destructive">*</span>
         </label>
         <textarea
           {...register("body")}
           rows={4}
-          placeholder="Share your experience with this product…"
+          placeholder={t("reviewBodyPlaceholder")}
           className="border-border focus:ring-primary w-full rounded-xl border px-4 py-2.5 text-sm focus:ring-2 focus:outline-none"
         />
         {errors.body && (
@@ -130,11 +129,11 @@ export function AddReviewForm({
       </div>
 
       <Button type="submit" loading={submitting} className="self-start">
-        Submit Review
+        {t("submitReview")}
       </Button>
 
       <p className="text-muted-foreground text-xs">
-        Reviews are verified before appearing on the site.
+        {t("reviewsModeration")}
       </p>
     </form>
   );

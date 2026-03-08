@@ -19,7 +19,7 @@ export default async function AdminProductsPage() {
           <p className="text-muted-foreground mt-1 text-sm">{products.length} products</p>
         </div>
         <Link
-          href="admin/products/new"
+          href="/admin/products/new"
           className="bg-primary text-primary-foreground flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />

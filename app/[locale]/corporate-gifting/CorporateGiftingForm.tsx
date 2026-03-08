@@ -6,19 +6,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, Gift, Sparkles, Paintbrush, BadgePercent } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { submitCorporateInquiry } from "@/lib/actions/submitCorporateInquiry";
 
-const schema = z.object({
-  companyName: z.string().min(2, "Company name is required"),
-  contactPerson: z.string().min(2, "Contact person required"),
+const schemaBase = z.object({
+  companyName: z.string().min(2),
+  contactPerson: z.string().min(2),
   designation: z.string().optional(),
-  email: z.string().email("Valid email required"),
-  phone: z.string().min(10, "Valid phone required").max(15),
-  units: z.coerce.number().int().min(1, "At least 1 unit"),
+  email: z.string().email(),
+  phone: z.string().min(10).max(15),
+  units: z.coerce.number().int().min(1),
   budgetPerUnit: z.coerce.number().min(0).optional(),
   totalBudget: z.coerce.number().min(0).optional(),
   deliveryDateRequired: z.string().optional(),
@@ -26,43 +27,56 @@ const schema = z.object({
   message: z.string().max(2000).optional(),
 });
 
-type FormData = z.output<typeof schema>;
-
-const VALUE_PROPS = [
-  {
-    icon: Sparkles,
-    title: "Premium Ayurvedic Products",
-    desc: "Gift authentic, certified Ayurvedic skincare and wellness products your team will love.",
-    color: "bg-purple-100 text-purple-700",
-  },
-  {
-    icon: Paintbrush,
-    title: "Custom Branding",
-    desc: "Add your company's logo and message on the packaging for a truly personal touch.",
-    color: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
-  },
-  {
-    icon: Gift,
-    title: "Curated Gift Sets",
-    desc: "We help you select the perfect product combination for your budget and occasion.",
-    color: "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400",
-  },
-  {
-    icon: BadgePercent,
-    title: "Volume Discounts",
-    desc: "Special pricing for orders of 50+ units. Dedicated account manager for large orders.",
-    color: "bg-blue-100 text-blue-700",
-  },
-];
+type FormData = z.output<typeof schemaBase>;
 
 export function CorporateGiftingForm() {
   const [success, setSuccess] = useState(false);
+  const t = useTranslations("corporateGifting");
 
-  const {
-    register,
+  const schema = z.object({
+    companyName: z.string().min(2, t("validCompanyName")),
+    contactPerson: z.string().min(2, t("validContactPerson")),
+    designation: z.string().optional(),
+    email: z.string().email(t("validEmail")),
+    phone: z.string().min(10, t("validPhone")).max(15),
+    units: z.coerce.number().int().min(1, t("validUnits")),
+    budgetPerUnit: z.coerce.number().min(0).optional(),
+    totalBudget: z.coerce.number().min(0).optional(),
+    deliveryDateRequired: z.string().optional(),
+    customBranding: z.enum(["yes", "no"]),
+    message: z.string().max(2000).optional(),
+  });
+
+  const VALUE_PROPS = [
+    {
+      icon: Sparkles,
+      title: t("valuePropPremiumTitle"),
+      desc: t("valuePropPremiumDesc"),
+      color: "bg-purple-100 text-purple-700",
+    },
+    {
+      icon: Paintbrush,
+      title: t("valuePropBrandingTitle"),
+      desc: t("valuePropBrandingDesc"),
+      color: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
+    },
+    {
+      icon: Gift,
+      title: t("valuePropGiftTitle"),
+      desc: t("valuePropGiftDesc"),
+      color: "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400",
+    },
+    {
+      icon: BadgePercent,
+      title: t("valuePropVolumeTitle"),
+      desc: t("valuePropVolumeDesc"),
+      color: "bg-blue-100 text-blue-700",
+    },
+  ];
+
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<z.input<typeof schema>, unknown, FormData>({ resolver: zodResolver(schema) });
+  } = useForm<z.input<typeof schemaBase>, unknown, FormData>({ resolver: zodResolver(schema) });
 
   async function onSubmit(data: FormData) {
     const result = await submitCorporateInquiry({
@@ -71,7 +85,7 @@ export function CorporateGiftingForm() {
     });
     if (result.success) {
       setSuccess(true);
-      toast.success("Inquiry received! Our team will be in touch soon.");
+      toast.success(t("inquirySuccessToast"));
     } else {
       toast.error(result.error);
     }
@@ -83,10 +97,9 @@ export function CorporateGiftingForm() {
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
           <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="font-heading text-foreground text-2xl font-bold">Inquiry Received!</h2>
+        <h2 className="font-heading text-foreground text-2xl font-bold">{t("inquiryReceived")}</h2>
         <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
-          Thank you for your interest in Licorice Herbals corporate gifting. Our team will reach out
-          with a customised quote within 1–2 business days.
+          {t("thankYou")}
         </p>
       </div>
     );
@@ -115,22 +128,22 @@ export function CorporateGiftingForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Company Name"
+            label={t("companyName")}
             placeholder="Acme Corp"
             error={errors.companyName?.message}
             {...register("companyName")}
           />
           <Input
-            label="Contact Person"
+            label={t("contactPerson")}
             placeholder="Rahul Mehta"
             error={errors.contactPerson?.message}
             {...register("contactPerson")}
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="Designation" placeholder="HR Manager" {...register("designation")} />
+          <Input label={t("designation")} placeholder="HR Manager" {...register("designation")} />
           <Input
-            label="Phone"
+            label={t("phone")}
             type="tel"
             placeholder="+91 98765 43210"
             error={errors.phone?.message}
@@ -138,7 +151,7 @@ export function CorporateGiftingForm() {
           />
         </div>
         <Input
-          label="Business Email"
+          label={t("businessEmail")}
           type="email"
           placeholder="rahul@acmecorp.in"
           error={errors.email?.message}
@@ -146,7 +159,7 @@ export function CorporateGiftingForm() {
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Number of Units"
+            label={t("units")}
             type="number"
             min={1}
             placeholder="100"
@@ -154,7 +167,7 @@ export function CorporateGiftingForm() {
             {...register("units")}
           />
           <Input
-            label="Budget Per Unit (₹)"
+            label={t("budgetPerUnit")}
             type="number"
             min={0}
             placeholder="500"
@@ -163,37 +176,37 @@ export function CorporateGiftingForm() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Total Budget (₹)"
+            label={t("totalBudget")}
             type="number"
             min={0}
             placeholder="50000"
             {...register("totalBudget")}
           />
-          <Input label="Required Delivery Date" type="date" {...register("deliveryDateRequired")} />
+          <Input label={t("deliveryDate")} type="date" {...register("deliveryDateRequired")} />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">
-            Custom Branding Required?
+            {t("customBrandingRequired")}
           </label>
           <div className="flex gap-4">
             <label className="flex cursor-pointer items-center gap-2 text-sm">
               <input type="radio" value="yes" {...register("customBranding")} />
-              Yes
+              {t("yes")}
             </label>
             <label className="flex cursor-pointer items-center gap-2 text-sm">
               <input type="radio" value="no" {...register("customBranding")} defaultChecked />
-              No
+              {t("no")}
             </label>
           </div>
         </div>
         <Textarea
-          label="Product Preferences / Message"
+          label={t("preferencesMessage")}
           placeholder="Which products are you interested in? Any specific requirements or questions?"
           rows={4}
           {...register("message")}
         />
         <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
-          Request Quote
+          {t("requestQuote")}
         </Button>
       </form>
     </div>

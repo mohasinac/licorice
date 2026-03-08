@@ -8,6 +8,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import type { BrandValueItem } from "@/lib/types";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -109,7 +110,8 @@ interface BrandValuesProps {
   values?: BrandValueItem[];
 }
 
-export function BrandValues({ values }: BrandValuesProps) {
+export async function BrandValues({ values }: BrandValuesProps) {
+  const t = await getTranslations("home");
   const items = values && values.length > 0 ? values : DEFAULT_VALUES;
 
   return (
@@ -130,10 +132,10 @@ export function BrandValues({ values }: BrandValuesProps) {
         <div className="mb-14 flex flex-col items-center gap-3">
           <OrnamentDivider className="text-accent" />
           <h2 className="font-heading text-primary text-center text-3xl font-bold tracking-wide sm:text-4xl">
-            Rooted in Tradition
+            {t("brandValuesTitle")}
           </h2>
           <p className="text-muted-foreground max-w-lg text-center text-base leading-relaxed">
-            Ancient wisdom meets modern science — pure, potent, and crafted with reverence.
+            {t("brandValuesSub")}
           </p>
           <OrnamentDivider className="text-accent" />
         </div>

@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useWishlistStore } from "@/stores/useWishlistStore";
 import { ProductCard } from "@/components/product/ProductCard";
 import type { Product } from "@/lib/types";
 
 export default function WishlistPage() {
+  const t = useTranslations("account");
   const { productIds } = useWishlistStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function WishlistPage() {
       })
       .catch((err) => {
         console.error(err);
-        setError("Failed to load wishlist items.");
+        setError(t("errorLoadingWishlist"));
       })
       .finally(() => setLoading(false));
   }, [productIds]);
@@ -38,7 +40,7 @@ export default function WishlistPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Wishlist</h1>
+        <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">{t("wishlistTitle")}</h1>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-surface h-64 animate-pulse rounded-2xl" />
@@ -50,12 +52,12 @@ export default function WishlistPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Wishlist</h1>
+      <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">{t("wishlistTitle")}</h1>
 
       {error ? (
         <p className="text-destructive text-sm">{error}</p>
       ) : products.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Your wishlist is empty.</p>
+        <p className="text-muted-foreground text-sm">{t("wishlistEmpty")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (

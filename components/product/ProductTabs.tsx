@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { getLocalizedValue } from "@/lib/i18n";
 import type { Product, Locale } from "@/lib/types";
 
@@ -13,16 +13,17 @@ interface ProductTabsProps {
 
 type TabId = "benefits" | "ingredients" | "how-to-use" | "faqs";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "benefits", label: "Benefits" },
-  { id: "ingredients", label: "Ingredients" },
-  { id: "how-to-use", label: "How to Use" },
-  { id: "faqs", label: "FAQs" },
-];
-
 export function ProductTabs({ product }: ProductTabsProps) {
+  const t = useTranslations("product");
   const [active, setActive] = React.useState<TabId>("benefits");
   const locale = useLocale() as Locale;
+
+  const TABS: { id: TabId; label: string }[] = [
+    { id: "benefits", label: t("tabBenefits") },
+    { id: "ingredients", label: t("tabIngredients") },
+    { id: "how-to-use", label: t("tabHowToUse") },
+    { id: "faqs", label: t("tabFAQs") },
+  ];
 
   return (
     <div>

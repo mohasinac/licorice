@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { BRAND_NAME } from "@/constants/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -9,18 +10,18 @@ export const metadata: Metadata = {
     "Learn the story behind Licorice Herbals — our mission, our values, and our passion for pure Ayurvedic wellness.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const t = await getTranslations("about");
   return (
     <div className="bg-background">
       {/* Hero */}
       <div className="ayur-hero py-20">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
-            Our Story
+            {t("title")}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
-            Rooted in Nature. <br />
-            Proven by Ayurveda.
+            {t("subtitle")}
           </h1>
           <p className="text-muted-foreground mt-5 text-xl leading-relaxed">
             {BRAND_NAME} was founded with a single purpose — to bring the healing wisdom of Ayurveda
@@ -34,7 +35,7 @@ export default function AboutPage() {
       <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
         <div className="grid gap-16 lg:grid-cols-2">
           <div>
-            <SectionHeading title="Our Mission" className="mb-4" />
+            <SectionHeading title={t("ourMission")} className="mb-4" />
             <p className="text-muted-foreground leading-relaxed">
               We believe that nature already has the answers. Our products are formulated using
               traditional Ayurvedic recipes — time-tested over centuries — combined with modern
@@ -46,7 +47,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div>
-            <SectionHeading title="Our Promise" className="mb-4" />
+            <SectionHeading title={t("ourPromise")} className="mb-4" />
             <ul className="flex flex-col gap-3">
               {[
                 "100% natural, Ayurvedic formulations",
@@ -66,7 +67,7 @@ export default function AboutPage() {
 
         {/* Values */}
         <div className="mt-20">
-          <SectionHeading title="What We Stand For" align="center" className="mb-10" />
+          <SectionHeading title={t("whatWeStandFor")} align="center" className="mb-10" />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {

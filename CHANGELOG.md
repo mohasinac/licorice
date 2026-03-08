@@ -8,6 +8,58 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+#### Global Search (Cmd+K)
+
+- `components/layout/SearchDialog.tsx` — new spotlight-style search dialog triggered by `Cmd+K` / `Ctrl+K` or the navbar search button; debounced API calls, product/category/concern results with images, site-page quick links, empty state, and a "see all results" link
+- `components/layout/SearchForm.tsx` — standalone search form used on the `/search` results page
+- `app/api/search/route.ts` — new `GET /api/search?q=` endpoint; searches active products (name, tags, description, category, concerns), categories, and concerns; returns top 5 products + all matching categories/concerns
+- `components/layout/MobileMenu.tsx` — added inline search box to mobile menu with client-side routing on submit; imported `useRouter` and `useState`
+- `components/layout/Navbar.tsx` — replaced static `/search` link with `SearchDialog` component; removed `Search` icon import
+
+#### i18n — Full String Extraction
+
+- Extracted all remaining hardcoded English strings into locale files across home, cart, checkout, account, auth, support, consultation, blog, footer, product, shop, search, track, contact, concernsPage, ingredientsPage, about, combos, corporateGifting, and mediaKit namespaces
+- `messages/en.json`, `messages/hi.json`, `messages/mr.json` — added hundreds of new translation keys bringing all three locales to full parity; new top-level namespaces added: `shop`, `track`, `search`, `contact`, `concernsPage`, `ingredientsPage`, `about`, `combos`, `corporateGifting` (previously undefined or stub)
+- `components/home/HeroBanner.tsx` — hero title, subtitle, CTAs, trust badges, and "Ancient Wisdom" pill all i18n; `TRUST_BADGES` array moved inside component so it can call `useTranslations`
+- `components/home/BlogPreview.tsx` — section title, subtitle, "View all posts" links converted to i18n
+- `components/home/BrandValues.tsx` — section heading and subtitle converted to i18n; component made `async`
+- `components/home/CategoryGrid.tsx` — section heading and subtitle converted to i18n
+- `components/home/ConcernGrid.tsx` — badge label, headings, and "View products" arrow converted to i18n; two-line heading merged into single translated string
+- `components/home/InstagramReels.tsx` — section heading, subtitle, "View more" link converted to i18n
+- `components/home/NewsletterBanner.tsx` — all strings (badge, title, subtitle, placeholder, CTA, success toast) converted to i18n
+- `components/home/TestimonialsCarousel.tsx` — section heading, subtitle, "Verified Customer" and "Verified Purchase" labels converted to i18n
+- `components/layout/CartDrawer.tsx` — cart title, empty state, free-shipping progress, subtotal, taxes note, checkout button converted to i18n
+- `components/layout/Footer.tsx` — brand description, shop/quick-links/contact headings, "All Products", "Contact Form", copyright suffix converted to i18n; `USEFUL_LINKS` array moved inside component
+- `components/product/AddReviewForm.tsx` — form labels, placeholders, submit button, success toast, moderation notice, and "sign in" prompt converted to i18n
+- `components/product/ProductFilters.tsx` — "Filters", "Clear all", category/concern/certification headings, and all certification labels converted to i18n; `CERTIFICATIONS` array moved inside component
+- `components/product/ProductInfo.tsx` — "Add to Cart", "Out of Stock", "Buy Now", "Save X%", "Only N left", wishlist aria-labels, review count, and add-to-cart toast converted to i18n
+- `components/product/ProductSort.tsx` — all sort option labels converted to i18n; `SORT_OPTIONS` array moved inside component
+- `components/product/ProductTabs.tsx` — all tab labels converted to i18n; `TABS` array moved inside component
+- `components/product/ReviewCard.tsx` — "Verified Purchase", brand reply heading, "Helpful", "Report" labels converted to i18n
+- `components/product/ReviewsList.tsx` — review count, sort options, filter empty state, "Load more", report modal strings, and flag reason options all converted to i18n
+- `components/support/TicketCard.tsx` — all category labels and relative date strings ("Just now", "Xh ago", "Xd ago") converted to i18n; `CATEGORY_LABELS` moved inside component; `formatRelativeDate` now accepts translation function
+- `components/support/TicketThread.tsx` — all status/banner strings, reply area labels, internal note, support team name, and toasts converted to i18n; `STATUS_LABELS` removed in favour of inline i18n calls; "Reply to re-open" button now focuses the textarea; added missing `toast.error` on reply failure
+
+#### Dark Mode — Hero Ornaments
+
+- `components/home/BotanicalOrnaments.tsx` — in dark mode, butterfly ornaments are replaced with animated twinkling 4-pointed stars; uses `useTheme` + mount guard to avoid hydration mismatch
+
+#### GitHub Copilot Instructions
+
+- `.github/copilot-instructions.md` — added project-level Copilot instructions documenting architecture, conventions, Firestore collections, key types, and security rules
+
+#### Assets
+
+- `public/images/placeholder-before.webp` and `placeholder-after.webp` — minimal WebP placeholder images for the before/after gallery component
+
+### Fixed
+
+- `lib/actions/createOrder.ts` — initial order timeline event (`"Order placed"`) is now written **inside** the Firestore transaction (`tx.set(...)`) instead of in a separate write after the transaction, ensuring atomicity; if the transaction rolls back the timeline entry is also rolled back
+
+---
+
 ### Fixed
 
 #### Resilient Database Layer — Empty Database & Missing Index Safety

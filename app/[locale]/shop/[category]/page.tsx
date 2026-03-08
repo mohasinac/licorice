@@ -2,6 +2,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getProducts, getCategories, getConcerns } from "@/lib/db";
 import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -36,6 +37,7 @@ interface CategoryPageProps {
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { category } = await params;
+  const t = await getTranslations("shop");
   const sp = await searchParams;
 
   const [categories, allConcerns] = await Promise.all([getCategories(), getConcerns()]);
@@ -57,7 +59,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       <div className="bg-muted py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <p className="text-primary mb-1 text-sm font-semibold tracking-wide uppercase">
-            Collection
+            {t("collection", { count: sorted.length })}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold">{cat.label}</h1>
           <p className="text-muted-foreground mt-2 max-w-xl">{cat.description}</p>
@@ -74,7 +76,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
           <div className="flex-1">
             <div className="mb-5 flex items-center justify-between">
-              <p className="text-muted-foreground text-sm">{sorted.length} products</p>
+              <p className="text-muted-foreground text-sm">{t("productsCount", { count: sorted.length })}</p>
               <Suspense fallback={null}>
                 <ProductSort />
               </Suspense>

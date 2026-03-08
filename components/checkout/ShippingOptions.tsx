@@ -1,12 +1,20 @@
 "use client";
 
 import { Truck, Zap, Timer } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_RATE,
   getShippingCharge,
 } from "@/constants/policies";
 import type { ShippingMode } from "@/stores/useCheckoutStore";
+
+interface ShippingOptionsProps {
+  subtotal: number;
+  selected: ShippingMode;
+  onChange: (mode: ShippingMode) => void;
+  sameDayAvailable?: boolean;
+}
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -15,58 +23,50 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-const SHIPPING_OPTIONS: {
-  id: ShippingMode;
-  label: string;
-  sla: string;
-  icon: React.ElementType;
-  description: string;
-  priceFn: (subtotal: number) => number;
-  alwaysAvailable: boolean;
-}[] = [
-  {
-    id: "standard",
-    label: "Standard Delivery",
-    sla: "5–7 business days",
-    icon: Truck,
-    description: "Processing 1–2 business days",
-    priceFn: (sub) => (sub >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE),
-    alwaysAvailable: true,
-  },
-  {
-    id: "express",
-    label: "Express Delivery",
-    sla: "2–3 business days",
-    icon: Zap,
-    description: "Faster dispatch & courier",
-    priceFn: () => 149,
-    alwaysAvailable: true,
-  },
-  {
-    id: "same_day",
-    label: "Same Day Delivery",
-    sla: "Same day",
-    icon: Timer,
-    description: "Mumbai pincodes only",
-    priceFn: () => 199,
-    alwaysAvailable: false,
-  },
-];
-
-interface ShippingOptionsProps {
-  subtotal: number;
-  selected: ShippingMode;
-  onChange: (mode: ShippingMode) => void;
-  /** Pass true for Mumbai pincodes to enable same-day */
-  sameDayAvailable?: boolean;
-}
-
 export function ShippingOptions({
   subtotal,
   selected,
   onChange,
   sameDayAvailable = false,
 }: ShippingOptionsProps) {
+  const t = useTranslations("checkout");
+  const SHIPPING_OPTIONS: {
+    id: ShippingMode;
+    label: string;
+    sla: string;
+    icon: React.ElementType;
+    description: string;
+    priceFn: (subtotal: number) => number;
+    alwaysAvailable: boolean;
+  }[] = [
+    {
+      id: "standard",
+      label: t("standardDelivery"),
+      sla: t("standardSla"),
+      icon: Truck,
+      description: t("standardDesc"),
+      priceFn: (sub) => (sub >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE),
+      alwaysAvailable: true,
+    },
+    {
+      id: "express",
+      label: t("expressDelivery"),
+      sla: t("expressSla"),
+      icon: Zap,
+      description: t("expressDesc"),
+      priceFn: () => 149,
+      alwaysAvailable: true,
+    },
+    {
+      id: "same_day",
+      label: t("sameDayDelivery"),
+      sla: t("sameDaySla"),
+      icon: Timer,
+      description: t("sameDayDesc"),
+      priceFn: () => 199,
+      alwaysAvailable: false,
+    },
+  ];
   return (
     <div className="space-y-3">
       {SHIPPING_OPTIONS.map((option) => {
@@ -118,7 +118,7 @@ export function ShippingOptions({
                   price === 0 ? "text-green-600 dark:text-green-400" : "text-foreground",
                 ].join(" ")}
               >
-                {price === 0 ? "Free" : fmt(price)}
+                {price === 0 ? t("freeLabel") : fmt(price)}
               </span>
             </div>
           </button>

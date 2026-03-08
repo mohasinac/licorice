@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { Quote } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { StarRating } from "@/components/ui/StarRating";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Review } from "@/lib/types";
@@ -13,6 +14,7 @@ interface TestimonialsCarouselProps {
 }
 
 export function TestimonialsCarousel({ reviews }: TestimonialsCarouselProps) {
+  const t = useTranslations("home");
   const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: false }));
   const [emblaRef] = useEmblaCarousel({ loop: true, align: "start" }, [autoplay.current]);
 
@@ -25,8 +27,8 @@ export function TestimonialsCarousel({ reviews }: TestimonialsCarouselProps) {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          title="What Our Customers Say"
-          subtitle="Real results from real people"
+          title={t("testimonialTitle")}
+          subtitle={t("testimonialSub")}
           className="mb-12"
         />
 
@@ -54,12 +56,12 @@ export function TestimonialsCarousel({ reviews }: TestimonialsCarouselProps) {
                   </div>
                   <div>
                     <p className="text-foreground text-sm font-semibold">
-                      {review.authorName ?? "Verified Customer"}
+                      {review.authorName ?? t("verifiedCustomer")}
                     </p>
                     {review.isVerifiedPurchase && (
                       <p className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
-                        Verified Purchase
+                        {t("verifiedPurchase")}
                       </p>
                     )}
                   </div>

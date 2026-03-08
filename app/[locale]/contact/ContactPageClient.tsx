@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { MessageCircle, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -22,6 +23,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function ContactPageClient() {
+  const t = useTranslations("contact");
   const [ticketNumber, setTicketNumber] = React.useState<string | null>(null);
 
   const {
@@ -39,7 +41,7 @@ export function ContactPageClient() {
         body: JSON.stringify(data),
       });
       setTicketNumber(json.ticketNumber ?? null);
-      toast.success("Message sent! We'll reply within 1 business day.");
+      toast.success(t("messageSent"));
       reset();
     } catch {}
   }
@@ -50,14 +52,13 @@ export function ContactPageClient() {
       <div className="ayur-hero">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
-            Reach Out
+            {t("subtitle")}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
-            Get in Touch
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
-            We&apos;re here to help. Whether it&apos;s a product question or order support, we
-            respond promptly.
+            {t("description")}
           </p>
           <hr className="ayur-divider mt-8 w-32" />
         </div>
@@ -72,14 +73,14 @@ export function ContactPageClient() {
                 <MessageCircle className="text-primary h-5 w-5" />
               </div>
               <div>
-                <p className="text-foreground font-semibold">WhatsApp</p>
+                <p className="text-foreground font-semibold">{t("whatsApp")}</p>
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary text-sm hover:underline"
                 >
-                  Chat with us on WhatsApp →
+                  {t("chatWhatsApp")}
                 </a>
               </div>
             </div>
@@ -104,16 +105,15 @@ export function ContactPageClient() {
                 <Clock className="text-primary h-5 w-5" />
               </div>
               <div>
-                <p className="text-foreground font-semibold">Support Hours</p>
+                <p className="text-foreground font-semibold">{t("supportHours")}</p>
                 <p className="text-muted-foreground text-sm">{SUPPORT_HOURS}</p>
               </div>
             </div>
 
             <div className="border-border bg-muted/50 ayur-card rounded-2xl border p-5">
-              <p className="text-foreground text-sm font-semibold">📦 Order related issues?</p>
+              <p className="text-foreground text-sm font-semibold">{t("orderHelp")}</p>
               <p className="text-muted-foreground mt-1 text-sm">
-                For faster help with orders, WhatsApp us with your order number. We typically
-                respond within 2 hours during business hours.
+                {t("orderHelpText")}
               </p>
             </div>
           </div>
@@ -122,53 +122,53 @@ export function ContactPageClient() {
           {ticketNumber ? (
             <div className="flex flex-col items-center justify-center rounded-2xl bg-green-50 dark:bg-green-950/30 p-8 text-center">
               <CheckCircle2 className="mb-4 h-12 w-12 text-green-600 dark:text-green-400" />
-              <h2 className="text-foreground text-xl font-semibold">Message Sent!</h2>
+              <h2 className="text-foreground text-xl font-semibold">{t("messageSent")}</h2>
               <p className="text-muted-foreground mt-2 text-sm">
-                Your support ticket has been created.
+                {t("ticketCreated")}
               </p>
               <p className="mt-3 rounded-lg bg-card px-4 py-2 font-mono text-sm font-semibold text-green-700 shadow-sm">
                 {ticketNumber}
               </p>
               <p className="text-muted-foreground mt-3 text-xs">
-                Save this number for future reference. We&apos;ll reply within 1 business day.
+                {t("saveTicketNumber")}
               </p>
               <button
                 onClick={() => setTicketNumber(null)}
                 className="text-primary mt-6 text-sm hover:underline"
               >
-                Send another message
+                {t("sendAnother")}
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
               <Input
-                label="Your Name"
+                label={t("name")}
                 placeholder="Priya Sharma"
                 error={errors.name?.message}
                 {...register("name")}
               />
               <Input
-                label="Email Address"
+                label={t("email")}
                 placeholder="you@example.com"
                 type="email"
                 error={errors.email?.message}
                 {...register("email")}
               />
               <Input
-                label="Subject"
+                label={t("subject")}
                 placeholder="Order inquiry, product question…"
                 error={errors.subject?.message}
                 {...register("subject")}
               />
               <Textarea
-                label="Message"
+                label={t("message")}
                 placeholder="Tell us how we can help…"
                 rows={5}
                 error={errors.message?.message}
                 {...register("message")}
               />
               <Button type="submit" size="lg" loading={isSubmitting} className="mt-2 w-full">
-                <Send className="h-4 w-4" /> Send Message
+                <Send className="h-4 w-4" /> {t("send")}
               </Button>
             </form>
           )}

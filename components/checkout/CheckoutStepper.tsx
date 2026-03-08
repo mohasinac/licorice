@@ -1,15 +1,8 @@
 "use client";
 
 import { Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { CheckoutStep } from "@/stores/useCheckoutStore";
-
-const STEPS: { id: CheckoutStep; label: string }[] = [
-  { id: "cart", label: "Cart" },
-  { id: "address", label: "Address" },
-  { id: "shipping", label: "Shipping" },
-  { id: "payment", label: "Payment" },
-  { id: "confirm", label: "Confirm" },
-];
 
 const STEP_ORDER: CheckoutStep[] = ["cart", "address", "shipping", "payment", "confirm"];
 
@@ -19,6 +12,14 @@ interface CheckoutStepperProps {
 }
 
 export function CheckoutStepper({ currentStep, onStepClick }: CheckoutStepperProps) {
+  const t = useTranslations("checkout");
+  const STEPS: { id: CheckoutStep; label: string }[] = [
+    { id: "cart", label: t("steps.cart") },
+    { id: "address", label: t("steps.address") },
+    { id: "shipping", label: t("steps.shipping") },
+    { id: "payment", label: t("steps.payment") },
+    { id: "confirm", label: t("steps.confirm") },
+  ];
   const currentIndex = STEP_ORDER.indexOf(currentStep);
 
   return (

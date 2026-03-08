@@ -180,15 +180,15 @@ export async function createOrder(input: unknown): Promise<CreateOrderResult> {
           createdAt: FieldValue.serverTimestamp(),
         });
       }
-    });
 
-    // Write initial timeline event (outside transaction)
-    const timelineRef = orderRef.collection("timeline").doc();
-    await timelineRef.set({
-      status: "pending",
-      description: "Order placed",
-      source: "system",
-      createdAt: FieldValue.serverTimestamp(),
+      // Write initial timeline event inside transaction for atomicity
+      const timelineRef = orderRef.collection("timeline").doc();
+      tx.set(timelineRef, {
+        status: "pending",
+        description: "Order placed",
+        source: "system",
+        createdAt: FieldValue.serverTimestamp(),
+      });
     });
 
     return { success: true, orderId: orderRef.id, orderNumber };

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getConsultationConfig, getConcerns } from "@/lib/db";
 import { ConsultationForm } from "./ConsultationForm";
 
@@ -9,8 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ConsultationPage() {
+  const t = await getTranslations("consultation");
   const [config, concerns] = await Promise.all([getConsultationConfig(), getConcerns()]);
   const consultantName = config.consultantName;
+  const consultantTitle = config.consultantTitle;
   const consultantBio = config.consultantBio;
   const clinicName = config.clinicName;
   const clinicAddress = config.clinicAddress;
@@ -22,13 +25,13 @@ export default async function ConsultationPage() {
       <div className="ayur-hero">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
-            Complimentary
+            {t("complimentary")}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
-            Free Skin &amp; Hair Consultation
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
-            Get a personalised Ayurvedic skincare and hair care plan — completely free.
+            {t("heroDescription")}
           </p>
           <hr className="ayur-divider mt-8 w-32" />
         </div>
@@ -37,6 +40,7 @@ export default async function ConsultationPage() {
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
         <ConsultationForm
           consultantName={consultantName}
+          consultantTitle={consultantTitle}
           consultantBio={consultantBio}
           clinicName={clinicName}
           clinicAddress={clinicAddress}

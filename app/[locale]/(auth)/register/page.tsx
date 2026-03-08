@@ -2,6 +2,7 @@
 // app/[locale]/(auth)/register/page.tsx
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -9,6 +10,7 @@ import { BRAND_NAME } from "@/constants/site";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations("auth");
 
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,7 +20,7 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters.");
+      toast.error(t("weakPassword"));
       return;
     }
     setLoading(true);
@@ -30,16 +32,16 @@ export default function RegisterPage() {
       if (displayName.trim()) {
         await updateProfile(cred.user, { displayName: displayName.trim() });
       }
-      toast.success("Account created! Welcome to Licorice Herbals.");
+      toast.success(t("registerSuccess"));
       router.replace("/");
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code;
       if (code === "auth/email-already-in-use") {
-        toast.error("An account with this email already exists.");
+        toast.error(t("emailAlreadyInUse"));
       } else if (code === "auth/weak-password") {
-        toast.error("Password is too weak. Use at least 8 characters.");
+        toast.error(t("weakPassword"));
       } else {
-        toast.error("Registration failed. Please try again.");
+        toast.error(t("registrationFailed"));
       }
     } finally {
       setLoading(false);
@@ -54,10 +56,10 @@ export default function RegisterPage() {
       const auth = getClientAuth();
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      toast.success("Account created with Google!");
+      toast.success(t("signedInWithGoogle"));
       router.replace("/");
     } catch {
-      toast.error("Google sign-in failed. Please try again.");
+      toast.error(t("googleSignInFailed"));
     } finally {
       setLoading(false);
     }
@@ -66,15 +68,13 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-16">
       <div className="bg-background border-border w-full max-w-sm rounded-2xl border p-8 shadow-sm">
-        <h1 className="font-heading text-foreground mb-1 text-2xl font-bold">Create an account</h1>
-        <p className="text-muted-foreground mb-6 text-sm">
-          Join {BRAND_NAME} and start your Ayurvedic journey.
-        </p>
+        <h1 className="font-heading text-foreground mb-1 text-2xl font-bold">{t("createAccount")}</h1>
+        <p className="text-muted-foreground mb-6 text-sm">{t("joinBrand", { brand: BRAND_NAME })}</p>
 
         <form onSubmit={handleRegister} className="space-y-4">
           <Input
             type="text"
-            label="Full name"
+            label={t("name")}
             placeholder="Priya Sharma"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
@@ -82,7 +82,7 @@ export default function RegisterPage() {
           />
           <Input
             type="email"
-            label="Email"
+            label={t("email")}
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -91,8 +91,8 @@ export default function RegisterPage() {
           />
           <Input
             type="password"
-            label="Password"
-            placeholder="Min. 8 characters"
+            label={t("password")}
+            placeholder={t("passwordMin8Placeholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -100,13 +100,13 @@ export default function RegisterPage() {
           />
 
           <Button type="submit" loading={loading} className="w-full" size="md">
-            Create account
+            {t("createAccount")}
           </Button>
         </form>
 
         <div className="my-6 flex items-center gap-3">
           <span className="bg-border h-px flex-1" />
-          <span className="text-muted-foreground text-xs">or</span>
+          <span className="text-muted-foreground text-xs">{t("or")}</span>
           <span className="bg-border h-px flex-1" />
         </div>
 
@@ -136,13 +136,13 @@ export default function RegisterPage() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          {t("googleLogin")}
         </Button>
 
         <p className="text-muted-foreground mt-6 text-center text-sm">
-          Already have an account?{" "}
+          {t("hasAccount")}{" "}
           <Link href="/login" className="text-primary font-medium hover:underline">
-            Sign in
+            {t("signIn")}
           </Link>
         </p>
       </div>

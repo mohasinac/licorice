@@ -9,37 +9,15 @@ import {
   Package,
   FolderOpen,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { MediaKitFile, MediaKitCategory } from "@/lib/types";
 
-const CATEGORY_META: Record<
-  MediaKitCategory,
-  { label: string; icon: React.ReactNode; description: string }
-> = {
-  logo: {
-    label: "Logos",
-    icon: <Image className="h-5 w-5" />,
-    description: "Official brand logos in various formats and color schemes",
-  },
-  "brand-guide": {
-    label: "Brand Guidelines",
-    icon: <FileText className="h-5 w-5" />,
-    description: "Typography, colors, usage rules, and brand voice",
-  },
-  "press-release": {
-    label: "Press Releases",
-    icon: <Newspaper className="h-5 w-5" />,
-    description: "Latest press releases and media announcements",
-  },
-  "product-images": {
-    label: "Product Images",
-    icon: <Package className="h-5 w-5" />,
-    description: "High-resolution product photography and lifestyle shots",
-  },
-  other: {
-    label: "Other Assets",
-    icon: <FolderOpen className="h-5 w-5" />,
-    description: "Additional brand assets and materials",
-  },
+const CATEGORY_META_ICONS: Record<MediaKitCategory, React.ReactNode> = {
+  logo: <Image className="h-5 w-5" />,
+  "brand-guide": <FileText className="h-5 w-5" />,
+  "press-release": <Newspaper className="h-5 w-5" />,
+  "product-images": <Package className="h-5 w-5" />,
+  other: <FolderOpen className="h-5 w-5" />,
 };
 
 function formatFileSize(bytes: number) {
@@ -65,6 +43,38 @@ interface Props {
 
 export function MediaKitDownloads({ files }: Props) {
   const [filter, setFilter] = useState<MediaKitCategory | "all">("all");
+  const t = useTranslations("mediaKit");
+
+  const CATEGORY_META: Record<
+    MediaKitCategory,
+    { label: string; icon: React.ReactNode; description: string }
+  > = {
+    logo: {
+      label: t("catLogos"),
+      icon: CATEGORY_META_ICONS.logo,
+      description: t("catLogosDesc"),
+    },
+    "brand-guide": {
+      label: t("catBrandGuide"),
+      icon: CATEGORY_META_ICONS["brand-guide"],
+      description: t("catBrandGuideDesc"),
+    },
+    "press-release": {
+      label: t("catPressRelease"),
+      icon: CATEGORY_META_ICONS["press-release"],
+      description: t("catPressReleaseDesc"),
+    },
+    "product-images": {
+      label: t("catProductImages"),
+      icon: CATEGORY_META_ICONS["product-images"],
+      description: t("catProductImagesDesc"),
+    },
+    other: {
+      label: t("catOther"),
+      icon: CATEGORY_META_ICONS.other,
+      description: t("catOtherDesc"),
+    },
+  };
 
   // Group files by category
   const categories = Array.from(new Set(files.map((f) => f.category)));
@@ -83,7 +93,7 @@ export function MediaKitDownloads({ files }: Props) {
                 : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
-            All ({files.length})
+            {t("filterAll", { count: files.length })}
           </button>
           {categories.map((cat) => {
             const count = files.filter((f) => f.category === cat).length;
@@ -143,7 +153,7 @@ export function MediaKitDownloads({ files }: Props) {
                   className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
                 >
                   <Download className="h-4 w-4" />
-                  Download
+                  {t("downloadBtn")}
                 </a>
               </div>
             </div>

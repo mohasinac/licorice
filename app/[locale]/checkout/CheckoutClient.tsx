@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/stores/useCartStore";
 import { useCheckoutStore } from "@/stores/useCheckoutStore";
@@ -52,6 +52,7 @@ export function CheckoutClient({
 }: CheckoutClientProps) {
   const locale = useLocale();
   const router = useRouter();
+  const t = useTranslations("checkout");
   const { user } = useAuthStore();
   const { items, subtotal, itemCount, clear } = useCartStore();
   const {
@@ -164,17 +165,17 @@ export function CheckoutClient({
 
   async function handlePlaceOrder() {
     if (!shippingAddress) {
-      toast.error("Please select a delivery address.");
+      toast.error(t("pleaseSelectAddress"));
       return;
     }
     if (itemCount() === 0) {
-      toast.error("Your cart is empty.");
+      toast.error(t("cartEmptyError"));
       return;
     }
 
     setPlacing(true);
     try {
-      const guestEmail = !user ? undefined : user.email; // guest flow: TODO capture email
+      const guestEmail = user?.email ?? undefined;
       const result = await createOrder({
         userId: user?.uid,
         guestEmail,
@@ -195,11 +196,10 @@ export function CheckoutClient({
 
       setOrderPlaced(result.orderId, result.orderNumber);
       clear();
-      reset();
-      // navigate to confirmation stays on same page (step = confirm)
+      // NOTE: do not call reset() here — it would wipe orderId/orderNumber/step:confirm
     } catch (err) {
       console.error(err);
-      toast.error("Failed to place order. Please try again.");
+      toast.error(t("failedPlaceOrder"));
     } finally {
       setPlacing(false);
     }
@@ -209,7 +209,7 @@ export function CheckoutClient({
   if (!mounted) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Checkout</h1>
+        <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">{t("title")}</h1>
         <div className="h-64 animate-pulse rounded-2xl bg-muted" />
       </div>
     );
@@ -234,7 +234,7 @@ export function CheckoutClient({
               />
             </svg>
           </div>
-          <h1 className="font-heading text-foreground mb-2 text-3xl font-bold">Order Placed!</h1>
+          <h1 className="font-heading text-foreground mb-2 text-3xl font-bold">{t("orderPlaced")}</h1>
           <p className="text-muted-foreground">Order #{orderNumber}</p>
         </div>
 
@@ -256,19 +256,17 @@ export function CheckoutClient({
           <div className="border-border rounded-xl border p-6 text-left">
             <p className="text-muted-foreground text-sm">
               {paymentMethod === "cod"
-                ? "Your order is confirmed. Pay ₹" +
-                  fmt(orderTotal) +
-                  " when it arrives at your door."
-                : "Payment completed. Your order is confirmed!"}
+                ? t("codOrderConfirmed", { amount: fmt(orderTotal) })
+                : t("paymentCompletedMsg")}
             </p>
           </div>
         )}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button onClick={() => router.push(`/${locale}/account/orders`)} variant="outline">
-            View My Orders
+            {t("viewMyOrders")}
           </Button>
-          <Button onClick={() => router.push(`/${locale}/shop`)}>Continue Shopping</Button>
+          <Button onClick={() => router.push(`/${locale}/shop`)}>{t("continueShopping")}</Button>
         </div>
       </div>
     );
@@ -276,7 +274,7 @@ export function CheckoutClient({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Checkout</h1>
+      <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">{t("title")}</h1>
       <CheckoutStepper currentStep={step} onStepClick={setStep} />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -285,12 +283,12 @@ export function CheckoutClient({
           {/* Step: Cart review */}
           {step === "cart" && (
             <section>
-              <h2 className="font-heading text-foreground mb-4 text-xl font-semibold">Your Cart</h2>
+              <h2 className="font-heading text-foreground mb-4 text-xl font-semibold">{t("yourCart")}</h2>
               {itemCount() === 0 ? (
                 <p className="text-muted-foreground">
-                  Your cart is empty.{" "}
+                  {t("cartEmpty")}{" "}
                   <a href={`/${locale}/shop`} className="text-primary underline">
-                    Shop now
+                    {t("shopNow")}
                   </a>
                 </p>
               ) : (
@@ -301,7 +299,7 @@ export function CheckoutClient({
                     ))}
                   </ul>
                   <div className="border-border mt-4 rounded-xl border p-4">
-                    <p className="text-foreground mb-3 text-sm font-medium">Have a coupon?</p>
+                    <p className="text-foreground mb-3 text-sm font-medium">{t("haveCoupon")}</p>
                     <CouponInput
                       cartTotal={sub}
                       userId={user?.uid}
@@ -313,7 +311,7 @@ export function CheckoutClient({
                   </div>
                   <div className="mt-6">
                     <Button onClick={() => setStep("address")} className="w-full" size="lg">
-                      Continue to Address →
+                      {t("continueToAddress")}
                     </Button>
                   </div>
                 </>
@@ -335,7 +333,7 @@ export function CheckoutClient({
               />
               {shippingAddress && (
                 <Button onClick={() => setStep("shipping")} className="mt-6 w-full" size="lg">
-                  Continue to Shipping →
+                  {t("continueToShipping")}
                 </Button>
               )}
             </section>
@@ -349,13 +347,13 @@ export function CheckoutClient({
               </h2>
               {fetchingRates && (
                 <p className="text-muted-foreground mb-3 animate-pulse text-sm">
-                  Fetching live courier rates…
+                  {t("fetchingRates")}
                 </p>
               )}
               {shiprocketRates.length > 0 ? (
                 <div className="space-y-3">
                   <p className="text-muted-foreground mb-2 text-xs">
-                    Live rates from Shiprocket for pincode {shippingAddress?.pincode}
+                    {t("liveRatesFor", { pincode: shippingAddress?.pincode ?? "" })}
                   </p>
                   {shiprocketRates.map((rate) => (
                     <button
@@ -388,7 +386,7 @@ export function CheckoutClient({
                 />
               )}
               <Button onClick={() => setStep("payment")} className="mt-6 w-full" size="lg">
-                Continue to Payment →
+                {t("continueToPayment")}
               </Button>
             </section>
           )}
@@ -410,12 +408,12 @@ export function CheckoutClient({
                 className="mt-6 w-full"
                 size="lg"
               >
-                Place Order — {fmt(orderTotal)}
+                {t("placeOrderWithTotal", { total: fmt(orderTotal) })}
               </Button>
               <p className="text-muted-foreground mt-3 text-center text-xs">
-                By placing your order you agree to our{" "}
+                {t("byPlacingOrder")}{" "}
                 <a href={`/${locale}/terms`} className="text-primary underline">
-                  Terms of Service
+                  {t("termsOfService")}
                 </a>
                 .
               </p>
@@ -442,7 +440,7 @@ export function CheckoutClient({
               onClick={() => setStep("cart")}
               className="text-primary mt-3 block w-full text-center text-sm underline"
             >
-              ← Edit Cart
+              {t("editCart")}
             </button>
           )}
         </div>

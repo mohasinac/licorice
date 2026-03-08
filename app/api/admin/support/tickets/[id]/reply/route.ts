@@ -60,7 +60,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           ticketNumber?: string;
           subject?: string;
         };
-        const recipientEmail = ticketData.guestEmail;
+        let recipientEmail = ticketData.guestEmail;
+        if (!recipientEmail && ticketData.userId) {
+          try {
+            const { adminAuth } = await import("@/lib/firebase/admin");
+            const authUser = await adminAuth.getUser(ticketData.userId);
+            recipientEmail = authUser.email;
+          } catch {
+            /* non-fatal */
+          }
+        }
         const resendKey = process.env.RESEND_API_KEY;
         const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
         if (resendKey && recipientEmail) {
@@ -69,7 +78,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           await resend.emails.send({
             from: fromEmail,
             to: recipientEmail,
-            subject: `Re: [${ticketData.ticketNumber}] ${ticketData.subject}`,
+            subject: `Re: [${ticketData.ticketNumber}] ${(ticketData.subject ?? "").replace(/[\r\n]+/g, " ")}`,
             html: `<p>Hi,</p><p>Our support team has replied to your ticket <strong>${escapeHtml(ticketData.ticketNumber ?? "")}</strong>:</p><blockquote style="border-left:3px solid #ccc;padding-left:12px;color:#555">${escapeHtml(message)}</blockquote><p>Log in to your account to view the full conversation and reply.</p><p>Regards,<br/>Licorice Herbals Support</p>`,
           });
         }

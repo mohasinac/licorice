@@ -1,11 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 /**
  * Animated butterflies and swaying leaves matching the Licoricé logo style —
  * elegant SVG botanical emblem motifs (top-down view) placed around the
  * dotted-circle ring in the HeroBanner.
+ * In dark mode, butterflies are replaced with twinkling stars.
  */
 
 /* ─── Butterfly (top-down / emblem style — symmetrical wings like the logo) ─── */
@@ -182,6 +185,49 @@ function SwayingLeaf({
   );
 }
 
+/* ─── Twinkling star (dark mode replacement for butterflies) ─── */
+function TwinklingStar({
+  size = 28,
+  color = "rgba(255,255,255,0.85)",
+  delay = 0,
+}: {
+  size?: number;
+  color?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.svg
+      className="pointer-events-none"
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      animate={{
+        scale: [1, 1.35, 0.9, 1.2, 1],
+        opacity: [0.7, 1, 0.4, 0.95, 0.7],
+        rotate: [0, 15, -10, 5, 0],
+      }}
+      transition={{
+        duration: 2.4 + delay * 0.7,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay,
+      }}
+    >
+      {/* 4-pointed star */}
+      <path
+        d="M20 4 L22.4 17.6 L36 20 L22.4 22.4 L20 36 L17.6 22.4 L4 20 L17.6 17.6 Z"
+        fill={color}
+      />
+      {/* Subtle inner glow cross */}
+      <path
+        d="M20 12 L20.8 19.2 L28 20 L20.8 20.8 L20 28 L19.2 20.8 L12 20 L19.2 19.2 Z"
+        fill="rgba(255,255,255,0.4)"
+      />
+    </motion.svg>
+  );
+}
+
 /* ─── Items positioned around the circle ─── */
 interface OrnamentItem {
   type: "butterfly" | "leaf";
@@ -202,6 +248,11 @@ const ORNAMENTS: OrnamentItem[] = [
 ];
 
 export function BotanicalOrnaments({ radius = 250 }: { radius?: number }) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isDark = mounted && resolvedTheme === "dark";
+
   return (
     <div
       className="pointer-events-none absolute top-1/2 left-1/2"
@@ -228,7 +279,11 @@ export function BotanicalOrnaments({ radius = 250 }: { radius?: number }) {
             }}
           >
             {item.type === "butterfly" ? (
-              <Butterfly size={item.size} delay={item.delay} />
+              isDark ? (
+                <TwinklingStar size={item.size} delay={item.delay} />
+              ) : (
+                <Butterfly size={item.size} delay={item.delay} />
+              )
             ) : (
               <SwayingLeaf size={item.size} delay={item.delay} />
             )}

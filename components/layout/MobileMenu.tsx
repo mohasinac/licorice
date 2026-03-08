@@ -2,8 +2,9 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { X, ShoppingBag, Heart, Search, User, UserRoundPlus, Shield, LogOut } from "lucide-react";
 import { BRAND_NAME } from "@/constants/site";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -30,6 +31,17 @@ export function MobileMenu({ open, onClose, logoUrl }: MobileMenuProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+    setSearchQuery("");
+    onClose();
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={(v) => !v && onClose()}>
@@ -63,6 +75,30 @@ export function MobileMenu({ open, onClose, logoUrl }: MobileMenuProps) {
                 <X className="h-5 w-5" />
               </button>
             </Dialog.Close>
+          </div>
+
+          {/* Search box */}
+          <div className="border-border border-b px-4 py-3">
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+              <div className="border-border bg-background focus-within:ring-primary/20 focus-within:border-primary focus-within:ring-2 flex flex-1 items-center gap-2 rounded-xl border px-3 py-2 transition-all">
+                <Search className="text-muted-foreground h-4 w-4 shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t("searchPlaceholder")}
+                  className="text-foreground placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
+                />
+              </div>
+              {searchQuery && (
+                <button
+                  type="submit"
+                  className="bg-primary text-primary-foreground rounded-xl px-3 py-2 text-sm font-medium"
+                >
+                  Go
+                </button>
+              )}
+            </form>
           </div>
 
           {/* Nav links */}

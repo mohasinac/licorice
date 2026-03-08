@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { Concern, Locale } from "@/lib/types";
 
 const CONCERN_ICONS: Record<string, string> = {
@@ -18,19 +19,17 @@ interface ConcernGridProps {
 }
 
 export function ConcernGrid({ concerns, locale }: ConcernGridProps) {
+  const t = useTranslations("home");
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div className="mb-14 flex flex-col items-center gap-3 text-center">
           <span className="border-accent/30 text-accent inline-flex rounded-full border px-3 py-1 text-xs tracking-widest uppercase">
-            Targeted Solutions
+            {t("targetedSolutions")}
           </span>
           <h2 className="font-heading text-primary text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-            Say Goodbye
-          </h2>
-          <h2 className="font-heading from-secondary to-primary bg-gradient-to-r bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl md:text-5xl">
-            to Imperfections
+            {t("sayGoodbye")}
           </h2>
           <div className="flex items-center gap-2">
             <span className="bg-accent h-0.5 w-8 rounded-full" />
@@ -64,7 +63,7 @@ export function ConcernGrid({ concerns, locale }: ConcernGridProps) {
 
                 {/* Arrow indicator */}
                 <span className="text-primary flex items-center gap-1 text-xs font-medium opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
-                  View products →
+                  {t("viewProducts")}
                 </span>
               </div>
             </Link>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getBlogs } from "@/lib/db";
 import { BlogCard } from "@/components/blog/BlogCard";
 
@@ -15,6 +16,7 @@ export default async function DietBlogPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations("blog");
   const blogs = await getBlogs("diet-lifestyle");
 
   return (
@@ -25,9 +27,9 @@ export default async function DietBlogPage({
           <p className="text-primary mb-2 text-sm font-semibold tracking-widest uppercase">
             Wellness
           </p>
-          <h1 className="font-heading text-foreground text-4xl font-bold">Diet & Lifestyle</h1>
+          <h1 className="font-heading text-foreground text-4xl font-bold">{t("blogDietTitle")}</h1>
           <p className="text-muted-foreground mt-4 text-lg">
-            Ayurvedic nutrition and lifestyle practices for glowing skin and strong hair.
+            {t("blogDietSubtitle")}
           </p>
         </div>
       </div>
@@ -38,7 +40,7 @@ export default async function DietBlogPage({
             href={`/${locale}/blog`}
             className="text-primary text-sm font-medium hover:underline"
           >
-            ← All Blog Posts
+            {t("backToBlog")}
           </Link>
         </div>
 
@@ -50,8 +52,7 @@ export default async function DietBlogPage({
           </div>
         ) : (
           <div className="flex flex-col items-center py-20 text-center">
-            <p className="text-foreground font-medium">No diet & lifestyle posts yet</p>
-            <p className="text-muted-foreground mt-1 text-sm">Check back soon.</p>
+          <p className="text-foreground font-medium">{t("noDietPosts")}</p>
           </div>
         )}
       </div>

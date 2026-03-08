@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { CorporateGiftingForm } from "./CorporateGiftingForm";
 
 export const metadata: Metadata = {

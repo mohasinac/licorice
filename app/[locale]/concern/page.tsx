@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getConcerns } from "@/lib/db";
 import { BRAND_NAME } from "@/constants/site";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function ConcernsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  const t = await getTranslations("concernsPage");
   const concerns = await getConcerns();
 
   return (
@@ -20,13 +22,13 @@ export default async function ConcernsPage({ params }: { params: Promise<{ local
       <div className="ayur-hero">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
-            Targeted Solutions
+            {t("subtitle")}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
-            Shop by Concern
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mx-auto mt-4 max-w-lg text-lg leading-relaxed">
-            Every skin and hair concern has an Ayurvedic answer. Find yours below.
+            {t("description")}
           </p>
           <hr className="ayur-divider mt-8 w-32" />
         </div>
@@ -54,7 +56,7 @@ export default async function ConcernsPage({ params }: { params: Promise<{ local
                 {concern.description}
               </p>
               <span className="text-primary mt-4 inline-block text-sm font-medium">
-                Browse products →
+                {t("browseProducts")}
               </span>
             </Link>
           ))}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getProduct, getProducts, getProductReviews, getProductById, getActivePromoBanners } from "@/lib/db";
 import { getLocalizedValue } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/utils";
@@ -54,6 +55,8 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug, locale } = await params;
+  const t = await getTranslations("product");
+  const tNav = await getTranslations("nav");
   const product = await getProduct(slug);
 
   if (!product) notFound();
@@ -111,8 +114,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Breadcrumb */}
           <Breadcrumb
             items={[
-              { label: "Home", href: `/${locale}` },
-              { label: "Shop", href: `/${locale}/shop` },
+              { label: tNav("home"), href: `/${locale}` },
+              { label: tNav("shop"), href: `/${locale}/shop` },
               { label: categoryLabel, href: `/${locale}/shop/${product.category}` },
               { label: name },
             ]}
@@ -153,7 +156,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           {/* Full description */}
           <div className="mt-10">
-            <SectionHeading title="About This Product" className="mb-4" />
+            <SectionHeading title={t("aboutThisProduct")} className="mb-4" />
             <div
               className="prose prose-slate max-w-none text-sm leading-relaxed"
               dangerouslySetInnerHTML={{
@@ -165,10 +168,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Reviews section */}
           <div id="reviews" className="mt-14 scroll-mt-20">
             <SectionHeading
-              title="Customer Reviews"
+              title={t("customerReviews")}
               subtitle={
                 product.reviewCount > 0
-                  ? `${product.reviewCount} review${product.reviewCount !== 1 ? "s" : ""} · ${product.rating.toFixed(1)} / 5`
+                  ? `${product.reviewCount} ${t("review")}${product.reviewCount !== 1 ? "s" : ""} · ${product.rating.toFixed(1)} / 5`
                   : undefined
               }
               className="mb-6"
@@ -182,7 +185,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Write a review */}
             <div className="bg-muted/50 mt-10 rounded-2xl p-6">
-              <SectionHeading title="Write a Review" className="mb-5" />
+              <SectionHeading title={t("writeAReview")} className="mb-5" />
               <AddReviewForm productId={product.id} isVerifiedPurchase={false} />
             </div>
           </div>

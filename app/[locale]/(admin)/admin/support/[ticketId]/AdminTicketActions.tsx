@@ -64,6 +64,7 @@ export function AdminTicketActions({ ticket, messages }: Props) {
       setReplyText("");
       router.refresh();
     } catch {
+      toast.error("Failed to send reply. Please try again.");
     } finally {
       setSending(false);
     }
@@ -81,6 +82,7 @@ export function AdminTicketActions({ ticket, messages }: Props) {
       toast.success(`Status updated to ${newStatus.replace(/_/g, " ")}`);
       router.refresh();
     } catch {
+      toast.error("Failed to update status. Please try again.");
     } finally {
       setChangingStatus(false);
     }

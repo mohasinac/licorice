@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getProducts, getCategories, getConcerns } from "@/lib/db";
 import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -25,6 +26,7 @@ interface ShopPageProps {
 
 export default async function ShopPage({ params, searchParams }: ShopPageProps) {
   const { locale } = await params;
+  const t = await getTranslations("shop");
   const sp = await searchParams;
 
   const categories = Array.isArray(sp.category) ? sp.category : sp.category ? [sp.category] : [];
@@ -51,8 +53,8 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <SectionHeading
-          title="All Products"
-          subtitle={`${sorted.length} products`}
+          title={t("allProducts")}
+          subtitle={t("productsCount", { count: sorted.length })}
           className="mb-8"
         />
 
@@ -67,7 +69,7 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
           {/* Products */}
           <div className="flex-1">
             <div className="mb-5 flex items-center justify-between">
-              <p className="text-muted-foreground text-sm">{sorted.length} products</p>
+              <p className="text-muted-foreground text-sm">{t("productsCount", { count: sorted.length })}</p>
               <Suspense fallback={null}>
                 <ProductSort />
               </Suspense>

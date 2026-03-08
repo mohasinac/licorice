@@ -67,7 +67,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ord
     {
       orderStatus: "refunded",
       paymentStatus: "refunded",
-      refundAmount: amount,
+      refundAmount: amount + previouslyRefunded,
       refundNote: note,
     },
     {

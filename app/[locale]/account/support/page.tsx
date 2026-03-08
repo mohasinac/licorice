@@ -2,6 +2,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getServerUser } from "@/lib/auth";
 import { TicketCard } from "@/components/support/TicketCard";
 import type { SupportTicket } from "@/lib/types";
@@ -18,7 +19,16 @@ async function getUserTickets(userId: string): Promise<SupportTicket[]> {
       .orderBy("updatedAt", "desc")
       .limit(50)
       .get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<SupportTicket, "id">) }));
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...(data as Omit<SupportTicket, "id">),
+        createdAt: data.createdAt?.toDate?.() ?? new Date(),
+        updatedAt: data.updatedAt?.toDate?.() ?? new Date(),
+        resolvedAt: data.resolvedAt?.toDate?.() ?? null,
+      };
+    });
   } catch {
     return [];
   }
@@ -30,6 +40,7 @@ export default async function AccountSupportPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations("account");
   const user = await getServerUser();
   if (!user) redirect(`/${locale}/login`);
 
@@ -39,11 +50,11 @@ export default async function AccountSupportPage({
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-foreground text-2xl font-bold">Support Tickets</h1>
+          <h1 className="font-heading text-foreground text-2xl font-bold">{t("supportTitle")}</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {tickets.length > 0
               ? `${tickets.length} ticket${tickets.length !== 1 ? "s" : ""}`
-              : "No tickets yet"}
+              : t("noTickets")}
           </p>
         </div>
         <Link
@@ -51,7 +62,7 @@ export default async function AccountSupportPage({
           className="bg-primary text-primary-foreground hover:bg-secondary flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors"
         >
           <PlusCircle className="h-4 w-4" />
-          New Ticket
+          {t("newTicket")}
         </Link>
       </div>
 
@@ -64,10 +75,8 @@ export default async function AccountSupportPage({
       ) : (
         <div className="bg-surface flex flex-col items-center rounded-2xl px-6 py-16 text-center shadow-sm">
           <MessageCircle className="text-muted-foreground mb-4 h-12 w-12" />
-          <p className="text-foreground font-medium">No support tickets yet</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Need help? Create a new ticket and we&apos;ll respond within 1 business day.
-          </p>
+          <p className="text-foreground font-medium">{t("noTickets")}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{t("needHelpCreate")}</p>
           <Link
             href={`/${locale}/contact`}
             className="bg-primary text-primary-foreground hover:bg-secondary mt-5 rounded-xl px-6 py-2 text-sm font-medium transition-colors"

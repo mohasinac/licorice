@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Calendar, Clock, CheckCircle2, Leaf, Video, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { sanitizeHtml } from "@/lib/utils";
@@ -40,6 +41,7 @@ type FormData = z.infer<typeof schema>;
 
 interface Props {
   consultantName: string;
+  consultantTitle: string;
   consultantBio: string;
   clinicName: string;
   clinicAddress: string;
@@ -56,12 +58,14 @@ function getTomorrowDate(): string {
 
 export function ConsultationForm({
   consultantName,
+  consultantTitle,
   consultantBio,
   clinicName,
   clinicAddress,
   clinicMapUrl,
   concerns,
 }: Props) {
+  const t = useTranslations("consultation");
   const [success, setSuccess] = useState(false);
 
   const {
@@ -89,7 +93,7 @@ export function ConsultationForm({
     const result = await bookConsultation(data);
     if (result.success) {
       setSuccess(true);
-      toast.success("Booking received! We'll confirm within 24 hours.");
+      toast.success(t("bookingSuccessToast"));
     } else {
       toast.error(result.error);
     }
@@ -101,10 +105,9 @@ export function ConsultationForm({
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
           <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="font-heading text-foreground text-2xl font-bold">Booking Received!</h2>
+        <h2 className="font-heading text-foreground text-2xl font-bold">{t("bookingReceived")}</h2>
         <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
-          Thank you for booking a free consultation with Licorice Herbals. We&apos;ll confirm your
-          slot within 24 hours via email or phone.
+          {t("bookingDesc")}
         </p>
       </div>
     );
@@ -121,7 +124,7 @@ export function ConsultationForm({
             </div>
             <div>
               <h3 className="text-foreground font-semibold">{consultantName}</h3>
-              <p className="text-accent text-sm font-semibold">Ayurvedic Practitioner</p>
+              <p className="text-accent text-sm font-semibold">{consultantTitle || t("ayurvedicPractitioner")}</p>
             </div>
           </div>
           <div
@@ -136,8 +139,8 @@ export function ConsultationForm({
               <CheckCircle2 className="h-4 w-4 text-green-700 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-foreground text-sm font-semibold">Completely Free</p>
-              <p className="text-muted-foreground text-xs">No charges, no strings attached</p>
+              <p className="text-foreground text-sm font-semibold">{t("completelyFree")}</p>
+              <p className="text-muted-foreground text-xs">{t("noStrings")}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -145,10 +148,8 @@ export function ConsultationForm({
               <Clock className="h-4 w-4 text-blue-700" />
             </div>
             <div>
-              <p className="text-foreground text-sm font-semibold">30 Minutes</p>
-              <p className="text-muted-foreground text-xs">
-                Focused consultation on your specific concerns
-              </p>
+              <p className="text-foreground text-sm font-semibold">{t("thirtyMinutes")}</p>
+              <p className="text-muted-foreground text-xs">{t("focusedSlot")}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -156,8 +157,8 @@ export function ConsultationForm({
               <Calendar className="h-4 w-4 text-purple-700" />
             </div>
             <div>
-              <p className="text-foreground text-sm font-semibold">Mon – Sat</p>
-              <p className="text-muted-foreground text-xs">9:30 AM – 6:30 PM IST</p>
+              <p className="text-foreground text-sm font-semibold">{t("monSat")}</p>
+              <p className="text-muted-foreground text-xs">{t("workingHours")}</p>
             </div>
           </div>
         </div>
@@ -168,7 +169,7 @@ export function ConsultationForm({
         {/* Consultation mode toggle */}
         <div>
           <p className="text-foreground mb-2 text-sm font-medium">
-            Consultation Type <span className="text-destructive ml-0.5">*</span>
+            {t("consultationType")} <span className="text-destructive ml-0.5">*</span>
           </p>
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -180,7 +181,7 @@ export function ConsultationForm({
                   : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
               }`}
             >
-              <Video className="h-4 w-4" /> Remote (Phone / Video)
+              <Video className="h-4 w-4" /> {t("remote")}
             </button>
             <button
               type="button"
@@ -191,7 +192,7 @@ export function ConsultationForm({
                   : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
               }`}
             >
-              <MapPin className="h-4 w-4" /> In-Person
+              <MapPin className="h-4 w-4" /> {t("inPerson")}
             </button>
           </div>
           {selectedMode === "in-person" && (
@@ -205,7 +206,7 @@ export function ConsultationForm({
                   rel="noopener noreferrer"
                   className="text-primary mt-1.5 inline-flex items-center gap-1 text-xs font-medium hover:underline"
                 >
-                  <MapPin className="h-3 w-3" /> View on Google Maps
+                  <MapPin className="h-3 w-3" /> {t("viewOnGoogleMaps")}
                 </a>
               )}
             </div>
@@ -214,13 +215,13 @@ export function ConsultationForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Full Name"
+            label={t("name")}
             placeholder="Priya Sharma"
             error={errors.name?.message}
             {...register("name")}
           />
           <Input
-            label="Phone"
+            label={t("phone")}
             placeholder="+91 98765 43210"
             type="tel"
             error={errors.phone?.message}
@@ -228,7 +229,7 @@ export function ConsultationForm({
           />
         </div>
         <Input
-          label="Email"
+          label={t("email")}
           placeholder="priya@example.com"
           type="email"
           error={errors.email?.message}
@@ -238,7 +239,7 @@ export function ConsultationForm({
         {/* Concerns */}
         <div>
           <p className="text-foreground mb-2 text-sm font-medium">
-            Skin / Hair Concerns <span className="text-destructive ml-0.5">*</span>
+            {t("selectConcerns")} <span className="text-destructive ml-0.5">*</span>
           </p>
           <div className="flex flex-wrap gap-2">
             {concerns.map((c) => (
@@ -263,7 +264,7 @@ export function ConsultationForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Preferred Date"
+            label={t("selectDate")}
             type="date"
             min={getTomorrowDate()}
             error={errors.preferredDate?.message}
@@ -271,13 +272,13 @@ export function ConsultationForm({
           />
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground">
-              Preferred Time <span className="text-destructive">*</span>
+              {t("selectTime")} <span className="text-destructive">*</span>
             </label>
             <select
               {...register("preferredTime")}
               className="border-border text-foreground w-full rounded-xl border bg-card px-4 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             >
-              <option value="">Select time slot</option>
+              <option value="">{t("selectTimeSlot")}</option>
               {TIME_SLOTS.map((t) => (
                 <option key={t} value={t}>
                   {t}
@@ -291,14 +292,14 @@ export function ConsultationForm({
         </div>
 
         <Textarea
-          label="Message (Optional)"
+          label={t("additionalNotes")}
           placeholder="Tell us more about your concerns or any specific questions you have…"
           rows={3}
           {...register("message")}
         />
 
         <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
-          Book Free Consultation
+          {t("bookFreeConsultation")}
         </Button>
       </form>
     </div>

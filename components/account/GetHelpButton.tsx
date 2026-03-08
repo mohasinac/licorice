@@ -39,6 +39,7 @@ export function GetHelpButton({ orderId, orderNumber }: Props) {
       setTicketNumber(data.ticketNumber ?? null);
       toast.success("Support ticket created!");
     } catch {
+      toast.error("Failed to create ticket. Please try again.");
     } finally {
       setSending(false);
     }

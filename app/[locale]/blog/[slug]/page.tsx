@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getBlog, getBlogs, getProducts } from "@/lib/db";
 import { Badge } from "@/components/ui/Badge";
 import { BlogContent } from "@/components/blog/BlogContent";
@@ -45,6 +46,7 @@ export default async function BlogDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  const t = await getTranslations("blog");
   const blog = await getBlog(slug);
   if (!blog) notFound();
 
@@ -114,7 +116,7 @@ export default async function BlogDetailPage({
           href={`/${locale}/blog`}
           className="text-muted-foreground hover:text-foreground mt-8 flex items-center gap-1 text-sm"
         >
-          <ArrowLeft className="h-4 w-4" /> All Posts
+          <ArrowLeft className="h-4 w-4" /> {t("allPosts")}
         </Link>
 
         {/* Header */}
@@ -140,7 +142,7 @@ export default async function BlogDetailPage({
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
-              {readTime} min read
+              {t("minRead", { count: readTime })}
             </span>
           </div>
         </header>
@@ -168,7 +170,7 @@ export default async function BlogDetailPage({
         {relatedProducts.length > 0 && (
           <section className="border-border mt-16 border-t pt-12">
             <h2 className="font-heading text-foreground mb-6 text-xl font-bold">
-              Products Mentioned
+              {t("productsMentioned")}
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {relatedProducts.map((product) => (

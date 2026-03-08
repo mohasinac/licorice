@@ -34,7 +34,7 @@ export default async function AdminCouponsPage() {
           </p>
         </div>
         <Link
-          href="coupons/new"
+          href="/admin/coupons/new"
           className="bg-primary text-primary-foreground flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getBlogs } from "@/lib/db";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -27,6 +28,7 @@ export default async function BlogListPage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations("blog");
   const { category } = await searchParams;
 
   const activeCategory = CATEGORY_TABS.find((t) => t.value === category)
@@ -41,13 +43,13 @@ export default async function BlogListPage({
       <div className="ayur-hero">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
-            The Journal
+            {t("theJournal")}
           </p>
           <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
-            Licorice Herbals Blog
+            {t("licoriceHerbalsBlog")}
           </h1>
           <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
-            Ayurvedic wisdom, skincare science, and wellness tips for modern living.
+            {t("blogSubtitle")}
           </p>
           <hr className="ayur-divider mt-8 w-32" />
         </div>

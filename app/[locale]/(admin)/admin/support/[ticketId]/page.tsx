@@ -24,10 +24,20 @@ async function getAdminTicket(
       .orderBy("createdAt", "asc")
       .get();
 
-    const messages: TicketMessage[] = messagesSnap.docs.map((d) => d.data() as TicketMessage);
+    const messages: TicketMessage[] = messagesSnap.docs.map((d) => {
+      const msg = d.data();
+      return {
+        ...(msg as TicketMessage),
+        createdAt: msg.createdAt?.toDate?.() ?? new Date(),
+      };
+    });
+    const ticketData = ticketDoc.data();
     const ticket: SupportTicket = {
       id: ticketDoc.id,
-      ...(ticketDoc.data() as Omit<SupportTicket, "id">),
+      ...(ticketData as Omit<SupportTicket, "id">),
+      createdAt: ticketData?.createdAt?.toDate?.() ?? new Date(),
+      updatedAt: ticketData?.updatedAt?.toDate?.() ?? new Date(),
+      resolvedAt: ticketData?.resolvedAt?.toDate?.() ?? null,
     };
     return { ticket, messages };
   } catch {

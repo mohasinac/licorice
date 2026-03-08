@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getProducts } from "@/lib/db";
 import { sortProducts } from "@/lib/sort-products";
 import { ProductGrid } from "@/components/product/ProductGrid";

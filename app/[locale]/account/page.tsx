@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getServerUser } from "@/lib/auth";
 import { getOrders } from "@/lib/db";
 import Link from "next/link";
@@ -8,6 +9,7 @@ export const metadata: Metadata = { title: "My Account" };
 
 export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  const t = await getTranslations("account");
   const user = await getServerUser();
 
   const recentOrders = user ? await getOrders({ userId: user.uid, limit: 3 }) : [];
@@ -15,19 +17,17 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="font-heading text-foreground mb-2 text-3xl font-bold tracking-tight">
-        Hi{user ? `, ${user.displayName ?? user.email}` : "!"}
+        {t("hi")}{user ? `, ${user.displayName ?? user.email}` : "!"}
       </h1>
-      <p className="text-muted-foreground mb-8 text-sm">
-        Manage your orders, addresses and profile.
-      </p>
+      <p className="text-muted-foreground mb-8 text-sm">{t("manageYourAccount")}</p>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
-          { label: "Orders", href: `/${locale}/account/orders` },
-          { label: "Wishlist", href: `/${locale}/account/wishlist` },
-          { label: "Addresses", href: `/${locale}/account/addresses` },
-          { label: "Profile", href: `/${locale}/account/profile` },
-          { label: "Support", href: `/${locale}/account/support` },
+          { label: t("orders"), href: `/${locale}/account/orders` },
+          { label: t("wishlist"), href: `/${locale}/account/wishlist` },
+          { label: t("addresses"), href: `/${locale}/account/addresses` },
+          { label: t("profile"), href: `/${locale}/account/profile` },
+          { label: t("support"), href: `/${locale}/account/support` },
         ].map((link) => (
           <Link
             key={link.href}
@@ -42,12 +42,12 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
       {recentOrders.length > 0 && (
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-heading text-foreground text-lg font-semibold">Recent Orders</h2>
+            <h2 className="font-heading text-foreground text-lg font-semibold">{t("recentOrders")}</h2>
             <Link
               href={`/${locale}/account/orders`}
               className="text-primary text-sm hover:underline"
             >
-              View all →
+              {t("viewAll")}
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

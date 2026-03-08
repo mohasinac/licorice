@@ -3,15 +3,9 @@
 import * as React from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Category, Concern } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
-
-const CERTIFICATIONS = [
-  { id: "cruelty-free", label: "Cruelty Free" },
-  { id: "vegan", label: "Vegan" },
-  { id: "no-parabens", label: "No Parabens" },
-  { id: "ayurvedic", label: "Ayurvedic" },
-];
 
 interface ProductFiltersProps {
   /** pre-selected category (for category pages) */
@@ -21,9 +15,17 @@ interface ProductFiltersProps {
 }
 
 export function ProductFilters({ lockedCategory, categories = [], concerns = [] }: ProductFiltersProps) {
+  const t = useTranslations("shop");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const CERTIFICATIONS = [
+    { id: "cruelty-free", label: t("certCrueltyFree") },
+    { id: "vegan", label: t("certVegan") },
+    { id: "no-parabens", label: t("certNoParabens") },
+    { id: "ayurvedic", label: t("certAyurvedic") },
+  ];
 
   const selectedCategories = searchParams.getAll("category");
   const selectedConcerns = searchParams.getAll("concern");
@@ -53,21 +55,21 @@ export function ProductFilters({ lockedCategory, categories = [], concerns = [] 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="text-primary h-4 w-4" />
-          <span className="font-heading text-foreground text-base font-semibold">Filters</span>
+          <span className="font-heading text-foreground text-base font-semibold">{t("filters")}</span>
         </div>
         {hasFilters && (
           <button
             onClick={clearAll}
             className="text-primary flex items-center gap-1 text-xs hover:underline"
           >
-            <X className="h-3 w-3" /> Clear all
+            <X className="h-3 w-3" /> {t("clearAll")}
           </button>
         )}
       </div>
 
       {/* Category */}
       {!lockedCategory && (
-        <FilterSection title="Category">
+        <FilterSection title={t("category")}>
           {categories.map((cat) => (
             <CheckboxItem
               key={cat.id}
@@ -81,7 +83,7 @@ export function ProductFilters({ lockedCategory, categories = [], concerns = [] 
       )}
 
       {/* Concern */}
-      <FilterSection title="Skin Concern">
+      <FilterSection title={t("concern")}>
         {concerns.map((con) => (
           <CheckboxItem
             key={con.id}
@@ -94,7 +96,7 @@ export function ProductFilters({ lockedCategory, categories = [], concerns = [] 
       </FilterSection>
 
       {/* Certifications */}
-      <FilterSection title="Certifications">
+      <FilterSection title={t("certifications")}>
         {CERTIFICATIONS.map((cert) => (
           <CheckboxItem
             key={cert.id}

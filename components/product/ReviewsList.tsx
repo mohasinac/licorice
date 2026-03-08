@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { Review } from "@/lib/types";
+import { useTranslations } from "next-intl";
 import { StarRating } from "@/components/ui/StarRating";
 import { ReviewCard } from "@/components/product/ReviewCard";
 import { ReviewFilters, type ReviewFilterValue } from "@/components/product/ReviewFilters";
@@ -65,6 +66,7 @@ export function ReviewsList({
   avgRating,
   reviewCount,
 }: ReviewsListProps) {
+  const t = useTranslations("product");
   const user = useAuthStore((s) => s.user);
   const [filter, setFilter] = React.useState<ReviewFilterValue>("all");
   const [sort, setSort] = React.useState<SortOption>("recent");
@@ -126,7 +128,7 @@ export function ReviewsList({
   if (reviewCount === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-muted-foreground text-sm">No reviews yet. Be the first to review!</p>
+        <p className="text-muted-foreground text-sm">{t("noReviews")}</p>
       </div>
     );
   }
@@ -144,7 +146,7 @@ export function ReviewsList({
             {avgRating.toFixed(1)}
           </span>
           <StarRating value={avgRating} size="md" className="my-1" />
-          <span className="text-muted-foreground text-sm">{reviewCount} reviews</span>
+          <span className="text-muted-foreground text-sm">{t("reviews", { count: reviewCount })}</span>
         </div>
 
         {/* Distribution bars */}
@@ -198,17 +200,17 @@ export function ReviewsList({
           onChange={(e) => setSort(e.target.value as SortOption)}
           className="border-border text-foreground rounded-lg border bg-card px-3 py-1.5 text-sm"
         >
-          <option value="recent">Most Recent</option>
-          <option value="helpful">Most Helpful</option>
-          <option value="highest">Highest Rating</option>
-          <option value="lowest">Lowest Rating</option>
+          <option value="recent">{t("mostRecent")}</option>
+          <option value="helpful">{t("mostHelpful")}</option>
+          <option value="highest">{t("highestRating")}</option>
+          <option value="lowest">{t("lowestRating")}</option>
         </select>
       </div>
 
       {/* Review cards */}
       {filtered.length === 0 ? (
         <p className="text-muted-foreground py-8 text-center text-sm">
-          No reviews match this filter.
+          {t("noReviewsFilter")}
         </p>
       ) : (
         <>
@@ -229,7 +231,7 @@ export function ReviewsList({
               onClick={() => setPage((p) => p + 1)}
               className="border-border text-foreground hover:bg-muted mt-6 w-full rounded-xl border py-2.5 text-sm font-medium transition-colors"
             >
-              Load more reviews
+              {t("loadMore")}
             </button>
           )}
         </>
@@ -247,30 +249,30 @@ export function ReviewsList({
       <Modal
         open={flagTarget !== null}
         onOpenChange={(o) => !o && setFlagTarget(null)}
-        title="Report Review"
-        description="Help us keep reviews genuine and useful."
+        title={t("reportReview")}
+        description={t("reportReviewDesc")}
       >
         <div className="flex flex-col gap-4">
           <div>
             <label className="text-foreground mb-1 block text-sm font-medium">
-              Reason <span className="text-destructive">*</span>
+              {t("reportReason")} <span className="text-destructive">*</span>
             </label>
             <select
               value={flagReason}
               onChange={(e) => setFlagReason(e.target.value)}
               className="border-border w-full rounded-lg border px-3 py-2 text-sm"
             >
-              <option value="">Select a reason</option>
-              <option value="spam">Spam</option>
-              <option value="offensive">Offensive content</option>
-              <option value="fake">Fake review</option>
-              <option value="irrelevant">Irrelevant</option>
-              <option value="other">Other</option>
+              <option value="">{t("selectReason")}</option>
+              <option value="spam">{t("reportSpam")}</option>
+              <option value="offensive">{t("reportOffensive")}</option>
+              <option value="fake">{t("reportFake")}</option>
+              <option value="irrelevant">{t("reportIrrelevant")}</option>
+              <option value="other">{t("reportOther")}</option>
             </select>
           </div>
           <div>
             <label className="text-foreground mb-1 block text-sm font-medium">
-              Additional note (optional)
+              {t("reportNote")}
             </label>
             <textarea
               value={flagNote}
@@ -287,7 +289,7 @@ export function ReviewsList({
               onClick={() => setFlagTarget(null)}
               className="text-muted-foreground text-sm"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="button"
@@ -295,7 +297,7 @@ export function ReviewsList({
               disabled={!flagReason || flagging}
               className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
-              {flagging ? "Submitting…" : "Submit Report"}
+              {flagging ? t("submitting") : t("submitReport")}
             </button>
           </div>
         </div>

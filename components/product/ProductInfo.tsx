@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Link } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ShoppingBag, Zap } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { useWishlistStore } from "@/stores/useWishlistStore";
@@ -28,6 +28,7 @@ function formatPrice(n: number) {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
+  const t = useTranslations("product");
   const locale = useLocale() as Locale;
   const { add, openCart } = useCartStore();
   const { toggle, isWished } = useWishlistStore();
@@ -51,7 +52,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   function handleAddToCart() {
     add(product, selectedVariant, qty);
     openCart();
-    toast.success(`${name} added to cart`);
+    toast.success(t("addedToCart", { name }));
   }
 
   return (
@@ -73,8 +74,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <a href="#reviews" className="flex items-center gap-2">
         <StarRating value={product.rating} size="sm" />
         <span className="text-muted-foreground text-sm">
-          {product.rating.toFixed(1)} ({product.reviewCount}{" "}
-          {product.reviewCount === 1 ? "review" : "reviews"})
+          {product.rating.toFixed(1)} ({t("reviews", { count: product.reviewCount })})
         </span>
       </a>
 
@@ -90,7 +90,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             </span>
             {discount > 0 && (
               <span className="bg-accent/20 text-primary rounded-full px-2 py-0.5 text-sm font-semibold">
-                Save {discount}%
+                {t("saveDiscount", { discount })}
               </span>
             )}
           </>
@@ -115,11 +115,11 @@ export function ProductInfo({ product }: ProductInfoProps) {
         />
         <Button size="lg" onClick={handleAddToCart} disabled={!product.inStock} className="flex-1">
           <ShoppingBag className="h-5 w-5" />
-          {product.inStock ? "Add to Cart" : "Out of Stock"}
+          {product.inStock ? t("addToCart") : t("outOfStock")}
         </Button>
         <button
           onClick={() => toggle(product.id)}
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={wished ? t("removeFromWishlist") : t("addToWishlist")}
           className="border-border rounded-full border p-3 transition-colors hover:border-red-300 dark:border-red-800"
         >
           <Heart
@@ -142,7 +142,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
               add(product, selectedVariant, qty);
             }}
           >
-            <Zap className="h-5 w-5" /> Buy Now
+            <Zap className="h-5 w-5" /> {t("buyNow")}
           </Button>
         </Link>
       )}
@@ -155,7 +155,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
       {/* Stock warning */}
       {product.inStock && selectedVariant.stock <= 5 && (
         <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
-          Only {selectedVariant.stock} left in stock!
+          {t("onlyLeft", { count: selectedVariant.stock })}
         </p>
       )}
     </div>

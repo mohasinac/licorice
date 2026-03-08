@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Package, Search } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { TrackForm } from "./TrackForm";
 import { getOrder, getOrderTimeline } from "@/lib/db";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
@@ -26,6 +27,7 @@ interface PageProps {
 
 export default async function TrackPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const t = await getTranslations("track");
   const { orderId, awb, email } = await searchParams;
 
   // No query yet — show form only
@@ -34,10 +36,8 @@ export default async function TrackPage({ params, searchParams }: PageProps) {
       <div className="mx-auto max-w-2xl px-4 py-16">
         <div className="mb-8 text-center">
           <Package className="text-primary mx-auto mb-4 h-12 w-12" />
-          <h1 className="font-heading text-foreground text-3xl font-bold">Track Your Order</h1>
-          <p className="text-muted-foreground mt-2">
-            Enter your Order ID or AWB tracking number to see the latest status.
-          </p>
+          <h1 className="font-heading text-foreground text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("description")}</p>
         </div>
         <TrackForm />
       </div>
@@ -58,8 +58,9 @@ export default async function TrackPage({ params, searchParams }: PageProps) {
         const normalizedEmail = email.trim().toLowerCase();
         const normalizedPhone = email.trim().replace(/\D/g, "");
         const emailMatches =
-          order.guestEmail?.toLowerCase() === normalizedEmail ||
-          order.shippingAddress?.phone?.replace(/\D/g, "") === normalizedPhone;
+          (normalizedEmail && order.guestEmail?.toLowerCase() === normalizedEmail) ||
+          (normalizedPhone &&
+            order.shippingAddress?.phone?.replace(/\D/g, "") === normalizedPhone);
         if (!emailMatches) {
           order = null; // hide order if email doesn&apos;t match
         }
@@ -86,7 +87,7 @@ export default async function TrackPage({ params, searchParams }: PageProps) {
     <div className="mx-auto max-w-3xl px-4 py-10">
       {/* Header with search form */}
       <div className="mb-8">
-        <h1 className="font-heading text-foreground mb-4 text-2xl font-bold">Track Order</h1>
+        <h1 className="font-heading text-foreground mb-4 text-2xl font-bold">{t("title")}</h1>
         <TrackForm
           initialOrderId={orderId}
           initialAwb={awb}
@@ -97,15 +98,13 @@ export default async function TrackPage({ params, searchParams }: PageProps) {
       {notFound ? (
         <div className="bg-surface rounded-2xl p-8 text-center shadow-sm">
           <Search className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-          <h2 className="text-foreground font-semibold">Order Not Found</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            We couldn&apos;t find an order matching the details you entered. Please check and try again.
-          </p>
+          <h2 className="text-foreground font-semibold">{t("notFound")}</h2>
+          <p className="text-muted-foreground mt-1 text-sm">{t("notFoundDesc")}</p>
           <Link
             href={`/${locale}/contact`}
             className="text-primary mt-4 inline-block text-sm hover:underline"
           >
-            Contact Support
+            {t("contactSupport")}
           </Link>
         </div>
       ) : (

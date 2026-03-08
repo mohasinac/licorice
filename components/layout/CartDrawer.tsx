@@ -3,6 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +18,7 @@ function formatPrice(price: number) {
 }
 
 export function CartDrawer() {
+  const t = useTranslations("cart");
   const { items, isOpen, closeCart, remove, updateQty, subtotal, itemCount } = useCartStore();
   const sub = subtotal();
   const remaining = FREE_SHIPPING_THRESHOLD - sub;
@@ -36,7 +38,7 @@ export function CartDrawer() {
             <div className="flex items-center gap-2">
               <ShoppingBag className="text-primary h-5 w-5" />
               <span className="font-heading text-primary text-lg font-semibold">
-                Your Cart {itemCount() > 0 && `(${itemCount()})`}
+                {t("title")} {itemCount() > 0 && `(${itemCount()})`}
               </span>
             </div>
             <Dialog.Close asChild>
@@ -52,10 +54,10 @@ export function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
               <ShoppingBag className="text-border h-16 w-16" />
-              <p className="text-muted-foreground">Your cart is empty</p>
+              <p className="text-muted-foreground">{t("empty")}</p>
               <Dialog.Close asChild>
                 <Link href="/shop">
-                  <Button size="md">Start Shopping</Button>
+                  <Button size="md">{t("continueShopping")}</Button>
                 </Link>
               </Dialog.Close>
             </div>
@@ -66,7 +68,7 @@ export function CartDrawer() {
                 <div className="border-border border-b px-6 py-3 text-center text-sm">
                   <p className="text-muted-foreground">
                     Add <strong className="text-primary">{formatPrice(remaining)}</strong> more for
-                    free shipping!
+                    {" "}{t("free").toLowerCase()} shipping!
                   </p>
                   <div className="bg-surface mt-2 h-1.5 overflow-hidden rounded-full">
                     <div
@@ -134,16 +136,16 @@ export function CartDrawer() {
               {/* Footer */}
               <div className="border-border flex flex-col gap-3 border-t px-6 py-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground font-medium">Subtotal</span>
+                  <span className="text-foreground font-medium">{t("subtotal")}</span>
                   <span className="text-primary font-semibold">{formatPrice(sub)}</span>
                 </div>
                 <p className="text-muted-foreground text-center text-xs">
-                  Taxes and shipping calculated at checkout
+                  {t("taxesShipping")}
                 </p>
                 <Dialog.Close asChild>
                   <Link href="/checkout" className="block">
                     <Button className="w-full" size="lg">
-                      Proceed to Checkout
+                      {t("proceedToCheckout")}
                     </Button>
                   </Link>
                 </Dialog.Close>
@@ -152,7 +154,7 @@ export function CartDrawer() {
                     href="/cart"
                     className="text-primary block text-center text-sm hover:underline"
                   >
-                    View full cart
+                    {t("title")}
                   </Link>
                 </Dialog.Close>
               </div>

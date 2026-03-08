@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { BeforeAfterItem } from "@/lib/db";
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function BeforeAfterCard({ item }: Props) {
+  const t = useTranslations("home");
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
   const [dragging, setDragging] = useState(false);
@@ -110,10 +112,10 @@ export function BeforeAfterCard({ item }: Props) {
 
         {/* Labels */}
         <span className="absolute top-3 left-3 z-10 rounded-full bg-black/50 px-2.5 py-0.5 text-xs font-medium text-white">
-          Before
+          {t("before")}
         </span>
         <span className="absolute top-3 right-3 z-10 rounded-full bg-black/50 px-2.5 py-0.5 text-xs font-medium text-white">
-          After
+          {t("after")}
         </span>
       </div>
 

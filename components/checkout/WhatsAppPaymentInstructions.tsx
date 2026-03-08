@@ -2,6 +2,7 @@
 
 import { Copy, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import type { PaymentSettings } from "@/lib/types";
 import { WHATSAPP_NUMBER } from "@/constants/site";
@@ -27,6 +28,7 @@ export function WhatsAppPaymentInstructions({
   total,
   settings,
 }: WhatsAppPaymentInstructionsProps) {
+  const t = useTranslations("checkout");
   const upiId = settings.whatsappUpiId ?? "licoriceherbal@upi";
   const whatsappNumber = settings.whatsappBusinessNumber ?? WHATSAPP_NUMBER;
   const message = encodeURIComponent(
@@ -36,14 +38,14 @@ export function WhatsAppPaymentInstructions({
 
   function copyUpi() {
     navigator.clipboard.writeText(upiId);
-    toast.success("UPI ID copied!");
+    toast.success(t("upiCopied"));
   }
 
   return (
     <div className="border-border space-y-6 rounded-2xl border p-6">
       <div>
         <h2 className="font-heading text-foreground mb-1 text-2xl font-bold">
-          Payment Instructions
+          {t("paymentInstructions")}
         </h2>
         <p className="text-muted-foreground text-sm">
           Order #{orderNumber} — Amount: {fmt(total)}
@@ -52,10 +54,10 @@ export function WhatsAppPaymentInstructions({
 
       <ol className="text-foreground space-y-3 text-sm">
         {[
-          "Open your UPI app (PhonePe, Google Pay, Paytm, etc.)",
-          `Send ${fmt(total)} to the UPI ID below`,
-          "Open WhatsApp and send us the payment screenshot",
-          "Your order will be confirmed within 2–4 hours",
+          t("upiStep1"),
+          t("upiStep2", { amount: fmt(total) }),
+          t("upiStep3"),
+          t("upiStep4"),
         ].map((step, i) => (
           <li key={i} className="flex items-start gap-3">
             <span className="bg-primary text-primary-foreground flex h-6 w-6 flex-none items-center justify-center rounded-full text-xs font-bold">
@@ -69,7 +71,7 @@ export function WhatsAppPaymentInstructions({
       {/* UPI ID */}
       <div className="bg-muted rounded-xl p-4">
         <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
-          UPI ID
+          {t("upiIdLabel")}
         </p>
         <div className="flex items-center gap-2">
           <code className="text-foreground flex-1 font-mono text-lg font-semibold">{upiId}</code>
@@ -98,7 +100,7 @@ export function WhatsAppPaymentInstructions({
       <Button asChild className="w-full" size="lg">
         <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
           <MessageCircle className="h-4 w-4" />
-          Open WhatsApp
+          {t("openWhatsApp")}
         </a>
       </Button>
     </div>

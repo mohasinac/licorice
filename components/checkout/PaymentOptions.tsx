@@ -1,9 +1,16 @@
 "use client";
 
 import { Smartphone, Banknote, CreditCard } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { PaymentMethod } from "@/lib/types";
 import type { PaymentSettings } from "@/lib/types";
 import { COD_FEE } from "@/constants/policies";
+
+interface PaymentOptionsProps {
+  settings: PaymentSettings;
+  selected: PaymentMethod;
+  onChange: (method: PaymentMethod) => void;
+}
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -12,43 +19,37 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-const OPTIONS: {
-  id: PaymentMethod;
-  label: string;
-  sublabel: string;
-  icon: React.ElementType;
-  settingKey: "whatsappEnabled" | "codEnabled" | "razorpayEnabled";
-}[] = [
-  {
-    id: "whatsapp",
-    label: "Pay via WhatsApp / UPI",
-    sublabel: "Pay via UPI or bank transfer, send screenshot on WhatsApp.",
-    icon: Smartphone,
-    settingKey: "whatsappEnabled",
-  },
-  {
-    id: "cod",
-    label: "Cash on Delivery",
-    sublabel: `+${fmt(COD_FEE)} COD fee applies`,
-    icon: Banknote,
-    settingKey: "codEnabled",
-  },
-  {
-    id: "razorpay",
-    label: "Pay Online",
-    sublabel: "Credit / Debit card, Net Banking, UPI via Razorpay.",
-    icon: CreditCard,
-    settingKey: "razorpayEnabled",
-  },
-];
-
-interface PaymentOptionsProps {
-  settings: Pick<PaymentSettings, "whatsappEnabled" | "codEnabled" | "razorpayEnabled">;
-  selected: PaymentMethod;
-  onChange: (method: PaymentMethod) => void;
-}
-
 export function PaymentOptions({ settings, selected, onChange }: PaymentOptionsProps) {
+  const t = useTranslations("checkout");
+  const OPTIONS: {
+    id: PaymentMethod;
+    label: string;
+    sublabel: string;
+    icon: React.ElementType;
+    settingKey: "whatsappEnabled" | "codEnabled" | "razorpayEnabled";
+  }[] = [
+    {
+      id: "whatsapp",
+      label: t("payWhatsApp"),
+      sublabel: t("payWhatsAppDesc"),
+      icon: Smartphone,
+      settingKey: "whatsappEnabled",
+    },
+    {
+      id: "cod",
+      label: t("payCOD"),
+      sublabel: `+${fmt(COD_FEE)} ${t("codFeeLabel")}`,
+      icon: Banknote,
+      settingKey: "codEnabled",
+    },
+    {
+      id: "razorpay",
+      label: t("payRazorpay"),
+      sublabel: t("payOnlineDesc"),
+      icon: CreditCard,
+      settingKey: "razorpayEnabled",
+    },
+  ];
   const available = OPTIONS.filter((o) => settings[o.settingKey] === true);
 
   return (
@@ -94,7 +95,7 @@ export function PaymentOptions({ settings, selected, onChange }: PaymentOptionsP
 
       {available.length === 0 && (
         <p className="text-muted-foreground text-sm">
-          No payment methods are currently available. Please contact support.
+          {t("noPaymentMethods")}
         </p>
       )}
     </div>

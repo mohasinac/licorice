@@ -2,17 +2,19 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Select } from "@/components/ui/Select";
 
-const SORT_OPTIONS = [
-  { value: "featured", label: "Featured" },
-  { value: "newest", label: "Newest" },
-  { value: "price_asc", label: "Price: Low → High" },
-  { value: "price_desc", label: "Price: High → Low" },
-  { value: "rating", label: "Top Rated" },
-] as const;
-
 export function ProductSort() {
+  const t = useTranslations("shop");
+  const SORT_OPTIONS = [
+    { value: "featured", label: t("featuredSort") },
+    { value: "newest", label: t("newestSort") },
+    { value: "price_asc", label: t("priceLow") },
+    { value: "price_desc", label: t("priceHigh") },
+    { value: "rating", label: t("topRated") },
+  ] as const;
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

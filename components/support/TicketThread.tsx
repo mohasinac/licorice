@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import { Send, Lock } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
@@ -32,15 +33,8 @@ function formatDateTime(val: unknown): string {
   });
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  open: "Open",
-  in_progress: "In Progress",
-  waiting_customer: "Awaiting Your Reply",
-  resolved: "Resolved",
-  closed: "Closed",
-};
-
 export function TicketThread({ ticket, messages, allowReply = true, onReply }: Props) {
+  const t = useTranslations("support");
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
   const isClosed = ticket.status === "resolved" || ticket.status === "closed";
@@ -57,10 +51,11 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: replyText.trim() }),
         });
-        toast.success("Reply sent.");
+        toast.success(t("replySent"));
       }
       setReplyText("");
     } catch {
+      toast.error(t("replyFailed"));
     } finally {
       setSending(false);
     }
@@ -75,7 +70,7 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
           <p className="text-muted-foreground mt-1 text-sm">
             <span className="font-mono font-semibold text-green-700 dark:text-green-400">{ticket.ticketNumber}</span>
             {" · "}
-            Opened {formatDateTime(ticket.createdAt)}
+            {t("opened", { date: formatDateTime(ticket.createdAt) })}
           </p>
         </div>
         <StatusBadge status={ticket.status} type="ticket" />
@@ -84,16 +79,15 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
       {/* Status banner for resolved/closed */}
       {isClosed && (
         <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/30 dark:text-green-400">
-          ✅ {STATUS_LABELS[ticket.status]} — This ticket has been{" "}
-          {ticket.status === "resolved" ? "resolved" : "closed"}.{" "}
+          {ticket.status === "resolved" ? t("bannerResolved") : t("bannerClosed")}{" "}
           {allowReply && (
             <button
               className="ml-1 font-medium underline"
               onClick={() => {
-                /* re-open handled server-side when customer replies */
+                document.getElementById("ticket-reply-textarea")?.focus();
               }}
             >
-              Reply to re-open
+              {t("replyToReopen")}
             </button>
           )}
         </div>
@@ -122,8 +116,8 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
                   <p className="text-muted-foreground mb-1 text-xs font-medium">
                     {isInternal && <Lock className="mr-1 inline h-3 w-3" />}
                     {isInternal
-                      ? "Internal Note"
-                      : ((msg as unknown as { senderName?: string }).senderName ?? "Support Team")}
+                      ? t("internalNote")
+                      : ((msg as unknown as { senderName?: string }).senderName ?? t("supportTeam"))}
                   </p>
                 )}
                 <p className="whitespace-pre-wrap">{msg.body}</p>
@@ -155,8 +149,9 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
       {allowReply && (
         <div className="border-border rounded-2xl border p-4">
           <Textarea
-            label="Your Reply"
-            placeholder="Type your message…"
+            id="ticket-reply-textarea"
+            label={t("yourReply")}
+            placeholder={t("yourReply")}
             rows={4}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
@@ -165,7 +160,7 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
           <div className="mt-3 flex justify-end">
             <Button size="sm" onClick={handleReply} loading={sending} disabled={!replyText.trim()}>
               <Send className="h-4 w-4" />
-              Send Reply
+              {t("sendReply")}
             </Button>
           </div>
         </div>

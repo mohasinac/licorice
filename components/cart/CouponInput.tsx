@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Tag, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { apiFetch } from "@/lib/api-fetch";
@@ -33,6 +34,7 @@ export function CouponInput({
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("cart");
 
   async function handleApply() {
     if (!code.trim()) return;
@@ -48,9 +50,10 @@ export function CouponInput({
         onApplied?.(code.trim().toUpperCase(), data.discountAmount);
         setCode("");
       } else {
-        setError(data.error ?? "Invalid coupon code.");
+        setError(data.error ?? t("invalidCoupon"));
       }
     } catch {
+      setError(t("couponCheckFailed"));
     } finally {
       setLoading(false);
     }
@@ -61,8 +64,7 @@ export function CouponInput({
       <div className="flex items-center justify-between rounded-lg bg-green-50 dark:bg-green-950/30 px-3 py-2 text-sm">
         <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
           <Tag className="h-4 w-4" />
-          <span className="font-medium">{appliedCode}</span>
-          <span className="text-green-600 dark:text-green-400">applied</span>
+          <span className="font-medium">{t("couponApplied", { code: appliedCode })}</span>
         </div>
         <button
           onClick={onRemoved}
@@ -79,7 +81,7 @@ export function CouponInput({
     <div className="space-y-2">
       <div className="flex gap-2">
         <Input
-          placeholder="Enter coupon code"
+          placeholder={t("enterCoupon")}
           value={code}
           onChange={(e) => {
             setCode(e.target.value.toUpperCase());
@@ -89,7 +91,7 @@ export function CouponInput({
           className="flex-1"
         />
         <Button onClick={handleApply} loading={loading} disabled={!code.trim()} size="sm">
-          Apply
+          {t("apply")}
         </Button>
       </div>
       {error && <p className="text-destructive text-xs">{error}</p>}

@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -47,18 +48,18 @@ const INDIAN_STATES = [
   "Puducherry",
 ];
 
-const addressSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
-  line1: z.string().min(5, "Address must be at least 5 characters"),
+const addressSchemaBase = z.object({
+  name: z.string(),
+  phone: z.string(),
+  line1: z.string(),
   line2: z.string().optional(),
-  city: z.string().min(2, "Enter a valid city"),
-  state: z.string().min(1, "Select a state"),
-  pincode: z.string().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
+  city: z.string(),
+  state: z.string(),
+  pincode: z.string(),
   country: z.string().optional(),
 });
 
-type AddressFormValues = z.infer<typeof addressSchema>;
+type AddressFormValues = z.infer<typeof addressSchemaBase>;
 
 interface AddressFormProps {
   defaultValues?: Partial<Address>;
@@ -71,10 +72,21 @@ interface AddressFormProps {
 export function AddressForm({
   defaultValues,
   onSubmit,
-  submitLabel = "Save Address",
+  submitLabel,
   loading = false,
   onCancel,
 }: AddressFormProps) {
+  const t = useTranslations("checkout");
+  const schema = z.object({
+    name: z.string().min(2, t("validName")),
+    phone: z.string().regex(/^[6-9]\d{9}$/, t("validPhone")),
+    line1: z.string().min(5, t("validLine1")),
+    line2: z.string().optional(),
+    city: z.string().min(2, t("validCity")),
+    state: z.string().min(1, t("validState")),
+    pincode: z.string().regex(/^\d{6}$/, t("validPincode")),
+    country: z.string().optional(),
+  });
   const {
     register,
     handleSubmit,
@@ -82,7 +94,7 @@ export function AddressForm({
     watch,
     formState: { errors },
   } = useForm<AddressFormValues>({
-    resolver: zodResolver(addressSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: defaultValues?.name ?? "",
       phone: defaultValues?.phone ?? "",
@@ -106,45 +118,45 @@ export function AddressForm({
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input label="Full Name" error={errors.name?.message} {...register("name")} />
+        <Input label={t("addrName")} error={errors.name?.message} {...register("name")} />
         <Input
-          label="Mobile Number"
-          placeholder="10-digit number"
+          label={t("addrPhone")}
+          placeholder={t("addrPhonePlaceholder")}
           error={errors.phone?.message}
           {...register("phone")}
         />
       </div>
 
       <Input
-        label="Address Line 1"
-        placeholder="House/flat no, street name"
+        label={t("addrLine1")}
+        placeholder={t("addrLine1Placeholder")}
         error={errors.line1?.message}
         {...register("line1")}
       />
       <Input
-        label="Address Line 2 (Optional)"
-        placeholder="Landmark, area"
+        label={t("addrLine2")}
+        placeholder={t("addrLine2Placeholder")}
         error={errors.line2?.message}
         {...register("line2")}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Input label="City" error={errors.city?.message} {...register("city")} />
+        <Input label={t("addrCity")} error={errors.city?.message} {...register("city")} />
 
         <div className="flex flex-col gap-1">
-          <label className="text-foreground text-sm font-medium">State</label>
+          <label className="text-foreground text-sm font-medium">{t("addrState")}</label>
           <Select
             options={stateOptions}
             value={stateValue}
             onValueChange={(v) => setValue("state", v)}
-            placeholder="Select state"
+            placeholder={t("addrStatePlaceholder")}
           />
           {errors.state && <p className="text-destructive text-xs">{errors.state.message}</p>}
         </div>
 
         <Input
-          label="Pincode"
-          placeholder="6 digits"
+          label={t("addrPincode")}
+          placeholder={t("addrPincodePlaceholder")}
           error={errors.pincode?.message}
           {...register("pincode")}
         />
@@ -152,11 +164,11 @@ export function AddressForm({
 
       <div className="flex gap-3 pt-2">
         <Button type="submit" loading={loading}>
-          {submitLabel}
+          {submitLabel ?? t("saveAddress")}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {t("addrCancel")}
           </Button>
         )}
       </div>

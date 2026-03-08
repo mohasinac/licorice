@@ -3,30 +3,32 @@
 import { motion } from "framer-motion";
 import { Link } from "@/i18n/navigation";
 import { Leaf, Rabbit, FlaskConical, Award } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { BotanicalOrnaments } from "./BotanicalOrnaments";
 import type { HeroBannerConfig } from "@/lib/types";
-
-const TRUST_BADGES = [
-  { icon: Leaf, label: "100% Natural" },
-  { icon: Rabbit, label: "Cruelty Free" },
-  { icon: FlaskConical, label: "Dermat Tested" },
-  { icon: Award, label: "GMP Certified" },
-] as const;
 
 interface HeroBannerProps {
   config?: HeroBannerConfig;
 }
 
 export function HeroBanner({ config }: HeroBannerProps) {
+  const t = useTranslations("home");
 
-  const headline = config?.headline ?? "Rediscover the Power\nof Ayurveda";
+  const TRUST_BADGES = [
+    { icon: Leaf, label: t("trustNatural") },
+    { icon: Rabbit, label: t("trustCrueltyFree") },
+    { icon: FlaskConical, label: t("trustDermatTested") },
+    { icon: Award, label: t("trustGMPCertified") },
+  ] as const;
+
+  const headline = config?.headline ?? t("heroTitle");
   const subheadline =
     config?.subheadline ??
-    "Licorice Herbals blends time-honoured botanical extracts with precision formulation for skin and hair that truly thrives.";
-  const primaryCtaText = config?.primaryCtaText ?? "Explore Products";
+    t("heroSub");
+  const primaryCtaText = config?.primaryCtaText ?? t("heroCta1");
   const primaryCtaHref = config?.primaryCtaHref ?? "/shop";
-  const secondaryCtaText = config?.secondaryCtaText ?? "Free Consultation";
+  const secondaryCtaText = config?.secondaryCtaText ?? t("heroCta2");
   const secondaryCtaHref = config?.secondaryCtaHref ?? "/consultation";
 
   return (
@@ -85,7 +87,7 @@ export function HeroBanner({ config }: HeroBannerProps) {
           className="border-accent/30 bg-accent/10 text-accent inline-flex items-center gap-2 rounded-full border px-5 py-1.5 text-xs font-medium tracking-[0.2em] uppercase backdrop-blur-sm"
         >
           <span className="bg-accent inline-block h-1.5 w-1.5 rounded-full" />
-          Ancient Wisdom · Modern Care
+          {t("ancientWisdom")}
           <span className="bg-accent inline-block h-1.5 w-1.5 rounded-full" />
         </motion.span>
 

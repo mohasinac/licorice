@@ -25,12 +25,12 @@ async function getTicketWithMessages(
       .collection("supportTickets")
       .doc(ticketId)
       .collection("messages")
-      .where("isInternalNote", "!=", true) // customers don't see internal notes
-      .orderBy("isInternalNote")
       .orderBy("createdAt", "asc")
       .get();
 
-    const messages: TicketMessage[] = messagesSnap.docs.map((d) => d.data() as TicketMessage);
+    const messages: TicketMessage[] = messagesSnap.docs
+      .map((d) => d.data() as TicketMessage)
+      .filter((m) => m.isInternalNote !== true); // customers don't see internal notes
 
     return { ticket: { id: ticketDoc.id, ...data }, messages };
   } catch (err) {

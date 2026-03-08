@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Category } from "@/lib/types";
 
@@ -16,14 +17,15 @@ interface CategoryGridProps {
 }
 
 export async function CategoryGrid({ categories }: CategoryGridProps) {
+  const t = await getTranslations("home");
   if (categories.length === 0) return null;
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          title="Shop by Category"
-          subtitle="Curated collections for every concern"
+          title={t("shopByCategory")}
+          subtitle={t("curatedCollections")}
           className="mb-12"
         />
 

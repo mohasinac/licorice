@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Link from "next/link";
 import { getOrders } from "@/lib/db";
 import { AdminOrdersTable } from "./AdminOrdersTable";
 

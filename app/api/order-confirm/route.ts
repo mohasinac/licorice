@@ -40,6 +40,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, alreadySent: true });
   }
 
+  // Update order status first (must happen regardless of email success)
+  await updateOrderStatus(
+    orderId,
+    {
+      paymentStatus: "paid",
+      orderStatus: "confirmed",
+    },
+    {
+      status: "confirmed",
+      description: "Payment confirmed — order is being processed",
+      source: "admin",
+    },
+  );
+
   // Send email via Resend (if configured)
   const resendKey = process.env.RESEND_API_KEY;
   const customerEmail = (order.guestEmail ?? "").trim();
@@ -84,38 +98,22 @@ export async function POST(req: NextRequest) {
           html,
         }),
       });
+
+      // Mark confirmationEmailSentAt
+      try {
+        const { adminDb } = await import("@/lib/firebase/admin");
+        const { FieldValue } = await import("firebase-admin/firestore");
+        await adminDb.collection("orders").doc(orderId).update({
+          confirmationEmailSentAt: FieldValue.serverTimestamp(),
+        });
+      } catch {
+        /* non-fatal */
+      }
     } catch (err) {
       console.error("[order-confirm] Resend email failed", err);
-      return NextResponse.json(
-        { error: "Failed to send confirmation email. Please retry." },
-        { status: 502 },
-      );
+      // Order is already confirmed — email failure is non-fatal
+      return NextResponse.json({ ok: true, emailSent: false });
     }
-  }
-
-  // Mark email sent + update status
-  await updateOrderStatus(
-    orderId,
-    {
-      paymentStatus: "paid",
-      orderStatus: "confirmed",
-    },
-    {
-      status: "confirmed",
-      description: "Payment confirmed — order is being processed",
-      source: "admin",
-    },
-  );
-
-  // Mark confirmationEmailSentAt
-  try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const { FieldValue } = await import("firebase-admin/firestore");
-    await adminDb.collection("orders").doc(orderId).update({
-      confirmationEmailSentAt: FieldValue.serverTimestamp(),
-    });
-  } catch {
-    /* non-fatal */
   }
 
   return NextResponse.json({ ok: true });

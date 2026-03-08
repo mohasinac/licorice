@@ -2,6 +2,7 @@
 // app/[locale]/(auth)/login/page.tsx
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -9,6 +10,7 @@ import { BRAND_NAME } from "@/constants/site";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("auth");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +24,7 @@ export default function LoginPage() {
       const { signInWithEmailAndPassword } = await import("firebase/auth");
       const auth = getClientAuth();
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      toast.success("Welcome back!");
+      toast.success(t("loginSuccess"));
       router.replace("/");
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code;
@@ -31,9 +33,9 @@ export default function LoginPage() {
         code === "auth/wrong-password" ||
         code === "auth/invalid-credential"
       ) {
-        toast.error("Invalid email or password.");
+        toast.error(t("invalidCredentials"));
       } else {
-        toast.error("Login failed. Please try again.");
+        toast.error(t("loginFailed"));
       }
     } finally {
       setLoading(false);
@@ -48,10 +50,10 @@ export default function LoginPage() {
       const auth = getClientAuth();
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      toast.success("Signed in with Google!");
+      toast.success(t("signedInWithGoogle"));
       router.replace("/");
     } catch {
-      toast.error("Google sign-in failed. Please try again.");
+      toast.error(t("googleSignInFailed"));
     } finally {
       setLoading(false);
     }
@@ -60,13 +62,13 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-16">
       <div className="bg-background border-border w-full max-w-sm rounded-2xl border p-8 shadow-sm">
-        <h1 className="font-heading text-foreground mb-1 text-2xl font-bold">Welcome back</h1>
-        <p className="text-muted-foreground mb-6 text-sm">Sign in to your {BRAND_NAME} account.</p>
+        <h1 className="font-heading text-foreground mb-1 text-2xl font-bold">{t("welcomeBack")}</h1>
+        <p className="text-muted-foreground mb-6 text-sm">{t("signInTo", { brand: BRAND_NAME })}</p>
 
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <Input
             type="email"
-            label="Email"
+            label={t("email")}
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -75,7 +77,7 @@ export default function LoginPage() {
           />
           <Input
             type="password"
-            label="Password"
+            label={t("password")}
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -85,18 +87,18 @@ export default function LoginPage() {
 
           <div className="flex justify-end">
             <Link href="/account/forgot-password" className="text-primary text-xs hover:underline">
-              Forgot password?
+              {t("forgotPassword")}
             </Link>
           </div>
 
           <Button type="submit" loading={loading} className="w-full" size="md">
-            Sign in
+            {t("signIn")}
           </Button>
         </form>
 
         <div className="my-6 flex items-center gap-3">
           <span className="bg-border h-px flex-1" />
-          <span className="text-muted-foreground text-xs">or</span>
+          <span className="text-muted-foreground text-xs">{t("or")}</span>
           <span className="bg-border h-px flex-1" />
         </div>
 
@@ -126,13 +128,13 @@ export default function LoginPage() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          {t("googleLogin")}
         </Button>
 
         <p className="text-muted-foreground mt-6 text-center text-sm">
-          Don&apos;t have an account?{" "}
+          {t("noAccount")}{" "}
           <Link href="/register" className="text-primary font-medium hover:underline">
-            Sign up
+            {t("register")}
           </Link>
         </p>
       </div>

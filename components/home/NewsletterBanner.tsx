@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { apiFetch } from "@/lib/api-fetch";
 
 export function NewsletterBanner() {
+  const t = useTranslations("home");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +22,7 @@ export function NewsletterBanner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      toast.success("You're subscribed! Check your inbox for a welcome gift.");
+      toast.success(t("newsletterSuccess"));
       setEmail("");
     } catch {
     } finally {
@@ -36,27 +38,26 @@ export function NewsletterBanner() {
 
       <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
         <span className="border-accent/30 text-accent mb-4 inline-flex rounded-full border px-3 py-1 text-xs tracking-widest uppercase">
-          Stay Connected
+          {t("stayConnected")}
         </span>
         <h2 className="font-heading text-3xl font-bold text-white sm:text-4xl">
-          Join the Licorice Community
+          {t("newsletter")}
         </h2>
         <p className="mt-4 text-white/60">
-          Subscribe for Ayurvedic tips, exclusive offers, and a{" "}
-          <strong className="text-accent">10% welcome discount</strong> on your first order.
+          {t("newsletterSub")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex gap-3">
           <Input
             type="email"
-            placeholder="Enter your email"
+            placeholder={t("newsletterPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             className="focus:border-accent flex-1 border-white/20 bg-white/10 text-white placeholder:text-white/40"
           />
           <Button type="submit" loading={loading} size="md" variant="secondary">
-            Subscribe
+            {t("newsletterCta")}
           </Button>
         </form>
 

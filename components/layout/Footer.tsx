@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
   BRAND_NAME,
@@ -24,16 +25,18 @@ const SHOP_LINKS = [
   { key: "combos", href: "/shop?type=combo" },
 ] as const;
 
-const USEFUL_LINKS = [
-  { label: "Free Consultation", href: "/consultation" },
-  { label: "Blog", href: "/blog" },
-  { label: "About Us", href: "/about" },
-  { label: "Corporate Gifting", href: "/corporate-gifting" },
-  { label: "Track your order", href: "/track" },
-  { label: "Media Kit", href: "/media-kit" },
-] as const;
-
 export async function Footer({ logoUrl }: { logoUrl?: string }) {
+  const t = await getTranslations("footer");
+  const tNav = await getTranslations("nav");
+
+  const USEFUL_LINKS = [
+    { label: tNav("consultation"), href: "/consultation" },
+    { label: tNav("blog"), href: "/blog" },
+    { label: tNav("about"), href: "/about" },
+    { label: "Corporate Gifting", href: "/corporate-gifting" },
+    { label: tNav("track"), href: "/track" },
+    { label: "Media Kit", href: "/media-kit" },
+  ] as const;
 
   return (
     <footer className="from-primary via-primary to-primary/95 border-t border-white/5 bg-gradient-to-b text-white/70">
@@ -55,10 +58,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
                 {BRAND_NAME}
               </span>
             )}
-            <p className="max-w-sm text-sm leading-relaxed">
-              Pure Ayurvedic skincare & haircare rooted in ancient wisdom, crafted for modern life.
-              Experience the transformative power of Honest Ayurveda.
-            </p>
+            <p className="max-w-sm text-sm leading-relaxed">{t("description")}</p>
             <div className="flex gap-3">
               {SOCIAL_LINKS.instagram && (
                 <a
@@ -99,7 +99,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
           {/* Shop links */}
           <div>
             <h3 className="font-heading mb-4 text-sm font-semibold tracking-widest text-white uppercase">
-              Shop
+              {t("shop")}
             </h3>
             <ul className="flex flex-col gap-2.5 text-sm">
               {SHOP_LINKS.map(({ key, href }) => (
@@ -108,7 +108,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
                     href={href}
                     className="hover:text-accent capitalize transition-colors"
                   >
-                    {key === "all" ? "All Products" : key}
+                    {key === "all" ? t("allProducts") : key}
                   </Link>
                 </li>
               ))}
@@ -118,7 +118,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
           {/* Useful links */}
           <div>
             <h3 className="font-heading mb-4 text-sm font-semibold tracking-widest text-white uppercase">
-              Quick Links
+              {t("quickLinks")}
             </h3>
             <ul className="flex flex-col gap-2.5 text-sm">
               {USEFUL_LINKS.map(({ label, href }) => (
@@ -134,7 +134,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
           {/* Contact */}
           <div>
             <h3 className="font-heading mb-4 text-sm font-semibold tracking-widest text-white uppercase">
-              Contact Us
+              {t("contactUs")}
             </h3>
             <ul className="flex flex-col gap-2.5 text-sm">
               <li>
@@ -155,14 +155,14 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
               </li>
               <li className="mt-2">
                 <Link href="/contact" className="hover:text-accent transition-colors">
-                  Contact Form
+                  {t("contactForm")}
                 </Link>
               </li>
             </ul>
 
             {/* Policies beneath contact on this column */}
             <h3 className="font-heading mt-8 mb-4 text-sm font-semibold tracking-widest text-white uppercase">
-              Policies
+              {t("policies")}
             </h3>
             <ul className="flex flex-col gap-2.5 text-sm">
               {POLICY_LINKS.map(({ key, href }) => (
@@ -182,7 +182,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
         {/* Bottom bar */}
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row">
           <span>
-            © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
+            © {new Date().getFullYear()} {BRAND_NAME}. {t("allRightsReserved")}
           </span>
           <a
             href="https://github.com/mohasinac"

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ShoppingBag } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { CartItem } from "@/lib/types";
 import type { ShippingMode } from "@/stores/useCheckoutStore";
 import { getShippingCharge } from "./ShippingOptions";
@@ -43,6 +44,7 @@ export function OrderSummary({
   gstIncluded = GST_INCLUDED,
   shiprocketShipping,
 }: OrderSummaryProps) {
+  const t = useTranslations("checkout");
   const shipping =
     shiprocketShipping !== undefined
       ? shiprocketShipping
@@ -59,7 +61,7 @@ export function OrderSummary({
 
   return (
     <div className="border-border rounded-xl border p-5">
-      <h3 className="font-heading text-foreground mb-4 text-lg font-semibold">Order Summary</h3>
+      <h3 className="font-heading text-foreground mb-4 text-lg font-semibold">{t("orderSummary")}</h3>
 
       {/* Items */}
       <ul className="divide-border mb-4 divide-y">
@@ -84,9 +86,9 @@ export function OrderSummary({
       {items.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-4 text-center">
           <ShoppingBag className="text-border h-10 w-10" />
-          <p className="text-muted-foreground text-sm">Your cart is empty.</p>
+          <p className="text-muted-foreground text-sm">{t("browseProducts")}</p>
           <Link href="/shop" className="text-primary text-sm underline">
-            Browse products
+            {t("browseProducts")}
           </Link>
         </div>
       )}
@@ -94,37 +96,37 @@ export function OrderSummary({
       {/* Pricing */}
       <div className="space-y-2 border-t pt-3 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Subtotal</span>
+          <span className="text-muted-foreground">{t("subtotal")}</span>
           <span>{fmt(subtotal)}</span>
         </div>
         {discount > 0 && (
           <div className="flex justify-between text-green-600 dark:text-green-400">
-            <span>Discount {couponCode && `(${couponCode})`}</span>
+            <span>{t("discount")} {couponCode && `(${couponCode})`}</span>
             <span>−{fmt(discount)}</span>
           </div>
         )}
         {gstPercent > 0 && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">
-              GST ({gstPercent}%){gstIncluded ? " incl." : ""}
+              {gstIncluded ? t("gstInclLabel", { percent: gstPercent }) : t("gstLabel", { percent: gstPercent })}
             </span>
             <span>{fmt(gstAmount)}</span>
           </div>
         )}
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Shipping</span>
+          <span className="text-muted-foreground">{t("shippingLabel")}</span>
           <span className={shipping === 0 ? "font-medium text-green-600 dark:text-green-400" : ""}>
-            {shipping === 0 ? "Free" : fmt(shipping)}
+            {shipping === 0 ? t("freeLabel") : fmt(shipping)}
           </span>
         </div>
         {isCod && (
           <div className="flex justify-between">
-            <span className="text-muted-foreground">COD Fee</span>
+            <span className="text-muted-foreground">{t("codFeeLabel")}</span>
             <span>{fmt(COD_FEE)}</span>
           </div>
         )}
         <div className="border-border flex justify-between border-t pt-2 text-base font-bold">
-          <span className="text-foreground">Total</span>
+          <span className="text-foreground">{t("totalLabel")}</span>
           <span className="text-primary">{fmt(total)}</span>
         </div>
       </div>

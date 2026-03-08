@@ -1,6 +1,7 @@
 "use client";
 
 import { Instagram, ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SOCIAL_LINKS } from "@/constants/site";
 import { useEffect, useRef } from "react";
@@ -22,6 +23,7 @@ function extractShortcode(url: string): string | null {
 }
 
 export function InstagramReels({ reels }: InstagramReelsProps) {
+  const t = useTranslations("home");
   const scriptLoaded = useRef(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,8 +59,8 @@ export function InstagramReels({ reels }: InstagramReelsProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
-            title="Follow Us on Instagram"
-            subtitle="Watch our latest reels & tagged reviews"
+            title={t("followInstagram")}
+            subtitle={t("instagramSub")}
             align="left"
           />
           <a
@@ -103,7 +105,7 @@ export function InstagramReels({ reels }: InstagramReelsProps) {
             rel="noopener noreferrer"
             className="text-primary hover:text-primary/80 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
           >
-            View more on Instagram
+            {t("viewOnInstagram")}
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>

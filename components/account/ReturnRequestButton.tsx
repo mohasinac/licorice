@@ -91,6 +91,7 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
       setOpen(false);
       router.refresh();
     } catch {
+      toast.error("Failed to submit return request. Please try again.");
     } finally {
       setSubmitting(false);
     }

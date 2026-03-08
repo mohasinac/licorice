@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_RATE,
@@ -38,6 +39,7 @@ export function CartSummary({
   gstPercent = GST_PERCENT,
   gstIncluded = GST_INCLUDED,
 }: CartSummaryProps) {
+  const t = useTranslations("cart");
   const shipping =
     shippingCharge !== undefined
       ? shippingCharge
@@ -57,13 +59,13 @@ export function CartSummary({
   return (
     <div className="space-y-2 text-sm">
       <div className="flex justify-between">
-        <span className="text-muted-foreground">Subtotal</span>
+        <span className="text-muted-foreground">{t("subtotal")}</span>
         <span className="text-foreground font-medium">{fmt(subtotal)}</span>
       </div>
 
       {discount > 0 && couponCode && (
         <div className="flex justify-between text-green-600 dark:text-green-400">
-          <span>Discount ({couponCode})</span>
+          <span>{t("discount")} ({couponCode})</span>
           <span>−{fmt(discount)}</span>
         </div>
       )}
@@ -71,7 +73,7 @@ export function CartSummary({
       {gstPercent > 0 && (
         <div className="flex justify-between">
           <span className="text-muted-foreground">
-            GST ({gstPercent}%){gstIncluded ? " incl." : ""}
+            {gstIncluded ? t("gstInclLabel", { percent: gstPercent }) : t("gstLabel", { percent: gstPercent })}
           </span>
           <span className="text-foreground font-medium">{fmt(gstAmount)}</span>
         </div>
@@ -79,26 +81,26 @@ export function CartSummary({
 
       {shipping !== undefined && (
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Shipping</span>
+          <span className="text-muted-foreground">{t("shipping")}</span>
           <span
             className={
               shipping === 0 ? "font-medium text-green-600 dark:text-green-400" : "text-foreground font-medium"
             }
           >
-            {shipping === 0 ? "Free" : fmt(shipping)}
+            {shipping === 0 ? t("free") : fmt(shipping)}
           </span>
         </div>
       )}
 
       {isCod && (
         <div className="flex justify-between">
-          <span className="text-muted-foreground">COD Fee</span>
+          <span className="text-muted-foreground">{t("codFee")}</span>
           <span className="text-foreground font-medium">{fmt(COD_FEE)}</span>
         </div>
       )}
 
       <div className="border-border flex justify-between border-t pt-2 text-base font-semibold">
-        <span className="text-foreground">Total</span>
+        <span className="text-foreground">{t("total")}</span>
         <span className="text-primary">{fmt(baseTotal)}</span>
       </div>
     </div>

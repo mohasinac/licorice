@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, MapPin, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { AddressForm } from "./AddressForm";
 import type { Address } from "@/lib/types";
@@ -14,6 +15,7 @@ interface AddressListProps {
 }
 
 export function AddressList({ addresses, selectedAddress, onSelect, onAddNew }: AddressListProps) {
+  const t = useTranslations("checkout");
   const [showForm, setShowForm] = useState(addresses.length === 0);
   const [saving, setSaving] = useState(false);
 
@@ -76,13 +78,13 @@ export function AddressList({ addresses, selectedAddress, onSelect, onAddNew }: 
 
       {showForm ? (
         <div className="border-border rounded-xl border p-4">
-          <h3 className="text-foreground mb-4 font-medium">New Address</h3>
+          <h3 className="text-foreground mb-4 font-medium">{t("newAddressTitle")}</h3>
           <AddressForm onSubmit={handleAdd} loading={saving} onCancel={() => setShowForm(false)} />
         </div>
       ) : (
         <Button variant="outline" onClick={() => setShowForm(true)} className="w-full">
           <Plus className="h-4 w-4" />
-          Add New Address
+          {t("addNewAddress")}
         </Button>
       )}
     </div>

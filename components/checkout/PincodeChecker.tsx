@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api-fetch";
 
@@ -18,6 +19,7 @@ interface PincodeCheckerProps {
 }
 
 export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
+  const t = useTranslations("checkout");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ServiceabilityResult | null>(null);
 
@@ -32,7 +34,7 @@ export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
       setResult(data);
       onResult?.(data);
     } catch {
-      const fallback = { serviceable: false, error: "Could not check serviceability." };
+      const fallback = { serviceable: false, error: t("checkError") };
       setResult(fallback);
       onResult?.(fallback);
     } finally {
@@ -50,7 +52,7 @@ export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
         loading={loading}
         disabled={!/^\d{6}$/.test(pincode)}
       >
-        Check Delivery
+        {t("checkDelivery")}
       </Button>
 
       {result && (
@@ -70,14 +72,14 @@ export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
           <div>
             {result.serviceable ? (
               <>
-                <p className="font-medium">Delivery available</p>
+                <p className="font-medium">{t("deliveryAvailable")}</p>
                 {result.eta && <p className="text-xs">{result.eta}</p>}
                 {result.codAvailable === false && (
-                  <p className="text-xs">COD not available at this pincode.</p>
+                  <p className="text-xs">{t("codUnavailable")}</p>
                 )}
               </>
             ) : (
-              <p>{result.error ?? "Delivery not available at this pincode."}</p>
+              <p>{result.error ?? t("deliveryUnavailable")}</p>
             )}
           </div>
         </div>

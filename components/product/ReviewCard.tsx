@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { ThumbsUp, Flag, MessageCircle, CheckCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Review } from "@/lib/types";
 import { StarRating } from "@/components/ui/StarRating";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +24,7 @@ function formatDate(d: unknown) {
 }
 
 export function ReviewCard({ review, onImageClick, onReportClick }: ReviewCardProps) {
+  const t = useTranslations("product");
   const [helpfulCount, setHelpfulCount] = React.useState(review.helpfulCount);
   const [voted, setVoted] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
@@ -57,7 +59,7 @@ export function ReviewCard({ review, onImageClick, onReportClick }: ReviewCardPr
               {review.isVerifiedPurchase && (
                 <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                   <CheckCircle className="h-3 w-3" />
-                  Verified Purchase
+                  {t("verifiedPurchase")}
                 </span>
               )}
             </div>
@@ -99,7 +101,7 @@ export function ReviewCard({ review, onImageClick, onReportClick }: ReviewCardPr
         <div className="bg-muted border-border my-3 rounded-xl border p-4">
           <div className="mb-1 flex items-center gap-2">
             <MessageCircle className="text-primary h-4 w-4" />
-            <span className="text-primary text-xs font-semibold">Response from Licorice Herbals</span>
+            <span className="text-primary text-xs font-semibold">{t("brandReply")}</span>
           </div>
           <p className="text-foreground/70 text-sm leading-relaxed">{review.adminReply}</p>
         </div>
@@ -120,7 +122,7 @@ export function ReviewCard({ review, onImageClick, onReportClick }: ReviewCardPr
           aria-label="Mark as helpful"
         >
           <ThumbsUp className="h-3.5 w-3.5" />
-          Helpful{helpfulCount > 0 ? ` (${helpfulCount})` : ""}
+          {helpfulCount > 0 ? t("helpfulCount", { count: helpfulCount }) : t("helpful")}
         </button>
         <button
           type="button"
@@ -129,7 +131,7 @@ export function ReviewCard({ review, onImageClick, onReportClick }: ReviewCardPr
           aria-label="Report review"
         >
           <Flag className="h-3.5 w-3.5" />
-          Report
+          {t("report")}
         </button>
       </div>
     </div>

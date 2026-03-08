@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MapPin, Trash2, Edit2, Pin } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import type { Address } from "@/lib/types";
 import { apiFetch } from "@/lib/api-fetch";
@@ -15,10 +16,11 @@ interface Props {
 }
 
 export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props) {
+  const t = useTranslations("account");
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
-    if (!confirm("Delete this address?")) return;
+    if (!confirm(t("confirmDeleteAddress"))) return;
     setDeleting(true);
     try {
       const { getClientAuth } = await import("@/lib/firebase/client");
@@ -29,7 +31,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
         method: "DELETE",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      toast.success("Address removed.");
+      toast.success(t("addressRemoved"));
       onDeleted?.(address.id);
     } catch {
     } finally {
@@ -46,7 +48,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
         </div>
         {address.isDefault && (
           <span className="bg-primary/10 text-primary rounded px-2 py-0.5 text-xs font-medium">
-            Default
+            {t("defaultLabel")}
           </span>
         )}
       </div>
@@ -63,7 +65,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
       <div className="mt-4 flex flex-wrap gap-2">
         {onEdit && (
           <Button variant="outline" size="sm" onClick={() => onEdit(address)} className="gap-1">
-            <Edit2 className="h-3.5 w-3.5" /> Edit
+            <Edit2 className="h-3.5 w-3.5" /> {t("editLabel")}
           </Button>
         )}
         {onSetDefault && !address.isDefault && (
@@ -73,7 +75,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
             onClick={() => onSetDefault(address.id)}
             className="gap-1"
           >
-            <Pin className="h-3.5 w-3.5" /> Set default
+            <Pin className="h-3.5 w-3.5" /> {t("setDefault")}
           </Button>
         )}
         {onDeleted && (
@@ -84,7 +86,7 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
             loading={deleting}
             className="gap-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
-            <Trash2 className="h-3.5 w-3.5" /> Delete
+            <Trash2 className="h-3.5 w-3.5" /> {t("deleteLabel")}
           </Button>
         )}
       </div>
