@@ -70,6 +70,25 @@ function stripTimestamps<T>(obj: T): T {
   return out as T;
 }
 
+/** Ensure array fields introduced after initial save are never undefined. */
+function normalizeProduct(p: Product): Product {
+  return {
+    ...p,
+    images: p.images ?? [],
+    variants: (p.variants ?? []).map((v) => ({
+      ...v,
+      reservedStock: v.reservedStock ?? 0,
+    })),
+    relatedProducts: p.relatedProducts ?? [],
+    upsellProducts: p.upsellProducts ?? [],
+    certifications: p.certifications ?? [],
+    concerns: p.concerns ?? [],
+    benefits: p.benefits ?? [],
+    ingredients: p.ingredients ?? [],
+    faqs: p.faqs ?? [],
+  };
+}
+
 // ── Products ─────────────────────────────────────────────────────────────────
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
@@ -88,7 +107,7 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     }
     const snap = await query.get();
     if (snap.empty) return [];
-    let results = snap.docs.map((d) => stripTimestamps(d.data() as Product));
+    let results = snap.docs.map((d) => normalizeProduct(stripTimestamps(d.data() as Product)));
     if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
     if (filters?.limit) results = results.slice(0, filters.limit);
     return results.sort((a, b) => a.sortOrder - b.sortOrder);
@@ -106,14 +125,14 @@ export async function getProduct(slug: string): Promise<Product | null> {
     .limit(1)
     .get();
   if (snap.empty) return null;
-  return stripTimestamps(snap.docs[0].data() as Product);
+  return normalizeProduct(stripTimestamps(snap.docs[0].data() as Product));
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
   const { adminDb } = await import("@/lib/firebase/admin");
   const doc = await adminDb.collection("products").doc(id).get();
   if (!doc.exists) return null;
-  return stripTimestamps(doc.data() as Product);
+  return normalizeProduct(stripTimestamps(doc.data() as Product));
 }
 
 // ── Products (admin write) ────────────────────────────────────────────────────
@@ -122,7 +141,7 @@ export async function getAllProducts(): Promise<Product[]> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb.collection("products").orderBy("sortOrder", "asc").get();
-    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...d.data() } as Product));
+    return snap.docs.map((d) => normalizeProduct(stripTimestamps({ id: d.id, ...d.data() } as Product)));
   } catch {
     return [];
   }
