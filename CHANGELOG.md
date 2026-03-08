@@ -70,6 +70,229 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Phase 8+9] — Dynamic CMS, i18n, SEO, Security, PWA & Polish
+
+### Summary
+
+Full dynamic CMS for all homepage sections, navigation, testimonials, promo banners, and static pages. Complete Hindi & Marathi translations. SEO with sitemap + robots. Security headers & Firestore rules. PWA manifest. UI polish with error pages, account deletion, and API fetch utility.
+
+### Added
+
+#### Dynamic CMS (Phase 8)
+
+- 20+ db functions in `lib/db.ts` for navigation, homepage sections, testimonials, pages, consultation config, promo banners, categories, concerns
+- 8 admin API routes: categories, concerns, pages, promo banners, consultation, homepage, navigation, testimonials CRUD
+- 6 admin pages: homepage settings, navigation editor, testimonials manager, promo banners, static pages, consultation config
+- `lib/seeds/` system — seed data for products, blogs, reviews, categories, concerns, testimonials, pages, navigation, settings, inventory, coupons, users
+- `components/admin/AdminSidebar.tsx` — full sidebar navigation with grouped menu items (Overview, Commerce, Content, Support, Settings)
+- Updated `HeroBanner` and `BrandValues` to accept dynamic CMS config
+- Homepage and consultation page fetch from CMS
+
+#### Admin CRUD Additions (Phase 8 cont.)
+
+- Admin categories page with inline create/delete CRUD
+- Admin concerns page with inline create/delete CRUD
+- Admin coupons: create coupon page with full Zod validation form + coupon list page
+- Admin settings: general, pages, payments, shipping — full form pages with save to Firestore
+- Privacy policy page
+- Forgot password page
+- Cart page (`/cart`)
+- Concerns browse page (`/concern`)
+
+#### i18n Translations (Phase 9)
+
+- `messages/hi.json` — complete Hindi translations for all 12+ namespaces
+- `messages/mr.json` — complete Marathi translations for all 12+ namespaces
+- `scripts/write-translations.mjs` — translation generation helper
+
+#### SEO (Phase 9)
+
+- `app/robots.ts` — dynamic robots.txt
+- `app/sitemap.ts` — dynamic sitemap with product, blog, category, concern pages × 3 locales
+- `metadataBase` configuration in root layout
+
+#### Security (Phase 9)
+
+- `firestore.rules` — updated with testimonials, promoBanners, pages collection rules
+- `next.config.ts` — CSP and security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy)
+
+#### PWA (Phase 9)
+
+- `public/manifest.json` — web app manifest with theme colour and icons
+- Apple-touch-icon and theme-color meta tags
+
+#### UI Polish & Error Handling (Phase 8 cont.)
+
+- `app/error.tsx` + `app/not-found.tsx` — root-level error and 404 pages with brand styling
+- `app/[locale]/error.tsx` + `app/[locale]/not-found.tsx` — locale-scoped error and 404 pages
+- `lib/api-fetch.ts` — typed API fetch utility with error handling, used across all client components
+- `app/api/account/delete/route.ts` — account deletion endpoint (deletes Firebase Auth user + Firestore doc)
+- Account profile page — added account deletion with confirmation
+- Checkout flow polish — improved field validation and error states
+- Seed page UI — enhanced with better status feedback
+
+### Changed
+
+- `lib/types.ts` — added `NavigationConfig`, `HomepageSections`, `Testimonial`, `PageDoc`, `ConsultationConfig`, `PromoBanner` types
+- Mock data files simplified to minimal stubs (seed data moved to `lib/seeds/`)
+- `i18n/routing.ts` — added `localePrefix` config
+- Multiple component fetch calls migrated from inline `fetch` to `apiFetch` utility
+
+---
+
+## [Phase 7] — Content (Blog, Newsletter, Before/After Gallery)
+
+### Summary
+
+Full blog system with admin CRUD, newsletter subscriber management, and interactive before/after image comparison gallery. 21 files, 2,036 insertions.
+
+### Added
+
+#### Blog Storefront
+
+- `app/[locale]/blog/page.tsx` — blog listing with category tabs
+- `app/[locale]/blog/[slug]/page.tsx` — blog detail page with JSON-LD structured data
+- `app/[locale]/blog/diet/page.tsx` — diet & lifestyle blog category page
+- `components/blog/BlogContent.tsx` — renders rich HTML blog body
+- `components/blog/RelatedPosts.tsx` — related blog posts grid
+
+#### Blog Admin
+
+- `app/[locale]/(admin)/admin/blogs/page.tsx` — blog list with status tabs (draft/published/archived)
+- `app/[locale]/(admin)/admin/blogs/new/page.tsx` — create new blog post
+- `app/[locale]/(admin)/admin/blogs/[id]/page.tsx` — edit existing blog post
+- `app/[locale]/(admin)/admin/blogs/BlogForm.tsx` — full blog form with Zod validation
+- `app/api/admin/blogs/route.ts` — POST (create), PATCH (update), DELETE blog API with admin auth
+
+#### Newsletter Admin
+
+- `app/[locale]/(admin)/admin/newsletter/page.tsx` — subscriber table with stats and CSV export
+
+#### Before/After Gallery
+
+- `components/home/BeforeAfterCard.tsx` — interactive drag slider (touch-enabled, keyboard accessible) with before/after image comparison
+- Updated `BeforeAfterSlider.tsx` to feed from Firestore/mock data
+
+#### Database
+
+- `lib/db.ts` — added `getAllBlogs()`, `saveBlog()`, `deleteBlog()`, `getBlogsByCategory()` functions
+
+#### Scripts
+
+- `scripts/debug-firebase.mjs` — Firebase connection debugging helper
+- `scripts/deploy-firebase-rules.mjs` — Firestore rules deployment script
+- `scripts/write-indexes-json.mjs` — composite index generator
+
+### Changed
+
+- `firestore.indexes.json` — updated with blog composite query indexes
+- `saveBlog` type signature updated to support optional id for creation
+
+---
+
+## [Phase 6] — Support & Consultation
+
+### Summary
+
+Complete support ticket system, consultation booking, and corporate gifting inquiry pipeline. Customer self-service support portal. 41 files, 3,996 insertions.
+
+### Added
+
+#### Support Ticket System
+
+- `app/[locale]/(admin)/admin/support/page.tsx` — admin ticket inbox
+- `app/[locale]/(admin)/admin/support/[ticketId]/page.tsx` — admin ticket detail
+- `app/[locale]/(admin)/admin/support/[ticketId]/AdminTicketActions.tsx` — reply, internal notes, status transitions
+- `app/api/admin/support/tickets/[id]/reply/route.ts` — admin reply API
+- `app/api/admin/support/tickets/[id]/status/route.ts` — admin status update API
+- `app/[locale]/account/support/page.tsx` — customer support ticket list
+- `app/[locale]/account/support/[id]/page.tsx` — customer ticket thread view
+- `app/api/support/tickets/route.ts` — GET (list) + POST (create) customer tickets
+- `app/api/support/tickets/[id]/route.ts` — GET ticket detail
+- `app/api/support/tickets/[id]/reply/route.ts` — customer reply API
+- `components/admin/TicketInbox.tsx` — admin inbox with status tabs and overdue highlighting
+- `components/support/TicketCard.tsx` — compact ticket row component
+- `components/support/TicketThread.tsx` — threaded message display
+
+#### Consultation Booking
+
+- `app/[locale]/consultation/page.tsx` — consultation booking landing page
+- `app/[locale]/consultation/ConsultationForm.tsx` — form with concern selection, date/time preference, Zod validation
+- `lib/actions/bookConsultation.ts` — Server Action: creates booking doc, sends Resend email notification
+- `app/[locale]/(admin)/admin/consultations/page.tsx` — admin consultations with upcoming/past tabs, confirm/complete actions
+- `app/api/admin/consultations/[id]/status/route.ts` — consultation status transition API
+- `components/admin/ConsultationCard.tsx` — consultation detail card with status actions
+
+#### Corporate Gifting
+
+- `app/[locale]/corporate-gifting/page.tsx` — corporate gifting inquiry page
+- `app/[locale]/corporate-gifting/CorporateGiftingForm.tsx` — inquiry form with Zod validation
+- `lib/actions/submitCorporateInquiry.ts` — Server Action: creates inquiry doc
+- `app/[locale]/(admin)/admin/corporate/page.tsx` — admin corporate inquiries with inline status management
+- `app/api/admin/corporate/[id]/status/route.ts` — status transition API
+
+#### Customer Account
+
+- `components/account/GetHelpButton.tsx` — "Get Help" button on order detail, opens support ticket
+- Updated account dashboard with Support quick-link tile
+
+### Changed
+
+- `app/api/contact/route.ts` — upgraded to generate ticket numbers and use Firestore subcollections
+- `components/ui/StatusBadge.tsx` — extended with ticket status variants (open, in_progress, waiting_customer, resolved, closed)
+- `lib/types.ts` — added `CorporateInquiry`, `CorporateInquiryStatus` types
+
+#### Firebase Config
+
+- `.firebaserc` — Firebase project configuration
+- `firebase.json` — Firestore and storage hosting rules
+- `firestore.indexes.json` — composite indexes for support ticket queries
+- `firestore.rules` — security rules for all collections
+- `storage.rules` — Firebase Storage security rules (images: max 5 MB, allowed MIME types)
+
+#### Scripts
+
+- `scripts/sync-env-vercel.mjs` — Vercel environment variable sync utility
+
+---
+
+## [Phase 5] — Reviews & Trust System
+
+### Summary
+
+Full product review system with customer submission, rating distribution, photo gallery, admin moderation queue, and helpful/flag voting. 21 files, 1,658 insertions.
+
+### Added
+
+#### Customer Reviews
+
+- `components/product/AddReviewForm.tsx` — star rating, title, body, image upload with Zod validation
+- `components/product/ReviewsList.tsx` — rating distribution chart, sort (newest/highest/lowest/most helpful), filter by star, pagination
+- `components/product/ReviewCard.tsx` — review display with helpful vote and report/flag buttons
+- `components/product/ReviewPhotoGallery.tsx` — review image grid with lightbox zoom
+- `components/product/ReviewFilters.tsx` — star filter bar (5★ / 4★ / 3★ etc.)
+- Updated `app/[locale]/products/[slug]/page.tsx` — real review section with ReviewsList
+
+#### Admin Review Moderation
+
+- `app/[locale]/(admin)/admin/reviews/page.tsx` — review moderation queue with status tabs
+- `app/[locale]/(admin)/admin/reviews/[id]/page.tsx` — individual review detail with approve/reject/reply
+- `components/admin/ReviewModerationCard.tsx` — card with verified purchase badge, admin reply system, rejection with reason
+
+#### Server Actions & API
+
+- `lib/actions/reviews.ts` — `submitReview`, `approveReview`, `rejectReview`, `addAdminReply`, `flagReview`, `markReviewHelpful`
+- `app/api/review/flag/route.ts` — POST review flag/report API
+- `lib/db.ts` — added review query functions (by product, by status, by ID)
+
+### Changed
+
+- `lib/types.ts` — added `ReviewFlag`, `ReviewFlagReason` types
+- `components/admin/DashboardCharts.tsx` — enhanced chart rendering
+- `lib/shiprocket.ts` — minor reliability improvements
+
+---
+
 ## [Phase 4] — Shipping & Tracking · Branch: `phase-4-shipping-tracking`
 
 ### Summary
