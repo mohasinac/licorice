@@ -32,9 +32,14 @@ export function ShipOrderModal({ orderId, orderNumber, isOpen, onClose }: ShipOr
   async function handleShiprocket() {
     setLoading(true);
     try {
+      const { getClientAuth } = await import("@/lib/firebase/client");
+      const token = await getClientAuth().currentUser?.getIdToken();
       const data = await apiFetch<{ awbCode?: string }>("/api/shiprocket/create-order", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ orderId }),
       });
       toast.success(`Shipment created! AWB: ${data.awbCode ?? "pending assignment"}`);
@@ -58,9 +63,14 @@ export function ShipOrderModal({ orderId, orderNumber, isOpen, onClose }: ShipOr
 
     setLoading(true);
     try {
+      const { getClientAuth } = await import("@/lib/firebase/client");
+      const token = await getClientAuth().currentUser?.getIdToken();
       await apiFetch(`/api/admin/orders/${orderId}/ship-manual`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           courierName: courierName.trim(),
           awbCode: awbCode.trim(),

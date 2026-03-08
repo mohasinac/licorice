@@ -42,8 +42,9 @@ export async function POST(req: NextRequest): Promise<Response> {
   const order = await getOrder(orderId);
   if (!order) return new Response("Order not found", { status: 404 });
 
-  // Only the order owner can request a return
-  if (order.userId && order.userId !== user.uid) {
+  // Only the order owner can request a return.
+  // Deny if userId is empty (guest order) or doesn't match the requester.
+  if (!order.userId || order.userId !== user.uid) {
     return new Response("Forbidden", { status: 403 });
   }
 

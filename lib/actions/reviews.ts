@@ -120,6 +120,11 @@ export async function approveReview(
   reviewId: string,
   adminUserId: string,
 ): Promise<ModerateReviewResult> {
+  const { getServerUser } = await import("@/lib/auth");
+  const caller = await getServerUser();
+  if (!caller || caller.role !== "admin") {
+    return { success: false, error: "Unauthorised" };
+  }
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { FieldValue } = await import("firebase-admin/firestore");
@@ -169,6 +174,11 @@ export async function rejectReview(
   adminUserId: string,
   rejectionReason: string,
 ): Promise<ModerateReviewResult> {
+  const { getServerUser } = await import("@/lib/auth");
+  const caller = await getServerUser();
+  if (!caller || caller.role !== "admin") {
+    return { success: false, error: "Unauthorised" };
+  }
   if (!rejectionReason.trim()) {
     return { success: false, error: "Rejection reason is required." };
   }
@@ -194,6 +204,11 @@ export async function addAdminReply(
   adminUserId: string,
   reply: string,
 ): Promise<ModerateReviewResult> {
+  const { getServerUser } = await import("@/lib/auth");
+  const caller = await getServerUser();
+  if (!caller || caller.role !== "admin") {
+    return { success: false, error: "Unauthorised" };
+  }
   if (!reply.trim()) return { success: false, error: "Reply cannot be empty." };
   try {
     const { adminDb } = await import("@/lib/firebase/admin");

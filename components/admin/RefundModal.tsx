@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -24,6 +25,7 @@ export function RefundModal({
   onClose,
   onRefunded,
 }: RefundModalProps) {
+  const router = useRouter();
   const [amount, setAmount] = useState(String(orderTotal));
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +58,7 @@ export function RefundModal({
       toast.success("Refund processed.");
       onRefunded?.();
       onClose();
+      router.refresh();
     } catch {
     } finally {
       setLoading(false);

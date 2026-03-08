@@ -164,7 +164,7 @@ export async function getCategories(): Promise<Category[]> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb.collection("categories").get();
-    return snap.docs.map((d) => d.data() as Category);
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Category, "id">) }));
   } catch {
     return [];
   }
@@ -174,7 +174,7 @@ export async function getConcerns(): Promise<Concern[]> {
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const snap = await adminDb.collection("concerns").get();
-    return snap.docs.map((d) => d.data() as Concern);
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Concern, "id">) }));
   } catch {
     return [];
   }
@@ -192,7 +192,7 @@ export async function getBlogs(category?: BlogCategory, limit?: number): Promise
     if (category) query = query.where("category", "==", category);
     if (limit) query = query.limit(limit);
     const snap = await query.get();
-    return snap.docs.map((d) => stripTimestamps(d.data() as Blog));
+    return snap.docs.map((d) => stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) }));
   } catch {
     return [];
   }
@@ -207,7 +207,7 @@ export async function getBlog(slug: string): Promise<Blog | null> {
     .limit(1)
     .get();
   if (snap.empty) return null;
-  return stripTimestamps(snap.docs[0].data() as Blog);
+  return stripTimestamps({ id: snap.docs[0].id, ...(snap.docs[0].data() as Omit<Blog, "id">) });
 }
 
 // ── Coupons ───────────────────────────────────────────────────────────────────
@@ -473,10 +473,14 @@ export async function adjustStock(
 // ── Orders ────────────────────────────────────────────────────────────────────
 
 export async function getOrder(orderId: string): Promise<Order | null> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("orders").doc(orderId).get();
-  if (!doc.exists) return null;
-  return stripTimestamps(doc.data() as Order);
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("orders").doc(orderId).get();
+    if (!doc.exists) return null;
+    return stripTimestamps({ id: doc.id, ...doc.data() } as Order);
+  } catch {
+    return null;
+  }
 }
 
 export async function getOrders(filters?: {

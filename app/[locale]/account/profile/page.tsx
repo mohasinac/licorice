@@ -67,6 +67,7 @@ export default function ProfilePage() {
       toast.success(t("accountDeleted"));
       router.replace(`/${locale}`);
     } catch {
+      toast.error(t("failedDeleteAccount"));
       setDeleting(false);
     }
   }
