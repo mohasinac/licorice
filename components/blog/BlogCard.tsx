@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
@@ -19,7 +19,7 @@ export async function BlogCard({ blog }: BlogCardProps) {
 
   return (
     <Link
-      href={`/${locale}/blog/${blog.slug}`}
+      href={`/blog/${blog.slug}`}
       className="ayur-card group border-border flex flex-col overflow-hidden rounded-2xl border bg-white"
     >
       {/* Thumbnail */}

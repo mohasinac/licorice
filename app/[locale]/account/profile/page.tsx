@@ -7,13 +7,16 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import toast from "react-hot-toast";
+import { apiFetch } from "@/lib/api-fetch";
 
 export default function ProfilePage() {
-  const { user, loading } = useAuthStore();
+  const { user, loading, clearUser } = useAuthStore();
   const router = useRouter();
   const locale = useLocale();
   const [displayName, setDisplayName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   // Sync displayName when user loads (auth store hydrates async)
   useEffect(() => {
@@ -45,6 +48,28 @@ export default function ProfilePage() {
     }
   }
 
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault();
+    if (deleteConfirm !== "DELETE") return;
+    setDeleting(true);
+    try {
+      const { getClientAuth } = await import("@/lib/firebase/client");
+      const auth = getClientAuth();
+      if (!auth.currentUser) throw new Error("Not logged in");
+      const token = await auth.currentUser.getIdToken();
+      await apiFetch("/api/account/delete", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await auth.signOut();
+      clearUser();
+      toast.success("Account deleted.");
+      router.replace(`/${locale}`);
+    } catch {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-lg px-4 py-10">
       <h1 className="font-heading text-foreground mb-6 text-3xl font-bold">Profile</h1>
@@ -68,6 +93,31 @@ export default function ProfilePage() {
           Save Changes
         </Button>
       </form>
+
+      {/* Danger zone */}
+      <div className="mt-10 rounded-2xl border border-red-200 bg-red-50 p-6">
+        <h2 className="mb-1 text-base font-semibold text-red-700">Delete Account</h2>
+        <p className="mb-4 text-sm text-red-600">
+          This permanently deletes your account and all associated data. This action cannot be
+          undone.
+        </p>
+        <form onSubmit={handleDelete} className="space-y-3">
+          <Input
+            value={deleteConfirm}
+            onChange={(e) => setDeleteConfirm(e.target.value)}
+            placeholder='Type "DELETE" to confirm'
+            className="border-red-300 bg-white focus:ring-red-400"
+          />
+          <Button
+            type="submit"
+            variant="destructive"
+            loading={deleting}
+            disabled={deleteConfirm !== "DELETE"}
+          >
+            Delete My Account
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

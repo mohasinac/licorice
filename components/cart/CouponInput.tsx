@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface CouponResult {
   valid: boolean;
@@ -38,13 +39,11 @@ export function CouponInput({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/coupon/validate", {
+      const data = await apiFetch<CouponResult>("/api/coupon/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code.trim().toUpperCase(), cartTotal, userId, cartItems }),
       });
-      if (!res.ok) throw new Error(res.statusText);
-      const data: CouponResult = await res.json();
       if (data.valid && data.discountAmount !== undefined) {
         onApplied?.(code.trim().toUpperCase(), data.discountAmount);
         setCode("");
@@ -52,7 +51,6 @@ export function CouponInput({
         setError(data.error ?? "Invalid coupon code.");
       }
     } catch {
-      setError("Could not validate coupon. Please try again.");
     } finally {
       setLoading(false);
     }

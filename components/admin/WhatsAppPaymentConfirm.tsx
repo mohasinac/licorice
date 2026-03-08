@@ -4,6 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { CheckCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface WhatsAppPaymentConfirmProps {
   orderId: string;
@@ -30,7 +31,7 @@ export function WhatsAppPaymentConfirm({
       const auth = getClientAuth();
       const token = await auth.currentUser?.getIdToken();
 
-      const res = await fetch("/api/order-confirm", {
+      await apiFetch("/api/order-confirm", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,13 +39,10 @@ export function WhatsAppPaymentConfirm({
         },
         body: JSON.stringify({ orderId }),
       });
-
-      if (!res.ok) throw new Error("Failed to confirm payment.");
       setConfirmed(true);
       onConfirmed?.();
       toast.success(`Payment confirmed for order #${orderNumber}`);
     } catch {
-      toast.error("Failed to confirm payment.");
     } finally {
       setLoading(false);
     }

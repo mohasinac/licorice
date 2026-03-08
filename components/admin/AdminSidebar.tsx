@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -37,9 +35,8 @@ interface NavGroup {
 }
 
 export function AdminSidebar() {
-  const locale = useLocale();
   const pathname = usePathname();
-  const base = `/${locale}/admin`;
+  const base = "/admin";
 
   const groups: NavGroup[] = [
     {
@@ -136,7 +133,7 @@ export function AdminSidebar() {
   return (
     <aside className="flex h-full w-60 flex-col border-r border-[var(--border)] bg-white">
       <div className="flex h-16 items-center border-b border-[var(--border)] px-4">
-        <Link href={`/${locale}`} className="font-heading text-primary text-lg font-bold">
+        <Link href="/" className="font-heading text-primary text-lg font-bold">
           Licoricé Admin
         </Link>
       </div>

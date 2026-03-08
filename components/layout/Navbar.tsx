@@ -62,10 +62,10 @@ export function Navbar({ logoUrl }: { logoUrl?: string }) {
               <li key={key}>
                 <Link
                   href={href || "/"}
-                  className={`text-sm font-medium tracking-wide transition-colors ${
+                  className={`text-sm tracking-wide transition-colors ${
                     (href ? pathname.startsWith(href) : pathname === "/")
-                      ? "text-primary"
-                      : "text-foreground/80 hover:text-primary"
+                      ? "text-primary font-bold"
+                      : "text-foreground/80 font-medium hover:text-primary"
                   } ${
                     key === "consultation"
                       ? "border-primary/20 bg-primary/5 text-primary rounded-full border px-3 py-1"

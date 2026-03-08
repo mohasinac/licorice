@@ -36,13 +36,26 @@ export async function POST(_request: NextRequest) {
       await batch.commit();
     }
 
-    // Remove admin user from Firebase Auth
+    // Remove admin user from Firebase Auth (try by email, fallback to UID)
     try {
-      const user = await adminAuth.getUserByEmail(SEED_ADMIN_USER.email);
-      await adminAuth.deleteUser(user.uid);
-      await adminDb.collection("users").doc(user.uid).delete();
+      let uid: string | undefined;
+      try {
+        const user = await adminAuth.getUserByEmail(SEED_ADMIN_USER.email);
+        uid = user.uid;
+      } catch {
+        try {
+          const user = await adminAuth.getUser(SEED_ADMIN_USER.uid);
+          uid = user.uid;
+        } catch {
+          // User doesn't exist — skip
+        }
+      }
+      if (uid) {
+        await adminAuth.deleteUser(uid);
+        await adminDb.collection("users").doc(uid).delete();
+      }
     } catch {
-      // User doesn't exist — skip
+      // Deletion failed — skip
     }
 
     const rollcall = await takeRollcall(adminDb);

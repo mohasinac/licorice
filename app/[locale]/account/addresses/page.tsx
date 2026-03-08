@@ -8,6 +8,7 @@ import { AddressCard } from "@/components/account/AddressCard";
 import { AddressForm } from "@/components/checkout/AddressForm";
 import { Button } from "@/components/ui/Button";
 import type { Address } from "@/lib/types";
+import { apiFetch } from "@/lib/api-fetch";
 
 type SavedAddress = Address & { id: string; isDefault?: boolean };
 
@@ -26,13 +27,12 @@ export default function AddressesPage() {
       try {
         const { getClientAuth } = await import("@/lib/firebase/client");
         const token = await getClientAuth().currentUser?.getIdToken();
-        const res = await fetch("/api/account/addresses", {
+        const data = await apiFetch<{ addresses?: SavedAddress[] }>("/api/account/addresses", {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           signal: controller.signal,
+          silent: true,
         });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled) setAddresses(data.addresses ?? []);
+        if (!cancelled) setAddresses(data?.addresses ?? []);
       } catch (err) {
         if (!cancelled) console.error(err);
       } finally {
@@ -50,7 +50,7 @@ export default function AddressesPage() {
     try {
       const { getClientAuth } = await import("@/lib/firebase/client");
       const token = await getClientAuth().currentUser?.getIdToken();
-      const res = await fetch("/api/account/addresses", {
+      const { id } = await apiFetch<{ id: string }>("/api/account/addresses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,14 +58,10 @@ export default function AddressesPage() {
         },
         body: JSON.stringify(address),
       });
-      if (!res.ok) throw new Error();
-      const { id } = await res.json();
       setAddresses((prev) => [...prev, { ...address, id }]);
       setShowForm(false);
       toast.success("Address saved.");
-    } catch {
-      toast.error("Failed to save address.");
-    }
+    } catch {}
   }
 
   if (!user) return null;

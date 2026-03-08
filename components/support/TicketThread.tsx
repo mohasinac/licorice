@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import type { SupportTicket, TicketMessage } from "@/lib/types";
 import { toSafeDate } from "@/lib/utils";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface Props {
   ticket: SupportTicket;
@@ -51,17 +52,15 @@ export function TicketThread({ ticket, messages, allowReply = true, onReply }: P
       if (onReply) {
         await onReply(replyText.trim());
       } else {
-        const res = await fetch(`/api/support/tickets/${ticket.id}/reply`, {
+        await apiFetch(`/api/support/tickets/${ticket.id}/reply`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: replyText.trim() }),
         });
-        if (!res.ok) throw new Error("Failed to send reply");
         toast.success("Reply sent.");
       }
       setReplyText("");
     } catch {
-      toast.error("Failed to send. Please try again.");
     } finally {
       setSending(false);
     }

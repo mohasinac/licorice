@@ -4,6 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { apiFetch } from "@/lib/api-fetch";
 
 export function NewsletterBanner() {
   const [email, setEmail] = useState("");
@@ -14,19 +15,14 @@ export function NewsletterBanner() {
     if (!email) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/newsletter", {
+      await apiFetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      if (res.ok) {
-        toast.success("You're subscribed! Check your inbox for a welcome gift.");
-        setEmail("");
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
+      toast.success("You're subscribed! Check your inbox for a welcome gift.");
+      setEmail("");
     } catch {
-      toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +53,7 @@ export function NewsletterBanner() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="flex-1 border-white/20 bg-white/10 text-white placeholder:text-white/40 focus:border-accent"
+            className="focus:border-accent flex-1 border-white/20 bg-white/10 text-white placeholder:text-white/40"
           />
           <Button type="submit" loading={loading} size="md" variant="secondary">
             Subscribe

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { ShoppingBag } from "lucide-react";
 import type { CartItem } from "@/lib/types";
 import type { ShippingMode } from "@/stores/useCheckoutStore";
@@ -85,7 +85,7 @@ export function OrderSummary({
         <div className="flex flex-col items-center gap-2 py-4 text-center">
           <ShoppingBag className="text-border h-10 w-10" />
           <p className="text-muted-foreground text-sm">Your cart is empty.</p>
-          <Link href={`/${locale}/shop`} className="text-primary text-sm underline">
+          <Link href="/shop" className="text-primary text-sm underline">
             Browse products
           </Link>
         </div>

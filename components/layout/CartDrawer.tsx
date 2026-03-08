@@ -2,8 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
-import Link from "next/link";
-import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { Button } from "@/components/ui/Button";
@@ -18,7 +17,6 @@ function formatPrice(price: number) {
 }
 
 export function CartDrawer() {
-  const locale = useLocale();
   const { items, isOpen, closeCart, remove, updateQty, subtotal, itemCount } = useCartStore();
   const sub = subtotal();
   const remaining = FREE_SHIPPING_THRESHOLD - sub;
@@ -56,7 +54,7 @@ export function CartDrawer() {
               <ShoppingBag className="text-border h-16 w-16" />
               <p className="text-muted-foreground">Your cart is empty</p>
               <Dialog.Close asChild>
-                <Link href={`/${locale}/shop`}>
+                <Link href="/shop">
                   <Button size="md">Start Shopping</Button>
                 </Link>
               </Dialog.Close>
@@ -143,7 +141,7 @@ export function CartDrawer() {
                   Taxes and shipping calculated at checkout
                 </p>
                 <Dialog.Close asChild>
-                  <Link href={`/${locale}/checkout`} className="block">
+                  <Link href="/checkout" className="block">
                     <Button className="w-full" size="lg">
                       Proceed to Checkout
                     </Button>
@@ -151,7 +149,7 @@ export function CartDrawer() {
                 </Dialog.Close>
                 <Dialog.Close asChild>
                   <Link
-                    href={`/${locale}/cart`}
+                    href="/cart"
                     className="text-primary block text-center text-sm hover:underline"
                   >
                     View full cart

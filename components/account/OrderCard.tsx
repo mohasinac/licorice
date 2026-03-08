@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { Order } from "@/lib/types";
 import { toSafeDate } from "@/lib/utils";
@@ -32,7 +32,7 @@ export function OrderCard({ order, locale = "en" }: Props) {
       </p>
 
       <Link
-        href={`/${locale}/account/orders/${order.id}`}
+        href={`/account/orders/${order.id}`}
         className="text-primary text-sm font-medium hover:underline"
       >
         View order →

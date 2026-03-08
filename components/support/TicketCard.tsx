@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Ticket } from "lucide-react";
 import type { SupportTicket } from "@/lib/types";
@@ -37,7 +37,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export function TicketCard({ ticket, locale = "en", unread = false }: Props) {
   return (
     <Link
-      href={`/${locale}/account/support/${ticket.id}`}
+      href={`/account/support/${ticket.id}`}
       className="bg-surface hover:border-primary/30 flex items-start gap-4 rounded-2xl border border-transparent p-5 shadow-sm transition-all hover:shadow-md"
     >
       <div className="bg-primary/10 mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl">

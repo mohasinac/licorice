@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Leaf, Rabbit, FlaskConical, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { BotanicalOrnaments } from "./BotanicalOrnaments";
@@ -20,7 +19,6 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({ config }: HeroBannerProps) {
-  const locale = useLocale();
 
   const headline = config?.headline ?? "Rediscover the Power\nof Ayurveda";
   const subheadline =
@@ -130,7 +128,7 @@ export function HeroBanner({ config }: HeroBannerProps) {
           transition={{ duration: 0.6, delay: 0.35 }}
           className="flex flex-col gap-4 sm:flex-row"
         >
-          <Link href={`/${locale}${primaryCtaHref}`}>
+          <Link href={primaryCtaHref}>
             <Button
               size="lg"
               variant="secondary"
@@ -139,7 +137,7 @@ export function HeroBanner({ config }: HeroBannerProps) {
               {primaryCtaText}
             </Button>
           </Link>
-          <Link href={`/${locale}${secondaryCtaHref}`}>
+          <Link href={secondaryCtaHref}>
             <Button
               size="lg"
               variant="outline"

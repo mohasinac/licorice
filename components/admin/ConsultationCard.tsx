@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle, XCircle, CircleCheckBig, Video, MapPin } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { ConsultationBooking } from "@/lib/types";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface Props {
   consultation: ConsultationBooking;
@@ -18,12 +19,12 @@ export function ConsultationCard({ consultation }: Props) {
   async function updateStatus(newStatus: string) {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/consultations/${consultation.id}/status`, {
+      await apiFetch(`/api/admin/consultations/${consultation.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (res.ok) setStatus(newStatus as typeof status);
+      setStatus(newStatus as typeof status);
     } catch {
       // ignore
     } finally {

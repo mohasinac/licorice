@@ -40,17 +40,23 @@ export async function POST(_request: NextRequest) {
     // Create admin user in Firebase Auth (or update if exists)
     try {
       let adminUid: string;
+      // Try by email first, then by UID, then create fresh
       try {
         const existing = await adminAuth.getUserByEmail(SEED_ADMIN_USER.email);
         adminUid = existing.uid;
       } catch {
-        const created = await adminAuth.createUser({
-          uid: SEED_ADMIN_USER.uid,
-          email: SEED_ADMIN_USER.email,
-          password: SEED_ADMIN_USER.password,
-          displayName: SEED_ADMIN_USER.displayName,
-        });
-        adminUid = created.uid;
+        try {
+          const existingByUid = await adminAuth.getUser(SEED_ADMIN_USER.uid);
+          adminUid = existingByUid.uid;
+        } catch {
+          const created = await adminAuth.createUser({
+            uid: SEED_ADMIN_USER.uid,
+            email: SEED_ADMIN_USER.email,
+            password: SEED_ADMIN_USER.password,
+            displayName: SEED_ADMIN_USER.displayName,
+          });
+          adminUid = created.uid;
+        }
       }
       await adminAuth.setCustomUserClaims(adminUid, { role: "admin" });
       await adminDb.collection("users").doc(adminUid).set(

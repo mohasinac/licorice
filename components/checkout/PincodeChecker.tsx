@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface ServiceabilityResult {
   serviceable: boolean;
@@ -25,9 +26,9 @@ export function PincodeChecker({ pincode, onResult }: PincodeCheckerProps) {
     setResult(null);
     setLoading(true);
     try {
-      const res = await fetch(`/api/pincode-check?pincode=${pincode}`);
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      const data: ServiceabilityResult = await res.json();
+      const data = await apiFetch<ServiceabilityResult>(`/api/pincode-check?pincode=${pincode}`, {
+        silent: true,
+      });
       setResult(data);
       onResult?.(data);
     } catch {

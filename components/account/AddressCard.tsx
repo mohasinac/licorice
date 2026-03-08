@@ -5,6 +5,7 @@ import { MapPin, Trash2, Edit2, Pin } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import type { Address } from "@/lib/types";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface Props {
   address: Address & { id: string; isDefault?: boolean };
@@ -24,16 +25,13 @@ export function AddressCard({ address, onDeleted, onEdit, onSetDefault }: Props)
       const auth = getClientAuth();
       const token = await auth.currentUser?.getIdToken();
 
-      const res = await fetch(`/api/account/addresses/${address.id}`, {
+      await apiFetch(`/api/account/addresses/${address.id}`, {
         method: "DELETE",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-
-      if (!res.ok) throw new Error("Delete failed");
       toast.success("Address removed.");
       onDeleted?.(address.id);
     } catch {
-      toast.error("Failed to delete address.");
     } finally {
       setDeleting(false);
     }

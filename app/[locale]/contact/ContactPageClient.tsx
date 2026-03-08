@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { SUPPORT_EMAIL, SUPPORT_HOURS, WHATSAPP_NUMBER } from "@/constants/site";
+import { apiFetch } from "@/lib/api-fetch";
 
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -32,19 +33,15 @@ export function ContactPageClient() {
 
   async function onSubmit(data: FormData) {
     try {
-      const res = await fetch("/api/contact", {
+      const json = await apiFetch<{ success: boolean; ticketNumber?: string }>("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to send");
-      const json = (await res.json()) as { success: boolean; ticketNumber?: string };
       setTicketNumber(json.ticketNumber ?? null);
       toast.success("Message sent! We'll reply within 1 business day.");
       reset();
-    } catch {
-      toast.error("Something went wrong. Please try again.");
-    }
+    } catch {}
   }
 
   return (
@@ -55,7 +52,9 @@ export function ContactPageClient() {
           <p className="text-accent mb-3 text-sm font-semibold tracking-widest uppercase">
             Reach Out
           </p>
-          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">Get in Touch</h1>
+          <h1 className="font-heading text-foreground text-4xl font-bold tracking-tight sm:text-5xl">
+            Get in Touch
+          </h1>
           <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
             We&apos;re here to help. Whether it&apos;s a product question or order support, we
             respond promptly.

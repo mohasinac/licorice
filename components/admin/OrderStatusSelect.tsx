@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { OrderStatus } from "@/lib/types";
+import { apiFetch } from "@/lib/api-fetch";
 
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   draft: ["pending", "cancelled"],
@@ -60,7 +61,7 @@ export function OrderStatusSelect({
       const auth = getClientAuth();
       const token = await auth.currentUser?.getIdToken();
 
-      const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+      await apiFetch(`/api/admin/orders/${orderId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -68,14 +69,11 @@ export function OrderStatusSelect({
         },
         body: JSON.stringify({ orderStatus: newStatus, adminNote: note || undefined }),
       });
-
-      if (!res.ok) throw new Error("Failed to update status.");
       setStatus(newStatus);
       setNote("");
       onStatusChanged?.(newStatus);
       toast.success(`Order status updated to "${STATUS_LABELS[newStatus]}"`);
     } catch {
-      toast.error("Failed to update order status.");
     } finally {
       setLoading(false);
     }

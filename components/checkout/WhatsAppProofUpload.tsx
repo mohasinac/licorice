@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Upload, CheckCircle, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface WhatsAppProofUploadProps {
   orderId: string;
@@ -43,16 +44,12 @@ export function WhatsAppProofUpload({ orderId }: WhatsAppProofUploadProps) {
       formData.append("file", file);
       formData.append("orderId", orderId);
 
-      const res = await fetch("/api/payment/whatsapp/submit-proof", {
+      await apiFetch("/api/payment/whatsapp/submit-proof", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
+        silent: true,
       });
-
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error((json as { error?: string }).error ?? "Upload failed.");
-      }
 
       setUploaded(true);
     } catch (err: unknown) {

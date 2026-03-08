@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Concern, Locale } from "@/lib/types";
 
 const CONCERN_ICONS: Record<string, string> = {
@@ -44,7 +44,7 @@ export function ConcernGrid({ concerns, locale }: ConcernGridProps) {
           {concerns.map((concern) => (
             <Link
               key={concern.id}
-              href={`/${locale}/concern/${concern.slug}`}
+              href={`/concern/${concern.slug}`}
               className="ayur-card group hover:border-primary/10 relative overflow-hidden rounded-2xl border border-transparent bg-white p-6"
             >
               {/* Background gradient on hover */}

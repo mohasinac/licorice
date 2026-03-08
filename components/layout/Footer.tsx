@@ -1,6 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
-import { getLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import {
   BRAND_NAME,
   SUPPORT_EMAIL,
@@ -34,7 +33,6 @@ const USEFUL_LINKS = [
 ] as const;
 
 export async function Footer({ logoUrl }: { logoUrl?: string }) {
-  const locale = await getLocale();
 
   return (
     <footer className="from-primary via-primary to-primary/95 border-t border-white/5 bg-gradient-to-b text-white/70">
@@ -106,7 +104,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
               {SHOP_LINKS.map(({ key, href }) => (
                 <li key={key}>
                   <Link
-                    href={`/${locale}${href}`}
+                    href={href}
                     className="hover:text-accent capitalize transition-colors"
                   >
                     {key === "all" ? "All Products" : key}
@@ -124,7 +122,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
             <ul className="flex flex-col gap-2.5 text-sm">
               {USEFUL_LINKS.map(({ label, href }) => (
                 <li key={href}>
-                  <Link href={`/${locale}${href}`} className="hover:text-accent transition-colors">
+                  <Link href={href} className="hover:text-accent transition-colors">
                     {label}
                   </Link>
                 </li>
@@ -155,7 +153,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
                 </a>
               </li>
               <li className="mt-2">
-                <Link href={`/${locale}/contact`} className="hover:text-accent transition-colors">
+                <Link href="/contact" className="hover:text-accent transition-colors">
                   Contact Form
                 </Link>
               </li>
@@ -169,7 +167,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
               {POLICY_LINKS.map(({ key, href }) => (
                 <li key={key}>
                   <Link
-                    href={`/${locale}${href}`}
+                    href={href}
                     className="hover:text-accent capitalize transition-colors"
                   >
                     {key.replace(/-/g, " ")} policy

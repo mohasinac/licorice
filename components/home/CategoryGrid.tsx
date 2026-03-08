@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { getLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import type { Category, Locale } from "@/lib/types";
+import type { Category } from "@/lib/types";
 
 const CATEGORY_ICONS: Record<string, string> = {
   face: "🧴",
@@ -17,7 +16,6 @@ interface CategoryGridProps {
 }
 
 export async function CategoryGrid({ categories }: CategoryGridProps) {
-  const locale = (await getLocale()) as Locale;
 
   return (
     <section className="py-20">
@@ -33,7 +31,7 @@ export async function CategoryGrid({ categories }: CategoryGridProps) {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/${locale}/shop?category=${cat.slug}`}
+              href={`/shop?category=${cat.slug}`}
               className="group from-primary/5 to-secondary/5 relative flex min-w-[140px] flex-col items-center gap-4 rounded-2xl border border-transparent bg-gradient-to-br p-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 sm:min-w-0"
             >
               {/* Glow ring on hover */}

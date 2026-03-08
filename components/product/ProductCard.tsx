@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { Heart, ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
@@ -53,7 +53,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link
-      href={`/${locale}/products/${product.slug}`}
+      href={`/products/${product.slug}`}
       className="ayur-card group border-border relative flex flex-col overflow-hidden rounded-2xl border bg-white"
     >
       {/* Image */}

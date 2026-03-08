@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import type { PaymentMethod } from "@/lib/types";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface RefundModalProps {
   orderId: string;
@@ -44,7 +45,7 @@ export function RefundModal({
       const auth = getClientAuth();
       const token = await auth.currentUser?.getIdToken();
 
-      const res = await fetch(`/api/admin/orders/${orderId}/refund`, {
+      await apiFetch(`/api/admin/orders/${orderId}/refund`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,13 +53,10 @@ export function RefundModal({
         },
         body: JSON.stringify({ amount: refundAmount, note }),
       });
-
-      if (!res.ok) throw new Error("Refund failed.");
       toast.success("Refund processed.");
       onRefunded?.();
       onClose();
     } catch {
-      toast.error("Could not process refund. Please try again.");
     } finally {
       setLoading(false);
     }

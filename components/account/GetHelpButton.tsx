@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { Input } from "@/components/ui/Input";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface Props {
   orderId: string;
@@ -25,7 +26,7 @@ export function GetHelpButton({ orderId, orderNumber }: Props) {
     if (!message.trim()) return;
     setSending(true);
     try {
-      const res = await fetch("/api/support/tickets", {
+      const data = await apiFetch<{ ticketNumber?: string }>("/api/support/tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -35,12 +36,9 @@ export function GetHelpButton({ orderId, orderNumber }: Props) {
           orderId,
         }),
       });
-      if (!res.ok) throw new Error("Failed");
-      const data = (await res.json()) as { ticketNumber?: string };
       setTicketNumber(data.ticketNumber ?? null);
       toast.success("Support ticket created!");
     } catch {
-      toast.error("Failed to create ticket. Please try again.");
     } finally {
       setSending(false);
     }

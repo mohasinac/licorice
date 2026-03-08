@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import toast from "react-hot-toast";
 import { RETURN_WINDOW_DAYS } from "@/constants/policies";
+import { apiFetch } from "@/lib/api-fetch";
 
 interface Props {
   orderId: string;
@@ -53,7 +54,9 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
-    const validFiles = files.filter((f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024);
+    const validFiles = files.filter(
+      (f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024,
+    );
     if (validFiles.length !== files.length) {
       toast.error("Only images up to 5 MB are allowed");
     }
@@ -79,22 +82,15 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
       if (note.trim()) formData.append("note", note.trim());
       images.forEach((img) => formData.append("images", img));
 
-      const res = await fetch("/api/account/return-request", {
+      await apiFetch("/api/account/return-request", {
         method: "POST",
         body: formData,
       });
-
-      if (!res.ok) {
-        const err = await res.text();
-        toast.error(err || "Failed to submit return request");
-        return;
-      }
 
       toast.success("Return request submitted. We'll be in touch within 24 hours.");
       setOpen(false);
       router.refresh();
     } catch {
-      toast.error("Failed to submit return request");
     } finally {
       setSubmitting(false);
     }
@@ -122,7 +118,7 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="border-border bg-background text-foreground w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="border-border bg-background text-foreground focus:ring-primary/50 w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
             >
               <option value="">Select a reason</option>
               {RETURN_REASONS.map((r) => (
@@ -143,7 +139,7 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
               onChange={(e) => setNote(e.target.value)}
               rows={3}
               placeholder="Describe the issue..."
-              className="border-border bg-background text-foreground placeholder:text-muted-foreground w-full resize-none rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary/50 w-full resize-none rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
 
@@ -178,7 +174,7 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
-                      className="bg-destructive absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-white"
+                      className="bg-destructive absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-white"
                     >
                       <X className="h-2.5 w-2.5" />
                     </button>
@@ -188,8 +184,9 @@ export function ReturnRequestButton({ orderId, orderNumber, deliveredAt }: Props
             )}
           </div>
 
-          <div className="bg-amber-50 rounded-lg p-3 text-xs text-amber-800">
-            Returns are accepted only for damaged, defective, wrong, or expired items within {RETURN_WINDOW_DAYS} days of delivery.
+          <div className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+            Returns are accepted only for damaged, defective, wrong, or expired items within{" "}
+            {RETURN_WINDOW_DAYS} days of delivery.
           </div>
 
           <div className="flex justify-end gap-3 pt-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import * as Select from "@radix-ui/react-select";
 import { Globe, ChevronDown, Check } from "lucide-react";
@@ -17,13 +17,8 @@ export function LanguageSwitcher() {
   const pathname = usePathname();
 
   function switchLocale(newLocale: string) {
-    // Replace the locale segment in the path
-    const segments = pathname.split("/");
-    segments[1] = newLocale;
-    const newPath = segments.join("/") || "/";
-    // Set cookie so next-intl remembers preference
-    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000`;
-    router.push(newPath);
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000;SameSite=Lax`;
+    router.replace(pathname, { locale: newLocale });
   }
 
   const current = locales.find((l) => l.code === locale) ?? locales[0];

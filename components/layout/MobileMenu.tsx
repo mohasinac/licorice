@@ -72,10 +72,10 @@ export function MobileMenu({ open, onClose, logoUrl }: MobileMenuProps) {
                 key={key}
                 href={href || "/"}
                 onClick={onClose}
-                className={`rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                className={`rounded-lg px-4 py-3 text-sm transition-colors ${
                   (href ? pathname.startsWith(href) : pathname === "/")
-                    ? "bg-primary/5 text-primary"
-                    : "text-foreground hover:bg-surface hover:text-primary"
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "text-foreground font-medium hover:bg-surface hover:text-primary"
                 }`}
               >
                 {t(key as Parameters<typeof t>[0])}

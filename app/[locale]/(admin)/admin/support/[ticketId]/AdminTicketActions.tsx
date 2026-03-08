@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { SupportTicket, TicketMessage, TicketStatus } from "@/lib/types";
+import { apiFetch } from "@/lib/api-fetch";
 
 const STATUS_OPTIONS: TicketStatus[] = [
   "open",
@@ -50,7 +51,7 @@ export function AdminTicketActions({ ticket, messages }: Props) {
     if (!replyText.trim()) return;
     setSending(true);
     try {
-      const res = await fetch(`/api/admin/support/tickets/${ticket.id}/reply`, {
+      await apiFetch(`/api/admin/support/tickets/${ticket.id}/reply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -59,12 +60,10 @@ export function AdminTicketActions({ ticket, messages }: Props) {
           status: isInternalNote ? status : "waiting_customer",
         }),
       });
-      if (!res.ok) throw new Error("Failed");
       toast.success(isInternalNote ? "Internal note added." : "Reply sent.");
       setReplyText("");
       router.refresh();
     } catch {
-      toast.error("Failed to send. Please try again.");
     } finally {
       setSending(false);
     }
@@ -73,17 +72,15 @@ export function AdminTicketActions({ ticket, messages }: Props) {
   async function handleStatusChange(newStatus: TicketStatus) {
     setChangingStatus(true);
     try {
-      const res = await fetch(`/api/admin/support/tickets/${ticket.id}/status`, {
+      await apiFetch(`/api/admin/support/tickets/${ticket.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) throw new Error("Failed");
       setStatus(newStatus);
       toast.success(`Status updated to ${newStatus.replace(/_/g, " ")}`);
       router.refresh();
     } catch {
-      toast.error("Failed to update status.");
     } finally {
       setChangingStatus(false);
     }

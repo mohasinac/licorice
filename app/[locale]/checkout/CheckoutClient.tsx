@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/Button";
 import { createOrder } from "@/lib/actions/createOrder";
 import type { Address, PaymentSettings } from "@/lib/types";
 import { COD_FEE, getGstAmount } from "@/constants/policies";
+import { apiFetch } from "@/lib/api-fetch";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -100,7 +101,10 @@ export function CheckoutClient({
       `/api/shipping-quote?pincode=${shippingAddress.pincode}&weight=500&cod=${paymentMethod === "cod" ? "1" : "0"}`,
       { signal: controller.signal },
     )
-      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.json();
+      })
       .then((data) => {
         if (data.source === "shiprocket" && data.rates?.length > 0) {
           setShiprocketRates(data.rates);
@@ -120,12 +124,11 @@ export function CheckoutClient({
       try {
         const { getClientAuth } = await import("@/lib/firebase/client");
         const token = await getClientAuth().currentUser?.getIdToken();
-        const res = await fetch("/api/account/addresses", {
+        const data = await apiFetch<{ addresses: Address[] }>("/api/account/addresses", {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
+          silent: true,
         });
-        if (!res.ok) return;
-        const data = await res.json();
-        const addrs = data.addresses ?? [];
+        const addrs = data?.addresses ?? [];
         setAddresses(addrs);
         if (addrs.length > 0 && !shippingAddress) {
           setShippingAddress(addrs[0]);
@@ -145,7 +148,7 @@ export function CheckoutClient({
       try {
         const { getClientAuth } = await import("@/lib/firebase/client");
         const token = await getClientAuth().currentUser?.getIdToken();
-        await fetch("/api/account/addresses", {
+        await apiFetch("/api/account/addresses", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

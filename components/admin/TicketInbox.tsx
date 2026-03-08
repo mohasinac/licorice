@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Clock, AlertTriangle } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { toSafeDate } from "@/lib/utils";
@@ -99,7 +99,7 @@ export function TicketInbox({ tickets, locale = "en" }: Props) {
             return (
               <div
                 key={ticket.id}
-                onClick={() => router.push(`/${locale}/admin/support/${ticket.id}`)}
+                onClick={() => router.push(`/admin/support/${ticket.id}`)}
                 className={`bg-surface flex cursor-pointer items-start gap-4 px-5 py-4 transition-colors hover:bg-gray-50 ${
                   isOld && (ticket.status === "open" || ticket.status === "in_progress")
                     ? "border-l-4 border-amber-400"

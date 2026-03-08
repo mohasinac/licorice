@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { ShoppingBag, Zap } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
@@ -133,7 +133,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
       {/* Buy now */}
       {product.inStock && (
-        <Link href={`/${locale}/checkout`}>
+        <Link href="/checkout">
           <Button
             variant="outline"
             size="lg"
