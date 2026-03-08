@@ -134,7 +134,7 @@ export default function PromoBannersPage() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Expires At</label>
-                <input className={inputCls} type="datetime-local" value={form.expiresAt ? new Date(form.expiresAt as string | number).toISOString().slice(0, 16) : ""} onChange={(e) => setForm({ ...form, expiresAt: e.target.value ? new Date(e.target.value) : undefined })} />
+                <input className={inputCls} type="datetime-local" value={form.expiresAt ? new Date(form.expiresAt as unknown as string | number).toISOString().slice(0, 16) : ""} onChange={(e) => setForm({ ...form, expiresAt: e.target.value ? new Date(e.target.value) : undefined })} />
               </div>
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Active</label>

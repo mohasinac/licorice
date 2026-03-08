@@ -8,6 +8,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+#### Resilient Database Layer — Empty Database & Missing Index Safety
+
+- `lib/db.ts` — wrapped every read function in `try/catch` so Firestore errors (including `FAILED_PRECONDITION` from missing composite indexes) return safe empty defaults instead of throwing and crashing pages:
+  - Array-returning functions (`getProducts`, `getAllProducts`, `getCategories`, `getConcerns`, `getBlogs`, `getAllBlogs`, `getCoupons`, `getApprovedReviews`, `getProductReviews`, `getOrders`, `getOrderTimeline`, `getStockMovements`, `getAllReviews`, `getNewsletterSubscribers`, `getBeforeAfterItems`, `getTestimonials`, `getAllTestimonials`, `getActivePromoBanners`, `getAllPromoBanners`, `getMediaKitFiles`, `getAllPages`) all return `[]` on error
+  - Settings functions (`getSiteConfig`, `getPaymentSettings`, `getShippingRules`, `getInventorySettings`, `getHomepageSections`, `getNavigation`, `getConsultationConfig`) return sensible typed empty objects on error
+  - `getPendingReviewCount` returns `0` on error and guards against `snap.data().count` being undefined
+- `components/home/CategoryGrid.tsx` — returns `null` when `categories` is empty (prevents broken empty scroll row on homepage)
+- `app/[locale]/concern/page.tsx` — shows "No concerns listed yet" message when the concerns collection is empty
+
 ### Added
 
 #### Media Kit System

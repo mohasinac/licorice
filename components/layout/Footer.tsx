@@ -48,7 +48,7 @@ export async function Footer({ logoUrl }: { logoUrl?: string }) {
                 alt={BRAND_NAME}
                 width={160}
                 height={44}
-                className="h-10 w-auto object-contain brightness-0 invert"
+                className="h-10 w-auto object-contain"
               />
             ) : (
               <span className="font-heading text-xl font-semibold tracking-wide text-white">
