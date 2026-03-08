@@ -40,6 +40,7 @@ export const useCartStore = create<CartState>()(
             variantId: variant.id,
             name: typeof product.name === "string" ? product.name : (product.name as { en: string }).en,
             slug: product.slug,
+            category: product.category ?? "",
             image: product.images[0] ?? "/images/placeholder.jpg",
             variantLabel: variant.label,
             price: variant.price,

@@ -52,18 +52,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           name?: string;
           preferredDate?: string;
           preferredTime?: string;
+          confirmationEmailSentAt?: unknown;
         };
-        const resendKey = process.env.RESEND_API_KEY;
-        const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
-        if (resendKey && data.email) {
-          const { Resend } = await import("resend");
-          const resend = new Resend(resendKey);
-          await resend.emails.send({
-            from: fromEmail,
-            to: data.email,
-            subject: "Your Consultation is Confirmed — Licorice Herbals",
-            html: `<p>Hi ${escapeHtml(data.name ?? "there")},</p><p>Your free consultation has been confirmed for <strong>${escapeHtml(data.preferredDate ?? "the scheduled date")}</strong> at <strong>${escapeHtml(data.preferredTime ?? "the scheduled time")}</strong>.</p><p>Our expert will reach out to you at the scheduled time. Please keep your phone handy.</p><p>Warm regards,<br/>Licorice Herbals Team</p>`,
-          });
+        // Idempotency guard — only send once
+        if (!data.confirmationEmailSentAt) {
+          const resendKey = process.env.RESEND_API_KEY;
+          const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
+          if (resendKey && data.email) {
+            const { Resend } = await import("resend");
+            const resend = new Resend(resendKey);
+            await resend.emails.send({
+              from: fromEmail,
+              to: data.email,
+              subject: "Your Consultation is Confirmed — Licorice Herbals",
+              html: `<p>Hi ${escapeHtml(data.name ?? "there")},</p><p>Your free consultation has been confirmed for <strong>${escapeHtml(data.preferredDate ?? "the scheduled date")}</strong> at <strong>${escapeHtml(data.preferredTime ?? "the scheduled time")}</strong>.</p><p>Our expert will reach out to you at the scheduled time. Please keep your phone handy.</p><p>Warm regards,<br/>Licorice Herbals Team</p>`,
+            });
+            // Mark that the email was sent so it won't be resent on subsequent confirmations
+            await docRef.update({ confirmationEmailSentAt: FieldValue.serverTimestamp() });
+          }
         }
       } catch (emailErr) {
         console.warn("[admin/consultations/status] Email failed (non-fatal):", emailErr);

@@ -74,6 +74,8 @@ export function CorporateGiftingForm() {
     },
   ];
 
+  const {
+    register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<z.input<typeof schemaBase>, unknown, FormData>({ resolver: zodResolver(schema) });

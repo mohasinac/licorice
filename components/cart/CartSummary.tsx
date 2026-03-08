@@ -25,6 +25,8 @@ interface CartSummaryProps {
   isCod?: boolean;
   /** If true, compute shipping automatically from subtotal */
   autoShipping?: boolean;
+  /** If true, coupon waives shipping */
+  freeShipping?: boolean;
   gstPercent?: number;
   gstIncluded?: boolean;
 }
@@ -36,6 +38,7 @@ export function CartSummary({
   shippingCharge,
   isCod = false,
   autoShipping = false,
+  freeShipping = false,
   gstPercent = GST_PERCENT,
   gstIncluded = GST_INCLUDED,
 }: CartSummaryProps) {
@@ -43,11 +46,13 @@ export function CartSummary({
   const shipping =
     shippingCharge !== undefined
       ? shippingCharge
-      : autoShipping
-        ? subtotal - discount >= FREE_SHIPPING_THRESHOLD
-          ? 0
-          : STANDARD_SHIPPING_RATE
-        : undefined;
+      : freeShipping
+        ? 0
+        : autoShipping
+          ? subtotal - discount >= FREE_SHIPPING_THRESHOLD
+            ? 0
+            : STANDARD_SHIPPING_RATE
+          : undefined;
 
   const codFee = isCod ? COD_FEE : 0;
   const discountedSubtotal = subtotal - discount;
@@ -67,6 +72,13 @@ export function CartSummary({
         <div className="flex justify-between text-green-600 dark:text-green-400">
           <span>{t("discount")} ({couponCode})</span>
           <span>−{fmt(discount)}</span>
+        </div>
+      )}
+
+      {freeShipping && couponCode && discount === 0 && (
+        <div className="flex justify-between text-green-600 dark:text-green-400">
+          <span>{t("discount")} ({couponCode})</span>
+          <span>{t("free")}</span>
         </div>
       )}
 

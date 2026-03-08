@@ -18,7 +18,7 @@ interface CouponInputProps {
   cartTotal: number;
   userId?: string;
   cartItems?: { productId: string; category: string }[];
-  onApplied?: (code: string, discountAmount: number) => void;
+  onApplied?: (code: string, discountAmount: number, type: string) => void;
   onRemoved?: () => void;
   appliedCode?: string;
 }
@@ -47,7 +47,7 @@ export function CouponInput({
         body: JSON.stringify({ code: code.trim().toUpperCase(), cartTotal, userId, cartItems }),
       });
       if (data.valid && data.discountAmount !== undefined) {
-        onApplied?.(code.trim().toUpperCase(), data.discountAmount);
+        onApplied?.(code.trim().toUpperCase(), data.discountAmount, data.type ?? "flat");
         setCode("");
       } else {
         setError(data.error ?? t("invalidCoupon"));

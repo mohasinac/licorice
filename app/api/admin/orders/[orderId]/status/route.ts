@@ -27,15 +27,20 @@ export async function PATCH(
 
   const { orderStatus, adminNote } = parsed.data;
 
-  await updateOrderStatus(
-    orderId,
-    { orderStatus: orderStatus as OrderStatus, ...(adminNote ? { adminNote } : {}) },
-    {
-      status: orderStatus as OrderStatus,
-      description: adminNote ?? `Status changed to ${orderStatus}`,
-      source: "admin",
-    },
-  );
+  try {
+    await updateOrderStatus(
+      orderId,
+      { orderStatus: orderStatus as OrderStatus, ...(adminNote ? { adminNote } : {}) },
+      {
+        status: orderStatus as OrderStatus,
+        description: adminNote ?? `Status changed to ${orderStatus}`,
+        source: "admin",
+      },
+    );
+  } catch (err) {
+    console.error("[admin/orders/status] updateOrderStatus failed", err);
+    return NextResponse.json({ error: "Failed to update order status" }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }

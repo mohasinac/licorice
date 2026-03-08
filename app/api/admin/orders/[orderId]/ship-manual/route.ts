@@ -54,7 +54,12 @@ export async function POST(
     createdAt: FieldValue.serverTimestamp(),
   });
 
-  await batch.commit();
+  try {
+    await batch.commit();
+  } catch (err) {
+    console.error("[ship-manual] batch commit failed", err);
+    return new Response("Failed to save shipping details", { status: 500 });
+  }
 
   return Response.json({ ok: true });
 }

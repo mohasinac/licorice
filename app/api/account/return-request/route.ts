@@ -111,20 +111,25 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   const note = typeof formData.get("note") === "string" ? (formData.get("note") as string) : undefined;
 
-  await updateOrderStatus(
-    orderId,
-    {
-      orderStatus: "return_requested",
-      returnReason: reason,
-      returnImages: returnImageUrls.length > 0 ? returnImageUrls : undefined,
-      adminNote: note ? `Customer note: ${note}` : undefined,
-    },
-    {
-      status: "return_requested",
-      description: `Customer requested return: ${reason}${note ? ` — "${note}"` : ""}`,
-      source: "system",
-    },
-  );
+  try {
+    await updateOrderStatus(
+      orderId,
+      {
+        orderStatus: "return_requested",
+        returnReason: reason,
+        returnImages: returnImageUrls.length > 0 ? returnImageUrls : undefined,
+        adminNote: note ? `Customer note: ${note}` : undefined,
+      },
+      {
+        status: "return_requested",
+        description: `Customer requested return: ${reason}${note ? ` — "${note}"` : ""}`,
+        source: "system",
+      },
+    );
+  } catch (err) {
+    console.error("[return-request] updateOrderStatus failed", err);
+    return new Response("Failed to record return request", { status: 500 });
+  }
 
   return Response.json({ ok: true });
 }

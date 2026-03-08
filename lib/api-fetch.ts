@@ -64,5 +64,9 @@ export async function apiFetch<T = unknown>(url: string, options: FetchOptions =
     return undefined as T;
   }
 
-  return res.json() as Promise<T>;
+  try {
+    return (await res.json()) as T;
+  } catch {
+    return undefined as T;
+  }
 }

@@ -27,7 +27,7 @@ export function LanguageSwitcher() {
     <Select.Root value={locale} onValueChange={switchLocale}>
       <Select.Trigger className="text-foreground hover:bg-surface inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium focus:outline-none">
         <Globe className="text-muted-foreground h-4 w-4" />
-        <span>{current.label}</span>
+        <span>{current.name}</span>
         <ChevronDown className="text-muted-foreground h-3 w-3" />
       </Select.Trigger>
       <Select.Portal>

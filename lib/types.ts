@@ -480,6 +480,7 @@ export interface CartItem {
   variantId: string;
   slug: string;
   name: string;
+  category: string; // product category — used for category-scoped coupon validation
   variantLabel: string;
   image: string;
   price: number;

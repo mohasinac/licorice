@@ -25,6 +25,7 @@ export default function CartPage() {
   const subtotal = useCartStore((s) => s.subtotal());
   const [discount, setDiscount] = useState(0);
   const [couponCode, setCouponCode] = useState<string | undefined>();
+  const [freeShipping, setFreeShipping] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -116,18 +117,21 @@ export default function CartPage() {
                 subtotal={subtotal}
                 discount={discount}
                 couponCode={couponCode}
+                freeShipping={freeShipping}
                 autoShipping
               />
 
               <CouponInput
                 cartTotal={subtotal}
-                onApplied={(code: string, disc: number) => {
+                onApplied={(code: string, disc: number, type: string) => {
                   setCouponCode(code);
                   setDiscount(disc);
+                  setFreeShipping(type === "free_shipping");
                 }}
                 onRemoved={() => {
                   setCouponCode(undefined);
                   setDiscount(0);
+                  setFreeShipping(false);
                 }}
                 appliedCode={couponCode}
               />

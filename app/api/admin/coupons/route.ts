@@ -4,7 +4,11 @@ import { getCurrentUser } from "@/lib/auth";
 import { getCoupons, createCoupon } from "@/lib/db";
 import type { CouponType } from "@/lib/types";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const user = await getCurrentUser(req);
+  if (!user || user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const coupons = await getCoupons();
     return NextResponse.json(coupons);

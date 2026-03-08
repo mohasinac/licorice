@@ -59,15 +59,20 @@ export async function POST(req: NextRequest): Promise<Response> {
     }
   }
 
-  await updateOrderStatus(
-    orderId,
-    { orderStatus: "cancelled" },
-    {
-      status: "cancelled",
-      description: reason ? `Order cancelled: ${reason}` : "Order cancelled by admin",
-      source: "admin",
-    },
-  );
+  try {
+    await updateOrderStatus(
+      orderId,
+      { orderStatus: "cancelled" },
+      {
+        status: "cancelled",
+        description: reason ? `Order cancelled: ${reason}` : "Order cancelled by admin",
+        source: "admin",
+      },
+    );
+  } catch (err) {
+    console.error("[shiprocket/cancel-order] updateOrderStatus failed", err);
+    return new Response("Failed to update order status", { status: 500 });
+  }
 
   return Response.json({ ok: true });
 }

@@ -135,6 +135,10 @@ export async function approveReview(
     const review = reviewSnap.data() as Review;
 
     await adminDb.runTransaction(async (tx) => {
+      // Re-read inside transaction for consistency
+      const snap = await tx.get(reviewRef);
+      if (!snap.exists) throw new Error("Review not found.");
+
       // Approve the review
       tx.update(reviewRef, {
         status: "approved",
@@ -143,17 +147,23 @@ export async function approveReview(
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-      // Recompute product rating from all approved reviews
-      const reviewsSnap = await adminDb
-        .collection("reviews")
-        .where("productId", "==", review.productId)
-        .where("status", "==", "approved")
-        .get();
+      // Compute updated rating atomically within the same transaction
+      const reviewsSnap = await tx.get(
+        adminDb
+          .collection("reviews")
+          .where("productId", "==", review.productId)
+          .where("status", "==", "approved"),
+      );
 
-      // Include the current review being approved
-      const allRatings = reviewsSnap.docs.map((d) => (d.data() as Review).rating);
+      // Include the current review (not yet "approved" in Firestore during this tx read)
+      const allRatings = reviewsSnap.docs
+        .filter((d) => d.id !== reviewId)
+        .map((d) => (d.data() as Review).rating);
       allRatings.push(review.rating);
-      const avg = allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length;
+
+      const avg = allRatings.length
+        ? allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length
+        : 0;
 
       tx.update(adminDb.collection("products").doc(review.productId), {
         rating: Math.round(avg * 10) / 10,

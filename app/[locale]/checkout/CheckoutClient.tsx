@@ -78,6 +78,7 @@ export function CheckoutClient({
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [placing, setPlacing] = useState(false);
   const [shiprocketRates, setShiprocketRates] = useState<ShiprocketRate[]>([]);
+  const [selectedShiprocketId, setSelectedShiprocketId] = useState<number | null>(null);
   const [fetchingRates, setFetchingRates] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -109,8 +110,10 @@ export function CheckoutClient({
       .then((data) => {
         if (data.source === "shiprocket" && data.rates?.length > 0) {
           setShiprocketRates(data.rates);
+          setSelectedShiprocketId(null);
         } else {
           setShiprocketRates([]);
+          setSelectedShiprocketId(null);
         }
       })
       .catch(() => setShiprocketRates([]))
@@ -303,9 +306,9 @@ export function CheckoutClient({
                     <CouponInput
                       cartTotal={sub}
                       userId={user?.uid}
-                      cartItems={items.map((i) => ({ productId: i.productId, category: "" }))}
+                      cartItems={items.map((i) => ({ productId: i.productId, category: i.category }))}
                       appliedCode={couponCode || undefined}
-                      onApplied={(code, amount) => applyDiscount(code, amount)}
+                      onApplied={(code, amount, type) => applyDiscount(code, amount, type === "free_shipping")}
                       onRemoved={removeDiscount}
                     />
                   </div>
@@ -360,12 +363,15 @@ export function CheckoutClient({
                       key={rate.courierId}
                       type="button"
                       onClick={() => {
-                        // Store the selected rate info; use standard mode as proxy
+                        setSelectedShiprocketId(rate.courierId);
+                        // Map to the closest internal mode; express if ETA ≤ 3 days
                         setShippingMode("standard");
                       }}
                       className={
                         "w-full rounded-xl border p-4 text-left transition-all " +
-                        "border-border hover:border-primary/50"
+                        (selectedShiprocketId === rate.courierId
+                          ? "border-primary ring-1 ring-primary"
+                          : "border-border hover:border-primary/50")
                       }
                     >
                       <div className="flex items-center justify-between">

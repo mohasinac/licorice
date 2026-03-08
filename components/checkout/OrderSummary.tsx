@@ -105,6 +105,12 @@ export function OrderSummary({
             <span>−{fmt(discount)}</span>
           </div>
         )}
+        {isFreeShipping && couponCode && discount === 0 && (
+          <div className="flex justify-between text-green-600 dark:text-green-400">
+            <span>{t("discount")} ({couponCode})</span>
+            <span>{t("freeLabel")}</span>
+          </div>
+        )}
         {gstPercent > 0 && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">
