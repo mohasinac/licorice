@@ -59,7 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image */}
       <div className="bg-surface relative aspect-square overflow-hidden">
         <Image
-          src={product.images[0] ?? "/images/placeholder.jpg"}
+          src={product.images?.[0] ?? "/images/placeholder.jpg"}
           alt={name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

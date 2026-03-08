@@ -35,11 +35,20 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const wished = isWished(product.id);
 
   const defaultVariant = product.variants.find((v) => v.isDefault) ?? product.variants[0];
-  const [selectedVariant, setSelectedVariant] = React.useState<Variant>(defaultVariant);
+  const [selectedVariant, setSelectedVariant] = React.useState<Variant | undefined>(defaultVariant);
   const [qty, setQty] = React.useState(1);
 
   const name = getLocalizedValue(product.name, locale);
   const tagline = getLocalizedValue(product.tagline, locale);
+
+  if (!selectedVariant) {
+    return (
+      <div className="flex flex-col gap-5">
+        <h1 className="font-heading text-foreground text-3xl font-bold">{getLocalizedValue(product.name, locale)}</h1>
+        <p className="text-muted-foreground text-sm">{t("outOfStock")}</p>
+      </div>
+    );
+  }
 
   const discount = selectedVariant.compareAtPrice
     ? Math.round(
@@ -50,6 +59,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
     : 0;
 
   function handleAddToCart() {
+    if (!selectedVariant) return;
     add(product, selectedVariant, qty);
     openCart();
     toast.success(t("addedToCart", { name }));

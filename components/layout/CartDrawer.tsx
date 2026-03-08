@@ -64,7 +64,13 @@ export function CartDrawer() {
           ) : (
             <>
               {/* Free shipping progress */}
-              {remaining > 0 && (
+              {remaining <= 0 ? (
+                <div className="border-border border-b px-6 py-3 text-center text-sm">
+                  <p className="font-medium text-green-600 dark:text-green-400">
+                    🎉 You&apos;ve unlocked free shipping!
+                  </p>
+                </div>
+              ) : (
                 <div className="border-border border-b px-6 py-3 text-center text-sm">
                   <p className="text-muted-foreground">
                     Add <strong className="text-primary">{formatPrice(remaining)}</strong> more for

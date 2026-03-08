@@ -31,19 +31,23 @@ export async function GET(req: NextRequest) {
     })
     .slice(0, 5);
 
-  const filteredCategories = categories.filter(
-    (c) =>
-      c.label.toLowerCase().includes(q) ||
-      c.slug.toLowerCase().includes(q) ||
-      (c.description ?? "").toLowerCase().includes(q),
-  );
+  const filteredCategories = categories
+    .filter(
+      (c) =>
+        c.label.toLowerCase().includes(q) ||
+        c.slug.toLowerCase().includes(q) ||
+        (c.description ?? "").toLowerCase().includes(q),
+    )
+    .slice(0, 5);
 
-  const filteredConcerns = concerns.filter(
-    (c) =>
-      c.label.toLowerCase().includes(q) ||
-      c.slug.toLowerCase().includes(q) ||
-      (c.description ?? "").toLowerCase().includes(q),
-  );
+  const filteredConcerns = concerns
+    .filter(
+      (c) =>
+        c.label.toLowerCase().includes(q) ||
+        c.slug.toLowerCase().includes(q) ||
+        (c.description ?? "").toLowerCase().includes(q),
+    )
+    .slice(0, 5);
 
   return NextResponse.json({
     products,
