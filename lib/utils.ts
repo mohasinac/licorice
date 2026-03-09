@@ -35,9 +35,16 @@ export function toSafeDate(val: unknown): Date | null {
  */
 export function sanitizeHtml(dirty: string): string {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const DOMPurify = require("isomorphic-dompurify");
-  return DOMPurify.sanitize(dirty, {
-    ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["target", "allow", "allowfullscreen", "frameborder"],
-  }) as string;
+  const sanitize = require("sanitize-html") as typeof import("sanitize-html");
+  return sanitize(dirty, {
+    allowedTags: sanitize.defaults.allowedTags.concat(["img", "iframe"]),
+    allowedAttributes: {
+      ...sanitize.defaults.allowedAttributes,
+      "*": ["class", "style", "id", "target"],
+      iframe: ["src", "allow", "allowfullscreen", "frameborder", "width", "height"],
+      a: ["href", "name", "target", "rel"],
+      img: ["src", "srcset", "alt", "width", "height", "loading"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+  });
 }
