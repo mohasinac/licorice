@@ -7,9 +7,10 @@ import type { Locale, LocalizedString } from "@/lib/types";
 export const LOCALES: Locale[] = ["en", "hi", "mr"];
 export const DEFAULT_LOCALE: Locale = "en";
 
-export function getLocalizedValue(field: LocalizedString | string, locale: string): string {
+export function getLocalizedValue(field: LocalizedString | string | undefined | null, locale: string): string {
+  if (!field) return "";
   if (typeof field === "string") return field;
-  return (field as LocalizedString)[locale as Locale] ?? field.en;
+  return (field as LocalizedString)[locale as Locale] ?? (field as LocalizedString).en ?? "";
 }
 
 export function isValidLocale(locale: string): locale is Locale {

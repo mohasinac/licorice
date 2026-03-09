@@ -74,6 +74,10 @@ function stripTimestamps<T>(obj: T): T {
 function normalizeProduct(p: Product): Product {
   return {
     ...p,
+    rating: p.rating ?? 0,
+    reviewCount: p.reviewCount ?? 0,
+    inStock: p.inStock ?? false,
+    sortOrder: p.sortOrder ?? 0,
     images: p.images ?? [],
     variants: (p.variants ?? []).map((v) => ({
       ...v,
@@ -768,40 +772,52 @@ export async function updateNavigation(data: Partial<NavigationConfig>): Promise
 // ── Homepage Sections ─────────────────────────────────────────────────────────
 
 export async function getHomepageSections(): Promise<HomepageSections> {
+  const DEFAULTS: HomepageSections = {
+    heroBanner: {
+      headline: "",
+      subheadline: "",
+      primaryCtaText: "",
+      primaryCtaHref: "/shop",
+      secondaryCtaText: "",
+      secondaryCtaHref: "",
+    },
+    featuredProductIds: [],
+    newArrivalIds: [],
+    brandValues: [],
+    instagramReels: [],
+    trustBadges: [],
+    brandStory: { tag: "", headline: "", body: "" },
+    sectionVisibility: {
+      showBeforeAfter: false,
+      showTestimonials: false,
+      showBlog: false,
+      showNewsletter: false,
+      showBrandValues: false,
+      showInstagramReels: false,
+      showTrustBadges: false,
+      showBrandStory: false,
+      showConcernGrid: false,
+    },
+  };
   try {
   const { adminDb } = await import("@/lib/firebase/admin");
   const doc = await adminDb.collection("settings").doc("homepageSections").get();
-  return (
-    (doc.data() as HomepageSections | undefined) ?? {
-      heroBanner: {
-        headline: "",
-        subheadline: "",
-        primaryCtaText: "",
-        primaryCtaHref: "/shop",
-        secondaryCtaText: "",
-        secondaryCtaHref: "",
-      },
-      featuredProductIds: [],
-      newArrivalIds: [],
-      brandValues: [],
-      instagramReels: [],
-      trustBadges: [],
-      brandStory: { tag: "", headline: "", body: "" },
-      sectionVisibility: {
-        showBeforeAfter: false,
-        showTestimonials: false,
-        showBlog: false,
-        showNewsletter: false,
-        showBrandValues: false,
-        showInstagramReels: false,
-        showTrustBadges: false,
-        showBrandStory: false,
-        showConcernGrid: false,
-      },
-    }
-  );
+  const data = doc.data() as Partial<HomepageSections> | undefined;
+  if (!data) return DEFAULTS;
+  return {
+    ...DEFAULTS,
+    ...data,
+    heroBanner: { ...DEFAULTS.heroBanner, ...data.heroBanner },
+    brandStory: { ...DEFAULTS.brandStory, ...data.brandStory },
+    sectionVisibility: { ...DEFAULTS.sectionVisibility, ...data.sectionVisibility },
+    featuredProductIds: data.featuredProductIds ?? [],
+    newArrivalIds: data.newArrivalIds ?? [],
+    brandValues: data.brandValues ?? [],
+    instagramReels: data.instagramReels ?? [],
+    trustBadges: data.trustBadges ?? [],
+  };
   } catch {
-    return { heroBanner: { headline: "", subheadline: "", primaryCtaText: "", primaryCtaHref: "/shop", secondaryCtaText: "", secondaryCtaHref: "" }, featuredProductIds: [], newArrivalIds: [], brandValues: [], instagramReels: [], trustBadges: [], brandStory: { tag: "", headline: "", body: "" }, sectionVisibility: { showBeforeAfter: false, showTestimonials: false, showBlog: false, showNewsletter: false, showBrandValues: false, showInstagramReels: false, showTrustBadges: false, showBrandStory: false, showConcernGrid: false } } as HomepageSections;
+    return DEFAULTS;
   }
 }
 
