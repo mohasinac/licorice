@@ -13,6 +13,7 @@ import type {
   Review,
   SiteConfig,
   PaymentSettings,
+  IntegrationKeys,
   ShippingRules,
   InventorySettings,
   InventoryDoc,
@@ -431,6 +432,27 @@ export async function updatePaymentSettings(
   await adminDb
     .collection("settings")
     .doc("paymentSettings")
+    .set({ ...data, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+}
+
+export async function getIntegrationKeys(): Promise<IntegrationKeys> {
+  try {
+    const { adminDb } = await import("@/lib/firebase/admin");
+    const doc = await adminDb.collection("settings").doc("integrationKeys").get();
+    return stripTimestamps((doc.data() as IntegrationKeys | undefined) ?? {});
+  } catch {
+    return {};
+  }
+}
+
+export async function updateIntegrationKeys(
+  data: Partial<Omit<IntegrationKeys, "updatedAt">>,
+): Promise<void> {
+  const { adminDb } = await import("@/lib/firebase/admin");
+  const { FieldValue } = await import("firebase-admin/firestore");
+  await adminDb
+    .collection("settings")
+    .doc("integrationKeys")
     .set({ ...data, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
 }
 

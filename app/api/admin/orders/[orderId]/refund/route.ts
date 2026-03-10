@@ -35,9 +35,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ord
 
   // For Razorpay: initiate refund via Razorpay API
   if (order.paymentMethod === "razorpay" && order.paymentId) {
-    const key = process.env.RAZORPAY_KEY_SECRET;
-    if (key) {
-      const basicAuth = Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${key}`).toString("base64");
+    const { resolveKeys } = await import("@/lib/integration-keys");
+    const keys = await resolveKeys();
+    const keyId = keys.razorpayOAuthAccessToken ? "OAUTH" : keys.razorpayKeyId;
+    const keySecret = keys.razorpayKeySecret;
+
+    if (keyId && keySecret) {
+      const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 
       const rzpRes = await fetch(`https://api.razorpay.com/v1/payments/${order.paymentId}/refund`, {
         method: "POST",

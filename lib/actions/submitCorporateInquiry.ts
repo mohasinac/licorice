@@ -59,9 +59,11 @@ export async function submitCorporateInquiry(input: unknown): Promise<CorporateI
 
     // Admin alert email (non-blocking)
     try {
-      const resendKey = process.env.RESEND_API_KEY;
-      const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
-      const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").filter(Boolean);
+      const { resolveKeys } = await import("@/lib/integration-keys");
+      const emailKeys = await resolveKeys();
+      const resendKey = emailKeys.resendApiKey;
+      const fromEmail = emailKeys.resendFromEmail;
+      const adminEmails = emailKeys.adminEmails;
       if (resendKey && adminEmails.length) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendKey);
@@ -78,8 +80,10 @@ export async function submitCorporateInquiry(input: unknown): Promise<CorporateI
 
     // Customer acknowledgement (non-blocking)
     try {
-      const resendKey = process.env.RESEND_API_KEY;
-      const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
+      const { resolveKeys } = await import("@/lib/integration-keys");
+      const emailKeys = await resolveKeys();
+      const resendKey = emailKeys.resendApiKey;
+      const fromEmail = emailKeys.resendFromEmail;
       if (resendKey) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendKey);

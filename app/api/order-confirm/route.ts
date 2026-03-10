@@ -55,7 +55,9 @@ export async function POST(req: NextRequest) {
   );
 
   // Send email via Resend (if configured)
-  const resendKey = process.env.RESEND_API_KEY;
+  const { resolveKeys } = await import("@/lib/integration-keys");
+  const integrationKeys = await resolveKeys();
+  const resendKey = integrationKeys.resendApiKey;
   const customerEmail = (order.guestEmail ?? "").trim();
 
   if (resendKey && customerEmail) {
@@ -92,7 +94,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM_EMAIL ?? ORDERS_EMAIL,
+          from: integrationKeys.resendFromEmail,
           to: customerEmail,
           subject: `Order Confirmed — ${order.orderNumber} | ${BRAND_NAME}`,
           html,

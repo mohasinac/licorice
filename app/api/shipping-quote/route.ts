@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
   const weight = Math.max(Number(weightStr) || 500, 1); // min 1g, default 500g
 
   // ── If Shiprocket live rates are enabled, fetch them ────────────────────
-  const shiprocketConfigured = !!(process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASSWORD);
+  const { isShiprocketConfigured } = await import("@/lib/integration-keys");
+  const shiprocketConfigured = await isShiprocketConfigured();
 
   if (rules.useShiprocketRates && shiprocketConfigured) {
     try {

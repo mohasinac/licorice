@@ -56,8 +56,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         };
         // Idempotency guard — only send once
         if (!data.confirmationEmailSentAt) {
-          const resendKey = process.env.RESEND_API_KEY;
-          const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
+          const { resolveKeys } = await import("@/lib/integration-keys");
+          const emailKeys = await resolveKeys();
+          const resendKey = emailKeys.resendApiKey;
+          const fromEmail = emailKeys.resendFromEmail;
           if (resendKey && data.email) {
             const { Resend } = await import("resend");
             const resend = new Resend(resendKey);

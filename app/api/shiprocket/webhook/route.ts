@@ -159,11 +159,10 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     await batch.commit();
 
-    // Send milestone email
+    // Send milestone email (sendMilestoneEmail checks internally if key is configured)
     if (
       MILESTONE_STATUSES.includes(mapped.orderStatus) &&
-      customerEmail &&
-      process.env.RESEND_API_KEY
+      customerEmail
     ) {
       const description = STATUS_DESCRIPTIONS[mapped.orderStatus] ?? mapped.description;
       await sendMilestoneEmail(
@@ -190,8 +189,10 @@ async function sendMilestoneEmail(
   message: string,
   awbCode: string,
 ): Promise<void> {
-  const resendKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
+  const { resolveKeys } = await import("@/lib/integration-keys");
+  const keys = await resolveKeys();
+  const resendKey = keys.resendApiKey;
+  const fromEmail = keys.resendFromEmail;
   if (!resendKey) return;
 
   const html = `

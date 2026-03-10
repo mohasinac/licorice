@@ -10,7 +10,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-#### Global Search (Cmd+K)
+#### Integration Keys — DB-Stored Encrypted Credentials
+
+- `lib/encryption.ts` — new server-only AES-256-GCM encrypt/decrypt utility. Requires `ENCRYPTION_KEY` env var (64 hex chars). Falls back gracefully with a warning if unset. Includes `maskKey()` helper for safe UI display and `isEncrypted()` predicate.
+- `lib/integration-keys.ts` — server-only resolver that reads Razorpay, Resend, and Shiprocket keys from Firestore `settings/integrationKeys` (decrypted), falling back to existing environment variables. Results are process-cached for 60 s; call `invalidateIntegrationKeysCache()` after admin writes.
+- `lib/types.ts` — added `IntegrationKeys` interface (Firestore document shape for `settings/integrationKeys`).
+- `lib/db.ts` — added `getIntegrationKeys()` and `updateIntegrationKeys()` data-access functions.
+- `app/api/admin/settings/integration-keys/route.ts` — new admin API: `GET` returns masked values (`••••••` for secrets, `IsSet` booleans); `PATCH` encrypts secrets and saves to Firestore; `DELETE ?field=<name>` removes a single field (used for OAuth disconnect). All endpoints require admin role.
+- `app/api/payment/razorpay/oauth/connect/route.ts` — new `POST` endpoint (Bearer-auth required) that generates a CSRF state token, stores it in Firestore with a 10-minute expiry, and returns `{ authUrl }` pointing to Razorpay's authorization page.
+- `app/api/payment/razorpay/oauth/callback/route.ts` — new `GET` callback that validates the CSRF state, exchanges the authorization code for access + refresh tokens via Razorpay's token endpoint, encrypts them, and stores them in Firestore. Redirects back to `/admin/settings/integrations` with a `?razorpay_oauth=success|error` flag.
+- `app/[locale]/(admin)/admin/settings/integrations/page.tsx` — new admin settings page with sections for Razorpay OAuth (connect/disconnect), Razorpay manual keys, Resend, Shiprocket, and admin notification emails. Secret inputs show/hide toggle; "Saved" badges on already-configured keys.
+- `components/admin/AdminSidebar.tsx` — added **Integrations** link (`KeyRound` icon) under the Settings group.
+
+### Changed
+
+- Razorpay refund (`app/api/admin/orders/[orderId]/refund/route.ts`), order confirmation email (`app/api/order-confirm/route.ts`), Shiprocket webhook email (`app/api/shiprocket/webhook/route.ts`), support ticket reply (`app/api/admin/support/tickets/[id]/reply/route.ts`), consultation status (`app/api/admin/consultations/[id]/status/route.ts`), `lib/actions/bookConsultation.ts`, and `lib/actions/submitCorporateInquiry.ts` — all now resolve API keys via `lib/integration-keys.ts` (DB first, env fallback) instead of reading directly from `process.env`.
+- `app/api/shiprocket/token/route.ts`, `lib/shiprocket.ts`, `app/api/pincode-check/route.ts`, `app/api/shipping-quote/route.ts` — Shiprocket email/password/channelId resolved from DB via `integration-keys` helper; no direct `process.env.SHIPROCKET_*` reads remain in hot paths.
+
+### Security
+
+- Integration secrets (Razorpay keys, Resend API key, Shiprocket password, OAuth tokens) are stored AES-256-GCM encrypted in Firestore. Without the `ENCRYPTION_KEY` env var the secrets are stored as plaintext with a console warning — set this before production use.
+- Razorpay OAuth connect flow uses a time-limited (10-minute) Firestore-backed CSRF state token to prevent CSRF/replay attacks. The state document is deleted on first use.
+- The admin `integration-keys` GET endpoint never returns raw encrypted values — only masked display strings and `IsSet` booleans.
+
+---
+
 
 - `components/layout/SearchDialog.tsx` — new spotlight-style search dialog triggered by `Cmd+K` / `Ctrl+K` or the navbar search button; debounced API calls, product/category/concern results with images, site-page quick links, empty state, and a "see all results" link
 - `components/layout/SearchForm.tsx` — standalone search form used on the `/search` results page

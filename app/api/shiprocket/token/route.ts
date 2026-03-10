@@ -1,6 +1,7 @@
 // app/api/shiprocket/token/route.ts
 // Fetch and cache a Shiprocket JWT in Firestore with a 24h TTL.
 // GET  → returns { token }  (from cache if valid, else refreshes)
+// Credentials are resolved from Firestore integrationKeys first, then env vars.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,8 +28,10 @@ function cacheIsValid(cache: TokenCache): boolean {
 }
 
 export async function GET(): Promise<Response> {
-  const email = process.env.SHIPROCKET_EMAIL;
-  const password = process.env.SHIPROCKET_PASSWORD;
+  const { resolveKeys } = await import("@/lib/integration-keys");
+  const keys = await resolveKeys();
+  const email = keys.shiprocketEmail;
+  const password = keys.shiprocketPassword;
 
   if (!email || !password) {
     // Shiprocket not configured — return a placeholder for mock/dev

@@ -50,11 +50,9 @@ export async function checkServiceability(
   weight: number,
   cod = false,
 ): Promise<ServiceabilityResult> {
-  const email = process.env.SHIPROCKET_EMAIL;
-  const password = process.env.SHIPROCKET_PASSWORD;
-
+  const { isShiprocketConfigured } = await import("@/lib/integration-keys");
   // Mock mode — always serviceable
-  if (!email || !password) {
+  if (!(await isShiprocketConfigured())) {
     return { available: true, codAvailable: true, etaDays: 5 };
   }
 
@@ -117,7 +115,7 @@ export async function createShipment(order: Order): Promise<ShipmentResult> {
     order_id: order.orderNumber,
     order_date: formatDate(order.createdAt),
     pickup_location: pickupAddress.pickup_location,
-    channel_id: process.env.SHIPROCKET_CHANNEL_ID ?? "",
+    channel_id: (await (await import("@/lib/integration-keys")).resolveKeys()).shiprocketChannelId,
     billing_customer_name: order.billingAddress.name,
     billing_last_name: "",
     billing_address: order.billingAddress.line1,
@@ -183,7 +181,8 @@ export async function createShipment(order: Order): Promise<ShipmentResult> {
 // ── Shipment cancellation ─────────────────────────────────────────────────────
 
 export async function cancelShipment(shiprocketOrderId: string): Promise<void> {
-  if (!process.env.SHIPROCKET_EMAIL) return; // mock mode
+  const { isShiprocketConfigured } = await import("@/lib/integration-keys");
+  if (!(await isShiprocketConfigured())) return; // mock mode
 
   const token = await getToken();
 
@@ -221,7 +220,8 @@ export interface TrackingResult {
 }
 
 export async function trackByAwb(awb: string): Promise<TrackingResult | null> {
-  if (!process.env.SHIPROCKET_EMAIL) {
+  const { isShiprocketConfigured } = await import("@/lib/integration-keys");
+  if (!(await isShiprocketConfigured())) {
     // Mock response for dev
     return {
       awbCode: awb,
@@ -295,7 +295,8 @@ export interface ReturnShipmentResult {
 export async function createReturnShipment(
   shiprocketShipmentId: string,
 ): Promise<ReturnShipmentResult> {
-  if (!process.env.SHIPROCKET_EMAIL) {
+  const { isShiprocketConfigured } = await import("@/lib/integration-keys");
+  if (!(await isShiprocketConfigured())) {
     // Mock mode — return fake IDs for development
     return {
       returnShipmentId: `mock-return-${Date.now()}`,

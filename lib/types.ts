@@ -448,6 +448,31 @@ export interface PaymentSettings {
   updatedAt?: Timestamp | Date;
 }
 
+/**
+ * Encrypted integration keys stored in Firestore `settings/integrationKeys`.
+ * All secret fields are AES-256-GCM encrypted blobs (see lib/encryption.ts).
+ */
+export interface IntegrationKeys {
+  // Razorpay — manual key entry
+  razorpayKeyId?: string; // encrypted
+  razorpayKeySecret?: string; // encrypted
+  // Razorpay — OAuth (alternative to manual keys)
+  razorpayOAuthAccessToken?: string; // encrypted
+  razorpayOAuthRefreshToken?: string; // encrypted
+  razorpayOAuthAccountId?: string; // plaintext merchant account id
+  razorpayOAuthExpiresAt?: string; // ISO timestamp
+  // Resend email
+  resendApiKey?: string; // encrypted
+  resendFromEmail?: string; // plaintext
+  // Shiprocket
+  shiprocketEmail?: string; // plaintext (username)
+  shiprocketPassword?: string; // encrypted
+  shiprocketChannelId?: string; // plaintext
+  // Admin notification emails (comma-separated)
+  adminEmails?: string; // plaintext
+  updatedAt?: Timestamp | Date;
+}
+
 export interface InventorySettings {
   defaultLowStockThreshold: number;
   defaultReorderPoint: number;

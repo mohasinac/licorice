@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
 
   // Mock/dev mode — always serviceable
   const useMock = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
-  const shiprocketConfigured = !!(process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASSWORD);
+  const { isShiprocketConfigured } = await import("@/lib/integration-keys");
+  const shiprocketConfigured = await isShiprocketConfigured();
 
   if (useMock || !shiprocketConfigured) {
     const isMumbai = MUMBAI_PINCODES_PREFIX.some((p) => pincode.startsWith(p));

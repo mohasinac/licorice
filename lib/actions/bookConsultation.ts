@@ -52,8 +52,10 @@ export async function bookConsultation(input: unknown): Promise<BookConsultation
 
     // Optionally send confirmation email via Resend (non-blocking)
     try {
-      const resendKey = process.env.RESEND_API_KEY;
-      const fromEmail = process.env.RESEND_FROM_EMAIL ?? "orders@licoriceherbal.in";
+      const { resolveKeys } = await import("@/lib/integration-keys");
+      const emailKeys = await resolveKeys();
+      const resendKey = emailKeys.resendApiKey;
+      const fromEmail = emailKeys.resendFromEmail;
       if (resendKey) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendKey);

@@ -28,6 +28,7 @@ import {
   Ticket,
   CreditCard,
   FolderDown,
+  KeyRound,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -123,6 +124,11 @@ export function AdminSidebar() {
           label: "Payments",
           href: `${base}/settings/payments`,
           icon: <CreditCard className="h-4 w-4" />,
+        },
+        {
+          label: "Integrations",
+          href: `${base}/settings/integrations`,
+          icon: <KeyRound className="h-4 w-4" />,
         },
         {
           label: "Consultation",
