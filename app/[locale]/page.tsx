@@ -26,11 +26,30 @@ import { ConcernGrid } from "@/components/home/ConcernGrid";
 import { BrandStory } from "@/components/home/BrandStory";
 import { PromoBannerStrip } from "@/components/product/PromoBannerStrip";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("home");
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://licoriceherbal.in";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "home" });
   return {
     title: t("heroTitle"),
     description: t("heroSub"),
+    openGraph: {
+      images: [{ url: "/logo.png", width: 512, height: 512, alt: "Licorice Herbals" }],
+    },
+    alternates: {
+      canonical: `${BASE_URL}/${locale}`,
+      languages: {
+        "en-IN": `${BASE_URL}/en`,
+        "hi-IN": `${BASE_URL}/hi`,
+        "mr-IN": `${BASE_URL}/mr`,
+        "x-default": `${BASE_URL}/en`,
+      },
+    },
   };
 }
 

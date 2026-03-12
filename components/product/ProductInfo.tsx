@@ -44,7 +44,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   if (!selectedVariant) {
     return (
       <div className="flex flex-col gap-5">
-        <h1 className="font-heading text-foreground text-3xl font-bold">{getLocalizedValue(product.name, locale)}</h1>
+        <p className="font-heading text-foreground text-3xl font-bold">{getLocalizedValue(product.name, locale)}</p>
         <p className="text-muted-foreground text-sm">{t("outOfStock")}</p>
       </div>
     );

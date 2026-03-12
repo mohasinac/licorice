@@ -1,5 +1,5 @@
 // app/[locale]/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -30,6 +30,12 @@ const inter = Inter({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://licoriceherbal.in";
+
+export const viewport: Viewport = {
+  themeColor: "#2B1A6B",
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -39,15 +45,29 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "home" });
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://licoriceherbal.in"),
+    metadataBase: new URL(BASE_URL),
     title: {
       default: "Licorice Herbals — Pure Ayurvedic Skincare",
       template: "%s | Licorice Herbals",
     },
     description: t("heroSub"),
+    manifest: "/manifest.json",
     openGraph: {
       siteName: "Licorice Herbals",
       locale: locale === "hi" ? "hi_IN" : locale === "mr" ? "mr_IN" : "en_IN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@licoriceherbal",
+    },
+    alternates: {
+      canonical: `${BASE_URL}/${locale}`,
+      languages: {
+        "en-IN": `${BASE_URL}/en`,
+        "hi-IN": `${BASE_URL}/hi`,
+        "mr-IN": `${BASE_URL}/mr`,
+        "x-default": `${BASE_URL}/en`,
+      },
     },
   };
 }
@@ -74,13 +94,6 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning className={`${cormorant.variable} ${inter.variable}`}>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#2B1A6B" />
-        <link rel="icon" href="/favicon.ico" sizes="48x48" />
-        <link rel="icon" href="/icon0.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
-      </head>
       <body className="bg-background text-foreground min-h-screen antialiased">
         <ThemeProvider>
         <NextIntlClientProvider messages={messages}>

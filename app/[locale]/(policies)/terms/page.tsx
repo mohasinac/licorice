@@ -4,6 +4,7 @@ import { BRAND_NAME, SUPPORT_EMAIL } from "@/constants/site";
 
 export const metadata: Metadata = {
   title: `Terms & Conditions — ${BRAND_NAME}`,
+  description: `Read the Terms & Conditions governing your use of the ${BRAND_NAME} website, including product ordering, payment, shipping, and returns.`,
 };
 
 export default function TermsPage() {

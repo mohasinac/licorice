@@ -5,6 +5,7 @@ import { RETURN_WINDOW_DAYS, REPLACEMENT_SLA_HOURS } from "@/constants/policies"
 
 export const metadata: Metadata = {
   title: `Refund & Return Policy — ${BRAND_NAME}`,
+  description: `${BRAND_NAME} accepts returns within ${RETURN_WINDOW_DAYS} days of delivery for damaged, wrong, or defective products. Learn about our refund process.`,
 };
 
 export default function RefundPolicyPage() {

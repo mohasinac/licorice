@@ -13,6 +13,7 @@ import {
 
 export const metadata: Metadata = {
   title: `Shipping Policy — ${BRAND_NAME}`,
+  description: `${BRAND_NAME} ships across India. Free shipping on orders above ₹${FREE_SHIPPING_THRESHOLD}. Standard delivery in ${STANDARD_SLA}. Learn more about our shipping options.`,
 };
 
 function formatPrice(n: number) {

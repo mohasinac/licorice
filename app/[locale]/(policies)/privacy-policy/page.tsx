@@ -4,6 +4,7 @@ import { BRAND_NAME, SUPPORT_EMAIL } from "@/constants/site";
 
 export const metadata: Metadata = {
   title: `Privacy Policy — ${BRAND_NAME}`,
+  description: `Learn how ${BRAND_NAME} collects, uses, and protects your personal data in accordance with Indian privacy laws.`,
 };
 
 export default function PrivacyPolicyPage() {
