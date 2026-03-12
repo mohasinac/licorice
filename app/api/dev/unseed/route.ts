@@ -1,10 +1,25 @@
 // app/api/dev/unseed/route.ts
 // Deletes all seed documents (by id) from Firestore and removes the seed admin user.
 // Returns a rollcall: each seed ID and whether it exists in Firestore after unseeding.
+// In production: requires a valid admin ID token in the Authorization header.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { SEED_MAP } from "@/lib/seeds";
 import { SEED_ADMIN_USER } from "@/lib/seeds/users";
+
+async function requireDevOrAdmin(request: NextRequest): Promise<NextResponse | null> {
+  if (process.env.NODE_ENV === "development") return null;
+  const token = request.headers.get("Authorization")?.replace("Bearer ", "");
+  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { adminAuth } = await import("@/lib/firebase/admin");
+    const decoded = await adminAuth.verifyIdToken(token);
+    if (decoded.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return null;
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+}
 
 type Rollcall = Record<string, Record<string, boolean>>;
 
@@ -23,6 +38,8 @@ async function takeRollcall(adminDb: FirebaseFirestore.Firestore): Promise<Rollc
 }
 
 export async function POST(_request: NextRequest) {
+  const authError = await requireDevOrAdmin(_request);
+  if (authError) return authError;
   try {
     const { adminDb } = await import("@/lib/firebase/admin");
     const { adminAuth } = await import("@/lib/firebase/admin");

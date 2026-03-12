@@ -1,11 +1,18 @@
 "use client";
 // app/[locale]/dev/seed/page.tsx
 // Page to seed or unseed Firestore with seed data.
+// In development: always accessible.
+// In production: admin only — redirects others to /.
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { SEED_ADMIN_USER } from "@/lib/seeds/users";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { getClientAuth } from "@/lib/firebase/client";
+
+const IS_DEV = process.env.NODE_ENV === "development";
 
 type Rollcall = Record<string, Record<string, boolean>>;
 
@@ -16,25 +23,53 @@ type SeedResult = {
 };
 
 export default function DevSeedPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuthStore();
+  const isAdmin = user?.role === "admin";
+  const isAllowed = IS_DEV || isAdmin;
+
   const [loading, setLoading] = useState<"seed" | "unseed" | "status" | null>("status");
   const [lastResult, setLastResult] = useState<SeedResult | null>(null);
   const didLoad = useRef(false);
 
-  // Fetch current rollcall once on mount
+  // Redirect non-admins in production
   useEffect(() => {
-    if (didLoad.current) return;
+    if (authLoading) return;
+    if (!isAllowed) router.replace("/");
+  }, [authLoading, isAllowed, router]);
+
+  // Fetch current rollcall once auth resolves and access is confirmed
+  useEffect(() => {
+    if (authLoading || !isAllowed || didLoad.current) return;
     didLoad.current = true;
-    fetch("/api/dev/seed")
+    async function load() {
+      const headers: Record<string, string> = {};
+      if (!IS_DEV) {
+        const token = await getClientAuth().currentUser?.getIdToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+      }
+      return fetch("/api/dev/seed", { headers });
+    }
+    load()
       .then((r) => r.json() as Promise<SeedResult>)
       .then(setLastResult)
       .catch((err) => setLastResult({ success: false, error: String(err) }))
       .finally(() => setLoading(null));
-  }, []);
+  }, [authLoading, isAllowed]);
+
+  async function authFetch(url: string, init?: RequestInit) {
+    const headers: Record<string, string> = { ...(init?.headers as Record<string, string>) };
+    if (!IS_DEV) {
+      const token = await getClientAuth().currentUser?.getIdToken();
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+    }
+    return fetch(url, { ...init, headers });
+  }
 
   async function handleSeed() {
     setLoading("seed");
     try {
-      const res = await fetch("/api/dev/seed", { method: "POST" });
+      const res = await authFetch("/api/dev/seed", { method: "POST" });
       const result = (await res.json()) as SeedResult;
       setLastResult(result);
       if (result.success) toast.success("Seed complete!");
@@ -49,7 +84,7 @@ export default function DevSeedPage() {
   async function handleUnseed() {
     setLoading("unseed");
     try {
-      const res = await fetch("/api/dev/unseed", { method: "POST" });
+      const res = await authFetch("/api/dev/unseed", { method: "POST" });
       const result = (await res.json()) as SeedResult;
       setLastResult(result);
       if (result.success) toast.success("Unseed complete!");
@@ -59,6 +94,15 @@ export default function DevSeedPage() {
     } finally {
       setLoading(null);
     }
+  }
+
+  // Show spinner while auth resolves in production (or while redirecting)
+  if (!IS_DEV && (authLoading || !isAllowed)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <span className="text-muted-foreground text-sm">Loading…</span>
+      </div>
+    );
   }
 
   return (

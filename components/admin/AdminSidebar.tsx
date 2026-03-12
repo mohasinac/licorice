@@ -29,6 +29,7 @@ import {
   CreditCard,
   FolderDown,
   KeyRound,
+  Database,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -94,6 +95,16 @@ export function AdminSidebar() {
         },
         { label: "Corporate", href: `${base}/corporate`, icon: <Building2 className="h-4 w-4" /> },
         { label: "Newsletter", href: `${base}/newsletter`, icon: <Mail className="h-4 w-4" /> },
+      ],
+    },
+    {
+      title: "Dev Tools",
+      items: [
+        {
+          label: "Seed Data",
+          href: "/dev/seed",
+          icon: <Database className="h-4 w-4" />,
+        },
       ],
     },
     {
