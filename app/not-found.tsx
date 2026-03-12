@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Leaf } from "lucide-react";
 
 // Root-level not-found — rendered outside the locale layout so we cannot use
@@ -67,12 +68,12 @@ export default function RootNotFound() {
               margin: "0 auto 2rem",
             }}
           >
-            The page you're looking for has moved or may never have existed. Let's get you back on
+            The page you&apos;re looking for has moved or may never have existed. Let&apos;s get you back on
             track.
           </p>
 
           <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
-            <a
+            <Link
               href="/"
               style={{
                 display: "inline-flex",
@@ -88,8 +89,8 @@ export default function RootNotFound() {
               }}
             >
               Back to home
-            </a>
-            <a
+            </Link>
+            <Link
               href="/shop"
               style={{
                 display: "inline-flex",
@@ -106,7 +107,7 @@ export default function RootNotFound() {
               }}
             >
               Browse products
-            </a>
+            </Link>
           </div>
         </div>
       </body>

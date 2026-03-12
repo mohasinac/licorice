@@ -848,7 +848,8 @@ export default function AdminSettingsPage() {
   }, []);
 
   useEffect(() => {
-    fetchAll();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchAll();
   }, [fetchAll]);
 
   return (

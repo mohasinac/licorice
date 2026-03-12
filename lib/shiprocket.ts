@@ -3,6 +3,7 @@
 // All functions are server-side only — never import in client components.
 
 import type { Order } from "@/lib/types";
+import { createHmac } from "crypto";
 
 const SHIPROCKET_BASE = "https://apiv2.shiprocket.in/v1/external";
 
@@ -352,7 +353,6 @@ export function validateWebhookSignature(payload: string, signature: string): bo
   const secret = process.env.SHIPROCKET_WEBHOOK_SECRET;
   if (!secret) return false; // misconfigured — safe reject
 
-  const { createHmac } = require("crypto") as typeof import("crypto");
   const expected = createHmac("sha256", secret).update(payload).digest("hex");
   return expected === signature;
 }

@@ -21,7 +21,7 @@ export default function LocaleNotFound() {
         <div className="space-y-3">
           <h1 className="font-heading text-foreground text-3xl font-semibold">Page not found</h1>
           <p className="text-foreground/60 mx-auto max-w-sm text-sm leading-relaxed">
-            The page you're looking for has moved, been removed, or may never have existed. Let's
+            The page you&apos;re looking for has moved, been removed, or may never have existed. Let&apos;s
             get you back on track.
           </p>
         </div>

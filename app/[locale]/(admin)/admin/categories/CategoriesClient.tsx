@@ -216,7 +216,7 @@ export function CategoriesClient({ initialCategories }: Props) {
         <div className="flex flex-col items-center rounded-2xl bg-card py-16 text-center shadow-sm">
           <Tag className="text-muted-foreground mb-3 h-10 w-10" />
           <p className="text-foreground font-medium">No categories yet</p>
-          <p className="text-muted-foreground mt-1 text-sm">Click "Add Category" to create one.</p>
+          <p className="text-muted-foreground mt-1 text-sm">Click &ldquo;Add Category&rdquo; to create one.</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl bg-card shadow-sm">

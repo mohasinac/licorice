@@ -27,7 +27,10 @@ export default function CartPage() {
   const [couponCode, setCouponCode] = useState<string | undefined>();
   const [freeShipping, setFreeShipping] = useState(false);
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
 

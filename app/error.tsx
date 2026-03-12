@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
@@ -98,7 +99,7 @@ export default function RootError({
               <RefreshCw style={{ width: 16, height: 16 }} />
               Try again
             </button>
-            <a
+            <Link
               href="/"
               style={{
                 display: "inline-flex",
@@ -115,7 +116,7 @@ export default function RootError({
               }}
             >
               Go home
-            </a>
+            </Link>
           </div>
         </div>
       </body>

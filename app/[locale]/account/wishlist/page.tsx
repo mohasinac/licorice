@@ -14,28 +14,29 @@ export default function WishlistPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (productIds.length === 0) {
-      setProducts([]);
-      setLoading(false);
-      setError(null);
-      return;
+    let cancelled = false;
+
+    async function load() {
+      if (productIds.length === 0) {
+        if (!cancelled) { setProducts([]); setLoading(false); setError(null); }
+        return;
+      }
+      try {
+        const r = await fetch(`/api/products?ids=${productIds.join(",")}`);
+        if (!r.ok) throw new Error(`Failed to load: ${r.status}`);
+        const data = (await r.json()) as { products?: Product[] };
+        if (!cancelled) { setProducts(data.products ?? []); setError(null); }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setError(t("errorLoadingWishlist"));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
 
-    fetch(`/api/products?ids=${productIds.join(",")}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`Failed to load: ${r.status}`);
-        return r.json();
-      })
-      .then((data) => {
-        setProducts(data.products ?? []);
-        setError(null);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(t("errorLoadingWishlist"));
-      })
-      .finally(() => setLoading(false));
-  }, [productIds]);
+    void load();
+    return () => { cancelled = true; };
+  }, [productIds, t]);
 
   if (loading) {
     return (
