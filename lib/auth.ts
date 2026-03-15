@@ -4,6 +4,19 @@
 import "server-only";
 import type { NextRequest } from "next/server";
 import type { AppUser } from "@/lib/types";
+import { verifyIdToken } from "@mohasinac/auth-firebase";
+
+function authPayloadToAppUser(decoded: NonNullable<Awaited<ReturnType<typeof verifyIdToken>>>): AppUser {
+  return {
+    uid: decoded.uid,
+    email: decoded.email,
+    displayName: null,
+    photoURL: undefined,
+    role: (decoded.role as AppUser["role"]) ?? "customer",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
 
 /**
  * Verifies the Firebase ID token from the Authorization header and returns
@@ -16,22 +29,8 @@ export async function getCurrentUser(request: NextRequest): Promise<AppUser | nu
   const token = authHeader.slice(7);
   if (!token) return null;
 
-  try {
-    const { adminAuth } = await import("@/lib/firebase/admin");
-    const decoded = await adminAuth.verifyIdToken(token);
-
-    return {
-      uid: decoded.uid,
-      email: decoded.email ?? null,
-      displayName: decoded.name ?? null,
-      photoURL: decoded.picture ?? undefined,
-      role: (decoded["role"] as AppUser["role"]) ?? "customer",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  } catch {
-    return null;
-  }
+  const payload = await verifyIdToken(token);
+  return payload ? authPayloadToAppUser(payload) : null;
 }
 
 /**
@@ -60,18 +59,8 @@ export async function getServerUser(): Promise<AppUser | null> {
     const token = authHeader.slice(7);
     if (!token) return null;
 
-    const { adminAuth } = await import("@/lib/firebase/admin");
-    const decoded = await adminAuth.verifyIdToken(token);
-
-    return {
-      uid: decoded.uid,
-      email: decoded.email ?? null,
-      displayName: decoded.name ?? null,
-      photoURL: decoded.picture ?? undefined,
-      role: (decoded["role"] as AppUser["role"]) ?? "customer",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const payload = await verifyIdToken(token);
+    return payload ? authPayloadToAppUser(payload) : null;
   } catch {
     return null;
   }

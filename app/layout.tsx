@@ -3,6 +3,9 @@
 // next-intl middleware redirects `/` → `/en` before this is ever rendered.
 import type { Metadata } from "next";
 import "./globals.css";
+// Register all @mohasinac/* providers at app startup (server-side only).
+// This import has side-effects — it calls registerProviders().
+import "@/providers.config";
 
 export const metadata: Metadata = {
   title: {
