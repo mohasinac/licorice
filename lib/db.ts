@@ -30,17 +30,17 @@ import type {
   PromoBanner,
   MediaKitFile,
 } from "@/lib/types";
+import {
+  productRepository,
+  blogRepository,
+  categoryRepository,
+  concernRepository,
+} from "@/lib/repositories";
+import type { ProductFilters } from "@/lib/repositories";
 
 // ── Product filters ───────────────────────────────────────────────────────────
-
-export interface ProductFilters {
-  category?: string;
-  concern?: string;
-  isFeatured?: boolean;
-  isCombo?: boolean;
-  isActive?: boolean;
-  limit?: number;
-}
+// Re-exported from repositories so callers keep the same import path.
+export type { ProductFilters } from "@/lib/repositories";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -72,38 +72,6 @@ function stripTimestamps<T>(obj: T): T {
 }
 
 /** Ensure array fields introduced after initial save are never undefined. */
-function normalizeProduct(p: Product): Product {
-  return {
-    ...p,
-    rating: p.rating ?? 0,
-    reviewCount: p.reviewCount ?? 0,
-    inStock: p.inStock ?? false,
-    sortOrder: p.sortOrder ?? 0,
-    images: p.images ?? [],
-    variants: (p.variants ?? []).map((v) => ({
-      ...v,
-      reservedStock: v.reservedStock ?? 0,
-    })),
-    relatedProducts: p.relatedProducts ?? [],
-    upsellProducts: p.upsellProducts ?? [],
-    certifications: p.certifications ?? [],
-    concerns: p.concerns ?? [],
-    benefits: p.benefits ?? [],
-    ingredients: p.ingredients ?? [],
-    faqs: p.faqs ?? [],
-    howToUse: p.howToUse ?? [],
-    tags: p.tags ?? [],
-  };
-}
-
-function normalizeBlog(b: Blog): Blog {
-  return {
-    ...b,
-    tags: b.tags ?? [],
-    relatedProducts: b.relatedProducts ?? [],
-  };
-}
-
 function normalizeOrder(o: Order): Order {
   return {
     ...o,
@@ -116,55 +84,25 @@ function normalizeOrder(o: Order): Order {
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
   try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb.collection("products").where("isActive", "==", true);
-    if (filters?.category) query = query.where("category", "==", filters.category);
-    if (filters?.isFeatured !== undefined)
-      query = query.where("isFeatured", "==", filters.isFeatured);
-    if (filters?.isCombo !== undefined) query = query.where("isCombo", "==", filters.isCombo);
-    // When combining concern (client-side filter) with limit, fetch more to compensate
-    if (filters?.limit && filters?.concern) {
-      query = query.limit(filters.limit * 3);
-    } else if (filters?.limit) {
-      query = query.limit(filters.limit);
-    }
-    const snap = await query.get();
-    if (snap.empty) return [];
-    let results = snap.docs.map((d) => normalizeProduct(stripTimestamps(d.data() as Product)));
-    if (filters?.concern) results = results.filter((p) => p.concerns.includes(filters.concern!));
-    if (filters?.limit) results = results.slice(0, filters.limit);
-    return results.sort((a, b) => a.sortOrder - b.sortOrder);
+    return await productRepository.findActive(filters);
   } catch {
     return [];
   }
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb
-    .collection("products")
-    .where("slug", "==", slug)
-    .where("isActive", "==", true)
-    .limit(1)
-    .get();
-  if (snap.empty) return null;
-  return normalizeProduct(stripTimestamps(snap.docs[0].data() as Product));
+  return productRepository.findBySlug(slug);
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("products").doc(id).get();
-  if (!doc.exists) return null;
-  return normalizeProduct(stripTimestamps(doc.data() as Product));
+  return productRepository.findById(id);
 }
 
 // ── Products (admin write) ────────────────────────────────────────────────────
 
 export async function getAllProducts(): Promise<Product[]> {
   try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("products").orderBy("sortOrder", "asc").get();
-    return snap.docs.map((d) => normalizeProduct(stripTimestamps({ id: d.id, ...d.data() } as Product)));
+    return await productRepository.findAllAdmin();
   } catch {
     return [];
   }
@@ -204,9 +142,7 @@ export async function deleteProduct(id: string): Promise<void> {
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("categories").get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Category, "id">) }));
+    return (await categoryRepository.findAll()).data;
   } catch {
     return [];
   }
@@ -214,9 +150,7 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getConcerns(): Promise<Concern[]> {
   try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    const snap = await adminDb.collection("concerns").get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Concern, "id">) }));
+    return (await concernRepository.findAll()).data;
   } catch {
     return [];
   }
@@ -226,30 +160,14 @@ export async function getConcerns(): Promise<Concern[]> {
 
 export async function getBlogs(category?: BlogCategory, limit?: number): Promise<Blog[]> {
   try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb
-      .collection("blogs")
-      .where("status", "==", "published")
-      .orderBy("publishedAt", "desc");
-    if (category) query = query.where("category", "==", category);
-    if (limit) query = query.limit(limit);
-    const snap = await query.get();
-    return snap.docs.map((d) => normalizeBlog(stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) })));
+    return await blogRepository.findPublished(category, limit);
   } catch {
     return [];
   }
 }
 
 export async function getBlog(slug: string): Promise<Blog | null> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const snap = await adminDb
-    .collection("blogs")
-    .where("slug", "==", slug)
-    .where("status", "==", "published")
-    .limit(1)
-    .get();
-  if (snap.empty) return null;
-  return normalizeBlog(stripTimestamps({ id: snap.docs[0].id, ...(snap.docs[0].data() as Omit<Blog, "id">) }));
+  return blogRepository.findBySlug(slug);
 }
 
 // ── Coupons ───────────────────────────────────────────────────────────────────
@@ -675,21 +593,14 @@ export async function getPendingReviewCount(): Promise<number> {
 
 export async function getAllBlogs(status?: Blog["status"]): Promise<Blog[]> {
   try {
-    const { adminDb } = await import("@/lib/firebase/admin");
-    let query: FirebaseFirestore.Query = adminDb.collection("blogs").orderBy("createdAt", "desc");
-    if (status) query = query.where("status", "==", status);
-    const snap = await query.get();
-    return snap.docs.map((d) => normalizeBlog(stripTimestamps({ id: d.id, ...(d.data() as Omit<Blog, "id">) })));
+    return await blogRepository.findAllAdmin(status);
   } catch {
     return [];
   }
 }
 
 export async function getBlogById(id: string): Promise<Blog | null> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const doc = await adminDb.collection("blogs").doc(id).get();
-  if (!doc.exists) return null;
-  return normalizeBlog(stripTimestamps({ id: doc.id, ...(doc.data() as Omit<Blog, "id">) }));
+  return (await blogRepository.findById(id)) as Blog | null;
 }
 
 export async function saveBlog(
