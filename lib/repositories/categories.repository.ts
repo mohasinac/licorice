@@ -1,5 +1,5 @@
 import { FirebaseRepository } from "@mohasinac/db-firebase";
-import type { Category, Concern } from "@/lib/types";
+import type { Category } from "@/lib/types";
 
 export class CategoryRepository extends FirebaseRepository<Category> {
   constructor() {
@@ -7,11 +7,4 @@ export class CategoryRepository extends FirebaseRepository<Category> {
   }
 }
 
-export class ConcernRepository extends FirebaseRepository<Concern> {
-  constructor() {
-    super("concerns");
-  }
-}
-
 export const categoryRepository = new CategoryRepository();
-export const concernRepository = new ConcernRepository();

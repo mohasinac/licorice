@@ -1,8 +1,9 @@
-import type { Concern } from "@/lib/types";
+import type { Category } from "@/lib/types";
 
-export const SEED_CONCERNS: Concern[] = [
+export const SEED_CONCERNS: Category[] = [
   {
     id: "con_pigmentation",
+    type: "concern",
     label: "Pigmentation",
     slug: "pigmentation",
     description: "Dark spots, uneven skin tone, and hyperpigmentation.",
@@ -10,6 +11,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "con_acne",
+    type: "concern",
     label: "Acne & Pimples",
     slug: "acne",
     description: "Breakouts, clogged pores, and blemish-prone skin.",
@@ -17,6 +19,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "con_hair_fall",
+    type: "concern",
     label: "Hair Fall",
     slug: "hair-fall",
     description: "Thinning hair, excessive shedding, and weak roots.",
@@ -24,6 +27,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "con_dull_skin",
+    type: "concern",
     label: "Dull Skin",
     slug: "dull-skin",
     description: "Lack of natural glow and tired-looking complexion.",
@@ -31,6 +35,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "con_dryness",
+    type: "concern",
     label: "Dryness",
     slug: "dryness",
     description: "Dry, flaky skin that needs deep hydration.",
@@ -38,6 +43,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "con_dandruff",
+    type: "concern",
     label: "Dandruff",
     slug: "dandruff",
     description: "Flaky, itchy scalp and persistent dandruff.",
@@ -45,6 +51,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "con_anti_ageing",
+    type: "concern",
     label: "Anti-Ageing",
     slug: "anti-ageing",
     description: "Fine lines, wrinkles, and loss of skin elasticity.",

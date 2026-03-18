@@ -78,21 +78,19 @@ export interface Product {
 
 // ─── Category & Concern ───────────────────────────────────────────────────────
 
+export type CategoryType = "category" | "concern" | "collection" | "brand";
+
 export interface Category {
   id: string;
+  type: CategoryType;
   label: string;
   slug: string;
   description: string;
   imageUrl?: string;
 }
 
-export interface Concern {
-  id: string;
-  label: string;
-  slug: string;
-  description: string;
-  imageUrl?: string;
-}
+// Concerns, collections, and brands are all categories with a type discriminator.
+export type Concern = Category;
 
 // ─── Inventory ─────────────────────────────────────────────────────────────
 

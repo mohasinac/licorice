@@ -74,6 +74,7 @@ export function CategoriesClient({ initialCategories }: Props) {
     }
     setSaving(true);
     const payload: Record<string, unknown> = {
+      type: "category",
       label: label.trim(),
       slug: slug.trim(),
       description: description.trim(),

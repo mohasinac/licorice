@@ -19,6 +19,7 @@ import {
 } from "@mohasinac/auth-firebase";
 import { createResendProvider } from "@mohasinac/email-resend";
 import { firebaseStorageProvider } from "@mohasinac/storage-firebase";
+import { firebaseDbProvider } from "@mohasinac/db-firebase";
 import { tailwindAdapter } from "@mohasinac/css-tailwind";
 
 registerProviders({
@@ -26,6 +27,8 @@ registerProviders({
   auth: firebaseAuthProvider,
   session: firebaseSessionProvider,
 
+  // Database — Firebase Firestore via universal IDbProvider
+  db: firebaseDbProvider,
   // Email — Resend
   email: createResendProvider({
     apiKey: process.env.RESEND_API_KEY!,

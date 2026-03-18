@@ -6,7 +6,7 @@
 import type {
   Product,
   Category,
-  Concern,
+  CategoryType,
   Blog,
   BlogCategory,
   Coupon,
@@ -34,7 +34,6 @@ import {
   productRepository,
   blogRepository,
   categoryRepository,
-  concernRepository,
 } from "@/lib/repositories";
 import type { ProductFilters } from "@/lib/repositories";
 
@@ -140,20 +139,22 @@ export async function deleteProduct(id: string): Promise<void> {
 
 // ── Categories & Concerns ─────────────────────────────────────────────────────
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(type?: CategoryType): Promise<Category[]> {
   try {
-    return (await categoryRepository.findAll()).data;
+    const all = (await categoryRepository.findAll()).data.map((c) => ({
+      ...c,
+      // Back-compat: docs saved before the type field was introduced default to "category".
+      type: c.type ?? ("category" as CategoryType),
+    }));
+    if (type) return all.filter((c) => c.type === type);
+    return all;
   } catch {
     return [];
   }
 }
 
-export async function getConcerns(): Promise<Concern[]> {
-  try {
-    return (await concernRepository.findAll()).data;
-  } catch {
-    return [];
-  }
+export async function getConcerns(): Promise<Category[]> {
+  return getCategories("concern");
 }
 
 // ── Blogs ─────────────────────────────────────────────────────────────────────
@@ -961,19 +962,15 @@ export async function deleteCategory(id: string): Promise<void> {
   await adminDb.collection("categories").doc(id).delete();
 }
 
-export async function saveConcern(concern: Omit<Concern, "id"> & { id?: string }): Promise<string> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  const ref = concern.id
-    ? adminDb.collection("concerns").doc(concern.id)
-    : adminDb.collection("concerns").doc();
-  const { id: _, ...data } = concern as Record<string, unknown>;
-  await ref.set(data, { merge: true });
-  return ref.id;
+// saveConcern / deleteConcern delegate to the same categories collection.
+export async function saveConcern(
+  concern: Omit<Category, "id" | "type"> & { id?: string },
+): Promise<string> {
+  return saveCategory({ ...concern, type: "concern" });
 }
 
 export async function deleteConcern(id: string): Promise<void> {
-  const { adminDb } = await import("@/lib/firebase/admin");
-  await adminDb.collection("concerns").doc(id).delete();
+  return deleteCategory(id);
 }
 
 // ── Media Kit ─────────────────────────────────────────────────────────────────

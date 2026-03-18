@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Plus, Pencil, Trash2, Target, X } from "lucide-react";
-import type { Concern } from "@/lib/types";
+import type { Category } from "@/lib/types";
 
 function useAdminToken(): string | null {
   const [token, setToken] = useState<string | null>(null);
@@ -29,13 +29,13 @@ function slugify(str: string) {
 }
 
 interface Props {
-  initialConcerns: Concern[];
+  initialConcerns: Category[];
 }
 
 export function ConcernsClient({ initialConcerns }: Props) {
   const token = useAdminToken();
   const [concerns, setConcerns] = useState(initialConcerns);
-  const [editing, setEditing] = useState<Concern | null>(null);
+  const [editing, setEditing] = useState<Category | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -53,7 +53,7 @@ export function ConcernsClient({ initialConcerns }: Props) {
     setShowForm(true);
   }
 
-  function openEdit(concern: Concern) {
+  function openEdit(concern: Category) {
     setEditing(concern);
     setLabel(concern.label);
     setSlug(concern.slug);
@@ -102,7 +102,7 @@ export function ConcernsClient({ initialConcerns }: Props) {
     }
   }
 
-  async function handleDelete(concern: Concern) {
+  async function handleDelete(concern: Category) {
     if (!confirm(`Delete "${concern.label}"? This cannot be undone.`)) return;
     const res = await fetch("/api/admin/concerns", {
       method: "DELETE",

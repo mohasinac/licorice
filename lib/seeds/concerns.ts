@@ -1,9 +1,10 @@
 // lib/mocks/concerns.ts
-import type { Concern } from "@/lib/types";
+import type { Category } from "@/lib/types";
 
-export const SEED_CONCERNS: Concern[] = [
+export const SEED_CONCERNS: Category[] = [
   {
     id: "concern_acne",
+    type: "concern",
     label: "Acne & Pimples",
     slug: "pimples-open-pores",
     description:
@@ -13,6 +14,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_pigmentation",
+    type: "concern",
     label: "Pigmentation & Melasma",
     slug: "pigmentation-melasma",
     description:
@@ -22,6 +24,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_brightening",
+    type: "concern",
     label: "Brightening",
     slug: "brightening",
     description: "Kumkumadi oil, Vitamin C, and turmeric for a luminous, lit-from-within glow.",
@@ -30,6 +33,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_anti_ageing",
+    type: "concern",
     label: "Anti-Ageing",
     slug: "anti-ageing",
     description: "Ashwagandha, shatavari, and potent oils to firm skin and reduce fine lines.",
@@ -38,6 +42,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_tanning",
+    type: "concern",
     label: "Tanning",
     slug: "tanning",
     description:
@@ -47,6 +52,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_dryness",
+    type: "concern",
     label: "Dryness & Dull Skin",
     slug: "dryness",
     description: "Deep-moisturising butters, oils, and creams with shea, almond, and aloe vera.",
@@ -55,6 +61,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_hair_care",
+    type: "concern",
     label: "Hair Fall & Dandruff",
     slug: "hair-care",
     description:
@@ -64,6 +71,7 @@ export const SEED_CONCERNS: Concern[] = [
   },
   {
     id: "concern_blemishes",
+    type: "concern",
     label: "Blemishes & Dark Spots",
     slug: "blemishes-dark-spots",
     description: "Targeted serums and oils to fade post-acne marks and hyperpigmentation.",

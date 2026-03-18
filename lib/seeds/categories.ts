@@ -4,6 +4,7 @@ import type { Category } from "@/lib/types";
 export const SEED_CATEGORIES: Category[] = [
   {
     id: "cat_face",
+    type: "category",
     label: "Face Care",
     slug: "face",
     description: "Oils, serums, face washes, and sunscreens for a radiant complexion.",
@@ -12,6 +13,7 @@ export const SEED_CATEGORIES: Category[] = [
   },
   {
     id: "cat_body",
+    type: "category",
     label: "Body Care",
     slug: "body",
     description: "Nourishing body butters and lotions for soft, glowing skin.",
@@ -20,6 +22,7 @@ export const SEED_CATEGORIES: Category[] = [
   },
   {
     id: "cat_hair",
+    type: "category",
     label: "Hair Care",
     slug: "hair",
     description: "Topical Ayurvedic oils for strong, healthy, lustrous hair.",
@@ -28,6 +31,7 @@ export const SEED_CATEGORIES: Category[] = [
   },
   {
     id: "cat_powder",
+    type: "category",
     label: "Powder",
     slug: "powder",
     description: "Traditional ubtans and face packs rooted in Ayurvedic wisdom.",
@@ -36,6 +40,7 @@ export const SEED_CATEGORIES: Category[] = [
   },
   {
     id: "cat_combo",
+    type: "category",
     label: "Combo Packs",
     slug: "combo",
     description: "Curated bundles for complete Ayurvedic skincare rituals.",
@@ -44,6 +49,7 @@ export const SEED_CATEGORIES: Category[] = [
   },
   {
     id: "cat_supplements",
+    type: "category",
     label: "Supplements",
     slug: "supplements",
     description: "Oral Ayurvedic tablets and capsules for beauty from within.",
